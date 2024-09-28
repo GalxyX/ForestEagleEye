@@ -6,13 +6,12 @@ from sqlalchemy import (
     String,
     Enum,
     DateTime,
-    datetime,
-    relationship,
     Table,
     ForeignKey,
     Boolean,
 )
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
+from datetime import datetime
 
 engine = create_engine()
 Base = declarative_base()
@@ -88,3 +87,15 @@ class ApprovalProcess(Base):
     a_approveTime = Column(DateTime)  # 本次审批审批时间
     p_result = Column(Enum("approved", "dismissed"), nullable=False)  # 审批意见（通过、驳回）
     p_notes = Column(String(1000))  # 审批理由
+
+
+app = Flask(__name__)
+
+
+@app.route("/")
+def hello():
+    return "Hello World!"
+
+
+if __name__ == "__main__":
+    app.run()
