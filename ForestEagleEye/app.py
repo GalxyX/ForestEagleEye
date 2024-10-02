@@ -1,19 +1,41 @@
-from flask import Flask
-from sqlalchemy import (
-    create_engine,
-    Column,
-    Integer,
-    String,
-    Enum,
-    DateTime,
-    Table,
-    ForeignKey,
-    Boolean,
-)
-from sqlalchemy.orm import declarative_base, relationship
+from flask import Flask, render_template, request, redirect, session, url_for, flash, send_from_directory,abort,jsonify
+import pymysql
+import hashlib
+import sqlalchemy
+from sqlalchemy import create_engine, Column, Enum,Integer,Table, String, ForeignKey, DateTime,Text,Boolean
+from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from datetime import datetime
+from flask import render_template #引入模板插件
+from sqlalchemy.testing import db
+from flask_mail import Mail, Message
+import random
 
-engine = create_engine()
+app = Flask(__name__,
+static_folder='./public/static',  #设置静态文件夹目录
+template_folder = "./public/templates")  #设置vue编译输出目录dist文件夹，为Flask模板文件目录
+app.secret_key = '123456789'
+
+app.config['MAIL_SERVER'] = 'smtp.qq.com'  # 邮件服务器
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = '3327903803@qq.com'  # 邮箱
+app.config['MAIL_PASSWORD'] = 'xyjtyyhunuurdadj'  # 邮箱授权码
+app.config['MAIL_DEFAULT_SENDER'] = '3327903803@qq.com'  # 邮箱
+
+mail = Mail(app)
+verification_codes = {}  # 存储邮箱和验证码的字典
+
+# MySQL 数据库连接配置
+db_config={
+    'user':'root',
+    'password':'hxyym123',#这里改成自己的数据库密码
+    'host':'localhost',
+    'port':3306,
+    'database': 'forest',#这里改成自己的数据库名字
+    'charset':'utf8mb4'}
+# 创建数据库连接
+engine = create_engine('mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset={charset}'.format(**db_config))
+
 Base = declarative_base()
 
 user_participate_activity = Table(
@@ -44,12 +66,12 @@ class User(Base):
     u_applyActivities = relationship("Activity", backref="applicant")  # 申请的活动
     u_approveActivity = relationship("ApprovalProcess", backref="approver")  # 审批的活动
 
-    u_submitTips = relationship()  # 提交的建议与举报
-    u_approveTips = relationship()  # 审批的建议与举报
-    u_post = relationship()  # 发布的帖子
-    u_comments = relationship()  # 评论
-    u_likes = relationship()  # 点赞的帖子
-    u_question = relationship()  # 存小林问答问过的问题及回答
+    #u_submitTips = relationship()  # 提交的建议与举报
+    #u_approveTips = relationship()  # 审批的建议与举报
+    #u_post = relationship()  # 发布的帖子
+    #u_comments = relationship()  # 评论
+    #u_likes = relationship()  # 点赞的帖子
+    #u_question = relationship()  # 存小林问答问过的问题及回答
 
 
 # 活动表
@@ -60,7 +82,7 @@ class Activity(Base):
     a_submitTime = Column(DateTime, nullable=False, default=datetime.now)  # 申请提交时间
     a_attachment = Column(String(100), default="")  # 申请附件
     a_name = Column(String(100), nullable=False)  # 活动名称
-    a_type = Column(Enum("", "", "", "", ""), nullable=False)  # 活动类型
+    # a_type = Column(Enum("", "", "", "", ""), nullable=False)  # 活动类型
     a_forest = Column(String(100), nullable=False)  # 审批单位（森林名称）
     a_location = Column(String(100), nullable=False)  # 活动地点（具体地点）
     a_beginTime = Column(DateTime, nullable=False)  # 活动开始时间
@@ -88,14 +110,89 @@ class ApprovalProcess(Base):
     p_result = Column(Enum("approved", "dismissed"), nullable=False)  # 审批意见（通过、驳回）
     p_notes = Column(String(1000))  # 审批理由
 
+Base.metadata.create_all(engine)
 
-app = Flask(__name__)
+db_session_class = sessionmaker(bind=engine)
+db_session = db_session_class()
 
+def hash_password(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
-@app.route("/")
-def hello():
-    return "Hello World!"
+def generate_verification_code():
+    return str(random.randint(100000, 999999))
 
+@app.route('/send_verification_code', methods=['POST'])
+def send_verification_code():
+    email = request.form['email']
+    code = generate_verification_code()
+    verification_codes[email] = code
+    msg = Message('欢迎来到林上鹰眼', recipients=[email])
+    msg.body = f'您的验证码为 {code}'
+    try:
+        mail.send(msg)
+        return jsonify({'status': 'success', 'message': '验证码已发送到您的邮箱'})
+    except Exception as e:
+        return jsonify({'status': 'fail', 'message': '发送邮件失败，请检查邮箱输入是否有误'})
 
-if __name__ == "__main__":
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = hash_password(request.form['password'])
+        code = request.form['code']
+        if email not in verification_codes or verification_codes[email] != code:
+            error = "验证码错误"
+            flash("验证码错误", 'error')
+            return render_template('register.html', error=error)
+        existing_user = db_session.query(User).filter_by(u_name=username).first()
+        if existing_user:
+            error = "用户名已存在"
+            flash("用户名已存在", 'error')
+            return render_template('register.html', error=error)
+        existing_email = db_session.query(User).filter_by(u_email=email).first()
+        if existing_email:
+            error = "该邮箱已被注册"
+            flash("该邮箱已被注册", 'error')
+            return render_template('register.html', error=error)
+        new_user = User(u_name=username, u_password=password, u_email=email)
+        db_session.add(new_user)
+        db_session.commit()
+        success = "注册成功，请登录"
+        flash('注册成功，请登录', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = hash_password(request.form['password'])
+        user = db_session.query(User).filter_by(u_email=email, u_password=password).first()
+        if user:
+            session['username'] = user.u_name
+            session['user_id'] = user.u_id
+            session['role'] = user.u_role
+            flash('登录成功', 'success')
+            return redirect(url_for("index"))
+        else:
+            error = "邮箱或密码错误"
+            flash('登录失败，请检查邮箱和密码', 'error')
+            return render_template('login.html', error=error)
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('您已成功注销', 'success')
+    return redirect(url_for('login'))
+
+@app.route('/')
+def index():
+    if 'username' in session:
+        username = session['username']
+        return render_template('index.html', username=username)
+    return redirect(url_for('login'))
+
+if __name__ == '__main__':
     app.run()
