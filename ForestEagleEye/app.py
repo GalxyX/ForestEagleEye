@@ -12,6 +12,7 @@ from sqlalchemy.testing import db
 from flask_mail import Mail, Message
 import random
 import os
+from flask_cors import CORS
 
 
 
@@ -19,6 +20,9 @@ app = Flask(__name__,
 static_folder='./public/static',  #设置静态文件夹目录
 template_folder = "./public/templates")  #设置vue编译输出目录dist文件夹，为Flask模板文件目录
 app.secret_key = '123456789'
+
+CORS(app, resources={r'/*': {'origins': '*'}}, supports_credentials=True)
+
 
 UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -36,10 +40,10 @@ verification_codes = {}  # 存储邮箱和验证码的字典
 # MySQL 数据库连接配置
 db_config={
     'user':'root',
-    'password':'',#这里改成自己的数据库密码
+    'password':'20040616',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
-    'database': '',#这里改成自己的数据库名字
+    'database': 'forest',#这里改成自己的数据库名字
     'charset':'utf8mb4'}
 # 创建数据库连接
 engine = create_engine('mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset={charset}'.format(**db_config))
@@ -144,25 +148,26 @@ def register():
         code = request.form['code']
         if email not in verification_codes or verification_codes[email] != code:
             error = "验证码错误"
-            flash("验证码错误", 'error')
-            return render_template('register.html', error=error)
+            return jsonify({'status': 'fail', 'message': error})
         existing_user = db_session.query(User).filter_by(u_name=username).first()
         if existing_user:
             error = "用户名已存在"
-            flash("用户名已存在", 'error')
-            return render_template('register.html', error=error)
+            return jsonify({'status': 'fail', 'message': error})
         existing_email = db_session.query(User).filter_by(u_email=email).first()
         if existing_email:
             error = "该邮箱已被注册"
-            flash("该邮箱已被注册", 'error')
-            return render_template('register.html', error=error)
+            return jsonify({'status': 'fail', 'message': error})
+        
+        # 错误排除后创建新用户
         new_user = User(u_name=username, u_password=password, u_email=email)
         db_session.add(new_user)
         db_session.commit()
+
         success = "注册成功，请登录"
-        flash('注册成功，请登录', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html')
+        return jsonify({'status': 'success', 'message': success})
+    else:
+        error = "请求错误"
+        return jsonify({'status': 'fail', 'message': error})
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -174,13 +179,14 @@ def login():
             session['username'] = user.u_name
             session['user_id'] = user.u_id
             session['role'] = user.u_role
-            flash('登录成功', 'success')
-            return redirect(url_for("index"))
+            success='欢迎来到林上鹰眼！'
+            return jsonify({'status': 'success', 'message': success})
         else:
-            error = "邮箱或密码错误"
-            flash('登录失败，请检查邮箱和密码', 'error')
-            return render_template('login.html', error=error)
-    return render_template('login.html')
+            error='登录失败，邮箱或密码错误'
+            return jsonify({'status': 'fail', 'message': error})
+    else:
+        error = "请求错误"
+        return jsonify({'status': 'fail', 'message': error})
 
 #注销
 @app.route('/logoff')
@@ -470,7 +476,7 @@ def index():
     if 'username' in session:
         username = session['username']
         return render_template('index.html', username=username)
-    return redirect(url_for('login'))
+    return render_template('login.html')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

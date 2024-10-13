@@ -1,143 +1,231 @@
 <template>
-    <div class="login-container" >
-      <div class="login-box" style="overflow: hidden;">
-        <div class="image-container">
-          <img src="@/assets/login.png" alt="" />
+  <!doctype html>
+  <html lang="zh-CN">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>登录 - 林上鹰眼</title>
+    </head>
+    <body>
+      <main>
+        <div>
+          <div class="image-box"></div>
+          <div class="login-box">
+            <section>
+              <div class="title-wrapper">
+                <h1>欢迎回来</h1>
+                <p>登录开启你的林上之旅</p>
+              </div>
+              <!-- 
+            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+            <ul>
+              {% for category, message in messages %}
+              <li style="color: {% if category == 'error' %}red{% else %}green{% endif %};">
+                {{ message }}
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %} {% endwith %}
+  -->
+              <form @submit.prevent="login" >
+                <div class="input-wrapper">
+                  <label for="email">邮箱</label>
+                  <input
+                    type="email"
+                    name="email"
+                    v-model="email"
+                    id="email"
+                    placeholder="请输入账号的电子邮箱"
+                    required
+                    autofocus
+                  />
+                </div>
+                <div class="input-wrapper">
+                  <label for="password">密码</label>
+                  <input
+                    type="password"
+                    name="password"
+                    v-model="password"
+                    id="password"
+                    placeholder="请输入账号的密码"
+                    required
+                  />
+                </div>
+                <button type="submit">登录</button>
+              </form>
+
+              <p>还没有账号？ <a href="/register" title="林上鹰眼-注册">注册</a></p>
+            </section>
+          </div>
         </div>
-        <div class="form-container">
-          <h2 style="text-align: center; font-weight: bold;">Welcome back!</h2>
-          <h5 style="text-align: center; color: grey; font-weight: 100;">登录开启你的林上之旅</h5>
-          <form @submit.prevent="handleLogin">
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" v-model="email" placeholder="请输入账号的电子邮箱" required />
-            </div>
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" id="password" v-model="password" placeholder="请输入账号的密码" required />
-            </div>
-            <button type="submit">Sign in</button>
-            <p>还没有账号？ <a href="/register">Create an Account</a></p>
-          </form>
-        </div>
-      </div>
-    </div>
-  </template>
-  
-  <script>
-  import { ref } from 'vue';
-  
-  export default {
-    setup() {
-      const email = ref('');
-      const password = ref('');
-  
-      const handleLogin = () => {
-        // 登录逻辑
-        console.log('Logging in with:', email.value, password.value);
-      };
-  
-  
-      return {
-        email,
-        password,
-        handleLogin,
-      };
-    }
-  };
-  </script>
-  
-  <style scoped>
-  .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #ddd;
-  }
-  
-  .login-box {
-    display: flex;
-    background: white;
-    border-radius: 30px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 1000px;
-    align-items: center;
-    margin-left: 10px;
-    margin-right: 10px;
-  }
-  
-  .image-container img {
-    display: block;
-    max-height: 70vh;
-  }
-  
-  .form-container {
-    flex: 1;
-    padding: 10px;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-    margin-left: 10px;
-    margin-right: 10px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: smaller;
-  }
-  
-  .form-group input {
-    width: 90%;
-    padding: 10px;
-    border: 1.5px solid #ddd;
-    border-radius: 10px;
-  }
-  .form-group input:hover {
-    border: 1.5px solid #60A130;
-  }
-  .form-group input:focus {
-    border: 1.5px solid #60A130;
-    background-color: #f6fdf3;
-    outline: none;
-  }
-  
-  button {
-    width: 90%;
-    padding: 10px;
-    border:  1.5px solid black;
-    border-radius: 10px;
-    background-color: white;
-    color: black;
-    cursor: pointer;
-    align-content: center;
-    margin-left: 10px;
-    margin-right: 10px;
-    font-weight: bold;
-  }
-  
-  button:hover {
-    background-color: black;
-    color: white;
-  }
-  
-  p {
-    margin-left: 10px;
-    margin-right: 10px;
-    font-size: smaller;
-    text-align: center;
-    color: gray;
-  }
-  
-  a {
-    color: #60A130;
-    text-decoration: none;
-  }
-  
-  a:hover {
-    text-decoration: underline;
-  }
-  </style>
+      </main>
+    </body>
+  </html>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      email: '',
+      password: '',
+      error: null,
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        const params = new URLSearchParams();
+        params.append('email', this.email);
+        params.append('password', this.password);
+
+        const response = await axios.post('http://127.0.0.1:5000/login', params, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+        // 处理响应
+        alert(response.data.message);
+        if (response.data.status === 'success') {
+          //登录成功
+          this.$router.push('/');
+        } 
+      } catch (error) {
+        if(response.data.message=="请求错误")
+          window.location.reload(); // 请求错误刷新当前页面
+      }
+    },
+  },
+};
+</script>
+
+
+<style scoped>
+main {
+  display: flex;
+  align-items: center;
+  height: 100vh;
+  justify-content: center;
+  background-color: #ddd;
+}
+
+main > div {
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 60%;
+
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.image-box {
+  display: block;
+
+  height: 70vh;
+  width: 60%;
+  background-image: url(../assets/login.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: -50px;
+}
+
+.login-box {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 50px;
+}
+
+section {
+  width: 85%;
+  max-width: 500px;
+  margin-right: 50px;
+  margin-top: 10px;
+}
+
+.title-wrapper {
+  padding: 10px;
+  padding-bottom: 20px;
+}
+
+.title-wrapper h1 {
+  text-align: center;
+  font-weight: bold;
+}
+
+.title-wrapper p {
+  text-align: center;
+  color: grey;
+  font-weight: 100;
+}
+
+.input-wrapper {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.input-wrapper label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: smaller;
+}
+
+.input-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+}
+
+.input-wrapper input:hover {
+  border: 1.5px solid #60a130;
+}
+
+.input-wrapper input:focus {
+  border: 1.5px solid #60a130;
+  background-color: #f6fdf3;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border: 1.5px solid black;
+  border-radius: 10px;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+  align-content: center;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: black;
+  color: white;
+}
+
+p {
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: smaller;
+  text-align: center;
+  color: gray;
+}
+
+a {
+  color: #60a130;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+</style>
