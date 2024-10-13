@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>注册 - 林上鹰眼</title>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="styles/style.css" />
+  </head>
+  <body>
+    <main>
+      <div>
+        <div class="image-box"></div>
+        <div class="signup-box">
+          <div class="icon-wrapper">
+            <img src="../public/favicon.ico" alt="林上鹰眼icon" />
+          </div>
+          <section>
+            <div class="title-wrapper">
+              <h1 style="text-align: center; font-weight: bold">创建你的账号</h1>
+              <p style="text-align: center; color: grey; font-weight: 100">
+                注册成为林上鹰眼的一员
+              </p>
+            </div>
+            <form @submit.prevent="handleLogin" method="post" action="{{ url_for('register') }}">
+              <div class="input-wrapper">
+                <label for="username">用户名：</label>
+                <input
+                  type="text"
+                  name="username"
+                  id="username"
+                  placeholder="请输入用户名"
+                  required
+                />
+              </div>
+              <div class="input-wrapper">
+                <label for="email">邮箱：</label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  placeholder="请输入账号的电子邮箱"
+                  required
+                />
+              </div>
+              <div class="input-wrapper">
+                <label for="password">密码：</label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  placeholder="请输入账号的密码"
+                  required
+                />
+              </div>
+              <div class="input-wrapper">
+                <label for="verification">验证码：</label>
+                <div>
+                  <input type="text" name="code" id="verification" required />
+                  <button type="button" onclick="sendCode()">发送验证码</button>
+                </div>
+              </div>
+              <button type="submit" value="注册">注册</button>
+            </form>
+            <p>已有账号？ <a href="{{ url_for('login') }}">登录</a></p>
+          </section>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>登录 - 林上鹰眼</title>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="styles/style.css" />
+  </head>
+  <body>
+    <main>
+      <div>
+        <div class="image-box"></div>
+        <div class="login-box">
+          <div class="icon-wrapper">
+            <img src="../public/favicon.ico" alt="林上鹰眼icon" />
+          </div>
+          <section>
+            <div class="title-wrapper">
+              <h1>欢迎回来</h1>
+              <p>登录开启你的林上之旅</p>
+            </div>
+            <!-- 
+          {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+          <ul>
+            {% for category, message in messages %}
+            <li style="color: {% if category == 'error' %}red{% else %}green{% endif %};">
+              {{ message }}
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %} {% endwith %}
+ -->
+            <form method="post" action="{{ url_for('login') }}">
+              <div class="input-wrapper">
+                <label for="email">邮箱：</label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  placeholder="请输入账号的电子邮箱"
+                  required
+                  autofocus
+                />
+              </div>
+              <div class="input-wrapper">
+                <label for="password">密码：</label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  placeholder="请输入账号的密码"
+                  required
+                />
+              </div>
+              <button type="submit">登录</button>
+            </form>
+
+            <p>还没有账号？ <a href="{{ url_for('register') }}" title="林上鹰眼-注册">注册</a></p>
+          </section>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
