@@ -73,6 +73,7 @@
 <script>
 import axios from 'axios';
 
+
 export default {
   data() {
     return {
@@ -115,6 +116,15 @@ export default {
         // 处理响应
         alert(response.data.message);
         if (response.data.status === 'success') {
+          // 会话状态存储当前用户信息
+          sessionStorage.setItem('username',this.username);
+          sessionStorage.setItem('email',this.email);
+          sessionStorage.setItem('avatar',response.data.avatar);
+          sessionStorage.setItem('user_id',response.data.user_id);
+          sessionStorage.setItem('role',response.data.role);
+          sessionStorage.setItem('newestTime',response.data.newestTime);
+          sessionStorage.setItem('signupTime',response.data.signupTime);
+
           //注册成功直接跳转到Login
           this.$router.push('/login');
         } 

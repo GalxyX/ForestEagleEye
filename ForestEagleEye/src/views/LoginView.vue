@@ -16,17 +16,6 @@
                 <h1>欢迎回来</h1>
                 <p>登录开启你的林上之旅</p>
               </div>
-              <!-- 
-            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
-            <ul>
-              {% for category, message in messages %}
-              <li style="color: {% if category == 'error' %}red{% else %}green{% endif %};">
-                {{ message }}
-              </li>
-              {% endfor %}
-            </ul>
-            {% endif %} {% endwith %}
-  -->
               <form @submit.prevent="login" >
                 <div class="input-wrapper">
                   <label for="email">邮箱</label>
@@ -53,7 +42,6 @@
                 </div>
                 <button type="submit">登录</button>
               </form>
-
               <p>还没有账号？ <a href="/register" title="林上鹰眼-注册">注册</a></p>
             </section>
           </div>
@@ -90,8 +78,11 @@ export default {
         // 处理响应
         alert(response.data.message);
         if (response.data.status === 'success') {
-          //登录成功
-          this.$router.push('/');
+          // 更新会话
+          sessionStorage.setItem('newestTime',response.data.newestTime);
+          sessionStorage.setItem('days',response.data.days);
+          // 暂时转到活动页面
+          this.$router.push('/activities');
         } 
       } catch (error) {
         if(response.data.message=="请求错误")

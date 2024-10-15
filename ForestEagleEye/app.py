@@ -11,6 +11,7 @@ from flask import render_template #引入模板插件
 from sqlalchemy.testing import db
 from flask_mail import Mail, Message
 import random
+from datetime import timedelta
 import os
 from flask_cors import CORS
 
@@ -24,6 +25,7 @@ app.secret_key = '123456789'
 CORS(app, resources={r'/*': {'origins': '*'}}, supports_credentials=True)
 
 
+
 UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -33,6 +35,7 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = '3327903803@qq.com'  # 邮箱
 app.config['MAIL_PASSWORD'] = 'xyjtyyhunuurdadj'  # 邮箱授权码
 app.config['MAIL_DEFAULT_SENDER'] = '3327903803@qq.com'  # 邮箱
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)
 
 mail = Mail(app)
 verification_codes = {}  # 存储邮箱和验证码的字典
@@ -70,8 +73,8 @@ class User(Base):
     u_email = Column(String(50), nullable=False, unique=True)  # 邮箱
     u_role = Column(Enum("普通用户", "林业从业人员", "林业管理人员", "环境管理人员", "林业监管人员"), nullable=False, default="普通用户")  # 用户所属角色（普通用户、林业从业人员、林业管理人员、环境管理人员、林业局监管人员）
     u_forest = Column(String(100))  # 所属森林（林业管理人员、环境管理人员、林业局监管人员需要选择）
-    u_avatarPath = Column(String(100), nullable=False, default="")  # 头像图片路径    ###############需修改default处准备一默认头像
-    u_signature = Column(String(100), default="")  # 个性签名
+    u_avatarPath = Column(String(100), nullable=False, default="../assets/default-avatar.png")  # 头像图片路径   
+    u_signature = Column(String(100), default="这个人很懒，什么都没有留下...")  # 个性签名
     u_signupTime = Column(DateTime, nullable=False, default=datetime.now)  # 注册时间
     u_newestTime = Column(DateTime, nullable=False, onupdate=datetime.now, default=datetime.now)  # 最近登录时间
 
@@ -159,12 +162,21 @@ def register():
             return jsonify({'status': 'fail', 'message': error})
         
         # 错误排除后创建新用户
-        new_user = User(u_name=username, u_password=password, u_email=email)
-        db_session.add(new_user)
+        user = User(u_name=username, u_password=password, u_email=email)
+        db_session.add(user)
         db_session.commit()
 
         success = "注册成功，请登录"
-        return jsonify({'status': 'success', 'message': success})
+        return jsonify({
+                'status': 'success', 
+                'message': success,
+                
+                'avatar':user.u_avatarPath,
+                'user_id':user.u_id,
+                'newestTime':user.u_newestTime.strftime('%Y-%m-%d %H:%M:%S'),
+                'signupTime':user.u_signupTime.strftime('%Y-%m-%d'),
+                'role':user.u_role,
+            })
     else:
         error = "请求错误"
         return jsonify({'status': 'fail', 'message': error})
@@ -176,11 +188,16 @@ def login():
         password = hash_password(request.form['password'])
         user = db_session.query(User).filter_by(u_email=email, u_password=password).first()
         if user:
-            session['username'] = user.u_name
-            session['user_id'] = user.u_id
-            session['role'] = user.u_role
+            user.u_newestTime = datetime.now()  # 最新登录时间设置为当前时间
+            days=(user.u_newestTime-user.u_signupTime+timedelta(days=1)).days
+            db_session.commit()  # 提交更改到数据库
             success='欢迎来到林上鹰眼！'
-            return jsonify({'status': 'success', 'message': success})
+            return jsonify({
+                'status': 'success', 
+                'message': success,
+                'newestTime':user.u_newestTime.strftime('%Y-%m-%d %H:%M:%S'),
+                'days': days
+            })
         else:
             error='登录失败，邮箱或密码错误'
             return jsonify({'status': 'fail', 'message': error})
@@ -189,20 +206,22 @@ def login():
         return jsonify({'status': 'fail', 'message': error})
 
 #注销
-@app.route('/logoff')
+@app.route('/logoff',methods=['GET','POST'])
 def logoff():
     session.clear()
     flash('您已成功注销', 'success')
     return redirect(url_for('login'))
 
 #退出登录
-@app.route('/logout')
+@app.route('/logout',methods=['GET','POST'])
 def logout():
-    return redirect(url_for('login'))
+    session.clear()
+    return jsonify({'status':'success'})
 
 #林业活动界面
 @app.route('/activity')
 def activity():
+    print(session)
     username = session.get('username')  # 从会话中获取用户名
     if not username:
         return redirect(url_for('login'))  # 如果没有用户名信息，重定向到登录页面
@@ -436,6 +455,7 @@ def enroll(activity_id):
 #我的报名界面
 @app.route('/myenrolled')
 def myenrolled():
+    print(session)
     username = session.get('username')  # 从会话中获取用户名
     user = db_session.query(User).filter_by(u_name=username).first()
     if user:
@@ -470,6 +490,20 @@ def cancel_enrollment(activity_id):
         flash('取消报名失败，可能您已取消报名或不存在此活动', 'error')
 
     return redirect(url_for('myenrolled'))
+
+@app.route('/user',methods=['GET'])
+def get_userinfo():
+    if 'username' in session:
+        username=session.get('username')
+        avatar=session.get('avatar')
+        return jsonify({
+            'username':username,
+            'avatar': avatar
+        })
+    return 'User not logged in',401
+
+
+
 
 @app.route('/')
 def index():

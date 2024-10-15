@@ -18,8 +18,38 @@ const router = createRouter({
       path:'/register',
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
-    }
+    },
+    {
+      path:'/activities',
+      name: 'activities',
+      component: () => import('../views/activities.vue'),
+    },
+    {
+      path:'/encyclopedia',
+      name: 'encyclopedia',
+      component: () => import('../views/encyclopedia.vue'),
+    },
+    {
+      path:'/reflect',
+      name: 'reflect',
+      component: () => import('../views/reflect.vue'),
+    },
+    {
+      path:'/forum',
+      name: 'forum',
+      component: () => import('../views/forum.vue'),
+    },
+    {
+      path:'/profile',
+      name: 'profile',
+      component: () => import('../views/ProfileView.vue'),
+    },
+    {
+      path:'/message',
+      name: 'message',
+      component: () => import('../views/message.vue'),
+    },
   ]
-})
+});
 
 export default router
