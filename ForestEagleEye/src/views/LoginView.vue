@@ -54,6 +54,7 @@
 <script>
 import axios from 'axios';
 
+
 export default {
   data() {
     return {
@@ -78,9 +79,17 @@ export default {
         // 处理响应
         alert(response.data.message);
         if (response.data.status === 'success') {
-          // 更新会话
+          // 会话状态存储当前用户信息
+          sessionStorage.setItem('username',response.data.username);
+          sessionStorage.setItem('email',response.data.email);
+          sessionStorage.setItem('avatar',response.data.avatar);
+          sessionStorage.setItem('user_id',response.data.user_id);
+          sessionStorage.setItem('role',response.data.role);
           sessionStorage.setItem('newestTime',response.data.newestTime);
+          sessionStorage.setItem('signupTime',response.data.signupTime);
           sessionStorage.setItem('days',response.data.days);
+          sessionStorage.setItem('signature',response.data.signature);
+
           // 暂时转到活动页面
           this.$router.push('/activities');
         } 

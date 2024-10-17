@@ -37,20 +37,15 @@
   </template>
   
   <script>
-  import { ref, onMounted } from 'vue';
   import axios from 'axios';
 
   export default {
   name: 'NavigationBar',
   data() {
     return {
-      username: '',
-      avatar:''
+      username: sessionStorage.getItem('username'),
+      avatar:sessionStorage.getItem('avatar')
     };
-  },
-  mounted() {
-    this.username = sessionStorage.getItem('username'); 
-    this.avatar = sessionStorage.getItem('avatar'); 
   },
   methods:{
     async logout() {

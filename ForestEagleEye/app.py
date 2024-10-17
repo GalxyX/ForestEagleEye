@@ -67,14 +67,14 @@ class user_participate_activity(Base):
 class User(Base):
     __tablename__ = "users"
     u_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 唯一标识
-    u_name = Column(String(100), nullable=False, unique=True)  # 用户昵称
+    u_name = Column(String(10), nullable=False, unique=True)  # 用户昵称
     u_telphone = Column(String(15), unique=True)  # 联系电话
     u_password = Column(String(100), nullable=False)  # 用户密码
     u_email = Column(String(50), nullable=False, unique=True)  # 邮箱
     u_role = Column(Enum("普通用户", "林业从业人员", "林业管理人员", "环境管理人员", "林业监管人员"), nullable=False, default="普通用户")  # 用户所属角色（普通用户、林业从业人员、林业管理人员、环境管理人员、林业局监管人员）
     u_forest = Column(String(100))  # 所属森林（林业管理人员、环境管理人员、林业局监管人员需要选择）
-    u_avatarPath = Column(String(100), nullable=False, default="../assets/default-avatar.png")  # 头像图片路径   
-    u_signature = Column(String(100), default="这个人很懒，什么都没有留下...")  # 个性签名
+    u_avatarPath = Column(String(100), nullable=False, default="src/assets/default-avatar.png")  # 头像图片路径   
+    u_signature = Column(String(30), default="这个人很懒，什么都没有留下...")  # 个性签名
     u_signupTime = Column(DateTime, nullable=False, default=datetime.now)  # 注册时间
     u_newestTime = Column(DateTime, nullable=False, onupdate=datetime.now, default=datetime.now)  # 最近登录时间
 
@@ -170,12 +170,6 @@ def register():
         return jsonify({
                 'status': 'success', 
                 'message': success,
-                
-                'avatar':user.u_avatarPath,
-                'user_id':user.u_id,
-                'newestTime':user.u_newestTime.strftime('%Y-%m-%d %H:%M:%S'),
-                'signupTime':user.u_signupTime.strftime('%Y-%m-%d'),
-                'role':user.u_role,
             })
     else:
         error = "请求错误"
@@ -189,14 +183,22 @@ def login():
         user = db_session.query(User).filter_by(u_email=email, u_password=password).first()
         if user:
             user.u_newestTime = datetime.now()  # 最新登录时间设置为当前时间
-            days=(user.u_newestTime-user.u_signupTime+timedelta(days=1)).days
+            days=user.u_newestTime.day-user.u_signupTime.day+1
             db_session.commit()  # 提交更改到数据库
             success='欢迎来到林上鹰眼！'
             return jsonify({
                 'status': 'success', 
                 'message': success,
+
+                'days': days,
+                'avatar':user.u_avatarPath,
+                'user_id':user.u_id,
                 'newestTime':user.u_newestTime.strftime('%Y-%m-%d %H:%M:%S'),
-                'days': days
+                'signupTime':user.u_signupTime.strftime('%Y-%m-%d'),
+                'role':user.u_role,
+                'username':user.u_name,
+                'email':user.u_email,
+                'signature':user.u_signature
             })
         else:
             error='登录失败，邮箱或密码错误'
@@ -217,6 +219,29 @@ def logoff():
 def logout():
     session.clear()
     return jsonify({'status':'success'})
+
+#用户信息修改
+@app.route('/setUserInfo',methods=['POST'])
+def setUserInfo():
+    target = request.form['target']
+    data=request.form['data']
+    user = db_session.query(User).filter_by(u_id=request.form['user_id']).first()
+    if target=='signature':
+        user.u_signature=data
+        db_session.commit()
+        return jsonify({
+            'status':'success',
+            'message':'用户个性签名修改成功！'})
+    elif target=='username':
+        user.u_name=data
+        db_session.commit()
+        return jsonify({
+            'status':'success',
+            'message':'用户昵称修改成功！'})
+    return jsonify({
+            'status':'fail',
+            'message':'修改失败！'}),401
+
 
 #林业活动界面
 @app.route('/activity')
