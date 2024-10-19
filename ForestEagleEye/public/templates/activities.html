@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>活动列表</title>
+</head>
+<body>
+    <h1>可报名活动</h1>
+    <div>
+        {% for activity in activities %}
+            <div>
+                <h2>{{ activity.a_name }}</h2>
+                <img src="{{ url_for('static', filename=activity.a_picPath) }}" alt="活动封面">
+                <p><strong>活动地点:</strong> {{ activity.a_location }}</p>
+                <p><strong>活动类型:</strong> {{ activity.a_type }}</p>
+                <p><strong>活动简介:</strong> {{ activity.a_introduction }}</p>
+                <p><strong>剩余名额:</strong> {{ activity.a_participantNumber - activity.a_enrolledNumber }}</p>
+                <a href="{{ url_for('activity_enroll', activity_id=activity.a_id) }}">报名</a>
+            </div>
+        {% endfor %}
+    </div>
+    <a href="{{ url_for('activity') }}">返回</a>
+</body>
+</html>

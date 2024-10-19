@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的申请</title>
+</head>
+<body>
+    <h1>我的申请</h1>
+   <div>
+        <h2>待审批</h2>
+        <ul>
+            {% for activity in approving_activities %}
+                <li><a href="{{ url_for('activity_detail', activity_id=activity.a_id) }}">{{ activity.a_name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <h2>已通过</h2>
+        <ul>
+            {% for activity in approved_activities %}
+                <li><a href="{{ url_for('activity_detail', activity_id=activity.a_id) }}">{{ activity.a_name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <h2>已驳回</h2>
+        <ul>
+            {% for activity in dismissed_activities %}
+                <li><a href="{{ url_for('activity_detail', activity_id=activity.a_id) }}">{{ activity.a_name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <form action="{{ url_for('create_activity') }}" method="get">
+        <button type="submit">创建活动</button>
+    </form>
+    <a href="{{ url_for('activity') }}">返回</a>
+</body>
+</html>

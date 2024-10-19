@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>审批活动</title>
+</head>
+<body>
+    <h1>审批活动</h1>
+    <div>
+        <h2>待审批</h2>
+        <ul>
+            {% for activity in approving_activities %}
+                <li><a href="{{ url_for('activity_detail', activity_id=activity.a_id) }}">{{ activity.a_name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <h2>已通过</h2>
+        <ul>
+            {% for activity in approved_activities %}
+                <li><a href="{{ url_for('activity_detail', activity_id=activity.a_id) }}">{{ activity.a_name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <h2>已驳回</h2>
+        <ul>
+            {% for activity in dismissed_activities %}
+                <li><a href="{{ url_for('activity_detail', activity_id=activity.a_id) }}">{{ activity.a_name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <a href="{{ url_for('activity') }}">返回</a>
+</body>
+</html>
