@@ -14,6 +14,8 @@ import random
 from datetime import timedelta
 import os
 from flask_cors import CORS
+from sqlalchemy.exc import SQLAlchemyError,OperationalError
+import re
 
 
 app = Flask(__name__,
@@ -648,6 +650,148 @@ def get_userinfo():
         avatar = session.get("avatar")
         return jsonify({"username": username, "avatar": avatar})
     return "User not logged in", 401
+
+def create_forest_variable_table(forest_name):
+    class ForestVariable(ForestVariableBase):
+        __tablename__ = f'forest_variable_{forest_name}'
+        __table_args__ = {'extend_existing': True}
+    inspector = inspect(engine)
+    table_name = f'forest_variable_{forest_name}'
+    if not inspector.has_table(table_name):
+        ForestVariable.__table__.create(bind=engine)
+        print(f"Table {table_name} created.")
+    else:
+        print(f"Table {table_name} already exists.")
+    return ForestVariable
+
+
+def get_forest_variable_table(forest_name):
+    return create_forest_variable_table(forest_name)
+
+
+def get_all_forests():
+    return db_session.query(Forest).all()
+
+@app.route("/add_forest", methods=["GET", "POST"])
+def add_forest():
+    if request.method == "POST":
+        try:
+            f_name = request.form["f_name"]
+            f_location = request.form["f_location"]
+            f_area = request.form["f_area"]
+            f_soilType = request.form["f_soilType"]
+            f_manager = request.form["f_manager"]
+            f_intro = request.form.get("f_intro", "")
+
+            new_forest = Forest(
+                f_name=f_name,
+                f_location=f_location,
+                f_area=f_area,
+                f_soilType=f_soilType,
+                f_manager=f_manager,
+                f_intro=f_intro
+            )
+            db_session.add(new_forest)
+            db_session.commit()
+
+            flash("森林信息添加成功", "success")
+        except SQLAlchemyError as e:
+            db_session.rollback()
+
+        return redirect(url_for("add_forest"))
+
+    return render_template("add_forest.html")
+
+@app.route("/forest_variable", methods=["GET", "POST"])
+def view_forest_variable():
+    if request.method == "POST":
+        forest_name = request.form["forest_name"]
+        ForestVariable = get_forest_variable_table(forest_name)
+        try:
+
+            forest_variables = db_session.query(ForestVariable).all()
+        except SQLAlchemyError as e:
+            forest_variables = []
+
+        return render_template("forest_variable.html", forests=get_all_forests(),
+                               forest_variables=forest_variables, selected_forest_name=forest_name)
+    else:
+        return render_template("forest_variable.html", forests=get_all_forests())
+
+@app.route("/add_forest_variable", methods=["POST"])
+def add_forest_variable():
+    forest_name = request.form["forest_name"]
+    print(forest_name)
+    ForestVariable = get_forest_variable_table(forest_name)
+    try:
+        f_temperature = request.form["f_temperature"]
+        f_humidity = request.form["f_humidity"]
+        f_precipitation = request.form["f_precipitation"]
+        f_resourceDistribution = request.form["f_resourceDistribution"]
+        f_vegetationCoverage = request.form["f_vegetationCoverage"]
+        f_historicalCulture = request.form["f_historicalCulture"]
+        f_hydrologicalFeatures = request.form["f_hydrologicalFeatures"]
+        f_disasterSituation = request.form["f_disasterSituation"]
+        f_wildlife = request.form["f_wildlife"]
+        f_economicValue = request.form["f_economicValue"]
+
+        new_variable = ForestVariable(
+            f_temperature=f_temperature,
+            f_humidity=f_humidity,
+            f_precipitation=f_precipitation,
+            f_resourceDistribution=f_resourceDistribution,
+            f_vegetationCoverage=f_vegetationCoverage,
+            f_historicalCulture=f_historicalCulture,
+            f_hydrologicalFeatures=f_hydrologicalFeatures,
+            f_disasterSituation=f_disasterSituation,
+            f_wildlife=f_wildlife,
+            f_economicValue=f_economicValue,
+            f_date=datetime.now()
+        )
+
+        db_session.add(new_variable)
+        db_session.commit()
+
+        flash("森林变量信息添加成功", "success")
+
+    except SQLAlchemyError as e:
+        db_session.rollback()
+
+    try:
+        forest_variables = db_session.query(ForestVariable).all()
+    except SQLAlchemyError as e:
+        forest_variables = []
+
+    return render_template("forest_variable.html", forests=get_all_forests(),
+                           forest_variables=forest_variables, selected_forest_name=forest_name)
+
+
+@app.route("/forest_info", methods=["GET", "POST"])
+def forest_info():
+    forests = get_all_forests()
+
+    if request.method == "POST":
+        forest_name = request.form["forest_name"]
+
+        forest_static_info = db_session.query(Forest).filter_by(f_name=forest_name).first()
+
+        ForestVariable = get_forest_variable_table(forest_name)
+
+        try:
+            forest_variables = db_session.query(ForestVariable).all()
+        except OperationalError as e:
+            db_session.rollback()  # 回滚事务，防止表修改冲突
+
+            forest_variables = []
+
+        return render_template("forest_info.html",
+                               forests=forests,
+                               forest_static_info=forest_static_info,
+                               forest_variables=forest_variables)
+
+    return render_template("forest_info.html", forests=forests)
+
+
 
 
 @app.route("/")

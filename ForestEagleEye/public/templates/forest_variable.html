@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>这里加的是动态信息</title>
+    <script>
+        function generateRandomVariables() {
+            const randomFloat = (min, max) => (Math.random() * (max - min) + min).toFixed(2);
+            document.getElementById('temperature').value = randomFloat(-10, 40);  // 温度随机在-10到40度之间
+            document.getElementById('humidity').value = randomFloat(10, 100);  // 湿度随机在10%到100%之间
+            document.getElementById('precipitation').value = randomFloat(0, 500);  // 降水量随机在0到500毫米之间
+            document.getElementById('resourceDistribution').value = '随机资源分布';  // 假设随机文本
+            document.getElementById('vegetationCoverage').value = '随机植被覆盖';
+            document.getElementById('historicalCulture').value = '随机历史文化';
+            document.getElementById('hydrologicalFeatures').value = '随机水文特征';
+            document.getElementById('disasterSituation').value = '随机灾害情况';
+            document.getElementById('wildlife').value = '随机野生动物';
+            document.getElementById('economicValue').value = randomFloat(1000, 100000);  // 经济价值随机在1000到100000之间
+        }
+    </script>
+</head>
+<body>
+
+<h1>森林变量信息</h1>
+
+<form action="/add_forest_variable" method="POST">
+    <label for="forest_name">选择森林:</label>
+    <select name="forest_name" id="forest_name" required>
+        {% for forest in forests %}
+            <option value="{{ forest.f_name }}" {% if selected_forest_name == forest.f_name %} selected {% endif %}>
+                {{ forest.f_name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <br><br>
+
+    <label for="temperature">温度 (°C):</label>
+    <input type="number" step="0.01" id="temperature" name="f_temperature" required>
+
+    <label for="humidity">湿度 (%):</label>
+    <input type="number" step="0.01" id="humidity" name="f_humidity" required>
+
+    <label for="precipitation">降水量 (mm):</label>
+    <input type="number" step="0.01" id="precipitation" name="f_precipitation" required>
+
+    <label for="resourceDistribution">资源分布:</label>
+    <input type="text" id="resourceDistribution" name="f_resourceDistribution" required>
+
+    <label for="vegetationCoverage">植被覆盖:</label>
+    <input type="text" id="vegetationCoverage" name="f_vegetationCoverage" required>
+
+    <label for="historicalCulture">历史文化:</label>
+    <input type="text" id="historicalCulture" name="f_historicalCulture" required>
+
+    <label for="hydrologicalFeatures">水文特征:</label>
+    <input type="text" id="hydrologicalFeatures" name="f_hydrologicalFeatures" required>
+
+    <label for="disasterSituation">灾害情况:</label>
+    <input type="text" id="disasterSituation" name="f_disasterSituation" required>
+
+    <label for="wildlife">野生动物:</label>
+    <input type="text" id="wildlife" name="f_wildlife" required>
+
+    <label for="economicValue">经济价值:</label>
+    <input type="number" step="0.01" id="economicValue" name="f_economicValue" required>
+
+    <br><br>
+
+    <button type="button" onclick="generateRandomVariables()">随机生成变量信息</button>
+    <br><br>
+
+    <button type="submit">提交森林变量信息</button>
+</form>
+
+{% if forest_variables %}
+    <h2>当前森林的变量信息</h2>
+    <table border="1">
+        <tr>
+            <th>日期</th>
+            <th>温度 (°C)</th>
+            <th>湿度 (%)</th>
+            <th>降水量 (mm)</th>
+            <th>资源分布</th>
+            <th>植被覆盖</th>
+            <th>历史文化</th>
+            <th>水文特征</th>
+            <th>灾害情况</th>
+            <th>野生动物</th>
+            <th>经济价值</th>
+        </tr>
+        {% for variable in forest_variables %}
+        <tr>
+            <td>{{ variable.f_date }}</td>
+            <td>{{ variable.f_temperature }}</td>
+            <td>{{ variable.f_humidity }}</td>
+            <td>{{ variable.f_precipitation }}</td>
+            <td>{{ variable.f_resourceDistribution }}</td>
+            <td>{{ variable.f_vegetationCoverage }}</td>
+            <td>{{ variable.f_historicalCulture }}</td>
+            <td>{{ variable.f_hydrologicalFeatures }}</td>
+            <td>{{ variable.f_disasterSituation }}</td>
+            <td>{{ variable.f_wildlife }}</td>
+            <td>{{ variable.f_economicValue }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+</body>
+</html>

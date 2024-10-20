@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>这里是主页面</title>
+    <script>
+        function toggleColumn(checkbox, columnClass, allStatic = false, allDynamic = false) {
+            var columns = document.getElementsByClassName(columnClass);
+            for (var i = 0; i < columns.length; i++) {
+                if (checkbox.checked) {
+                    columns[i].style.display = "";
+                } else {
+                    columns[i].style.display = "none";
+                }
+            }
+
+            if (allStatic) {
+                checkStaticDisplay();
+            }
+            if (allDynamic) {
+                checkDynamicDisplay();
+            }
+        }
+
+        function checkStaticDisplay() {
+            var checkboxes = document.querySelectorAll('.static-checkbox');
+            var showStatic = false;
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    showStatic = true;
+                    break;
+                }
+            }
+            var staticColumns = document.getElementsByClassName('static_column');
+            for (var i = 0; i < staticColumns.length; i++) {
+                staticColumns[i].style.display = showStatic ? "" : "none";
+            }
+        }
+
+        function checkDynamicDisplay() {
+            var checkboxes = document.querySelectorAll('.dynamic-checkbox');
+            var showDynamic = false;
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    showDynamic = true;
+                    break;
+                }
+            }
+            var dynamicColumns = document.getElementsByClassName('dynamic_column');
+            for (var i = 0; i < dynamicColumns.length; i++) {
+                dynamicColumns[i].style.display = showDynamic ? "" : "none";
+            }
+        }
+
+        window.onload = function() {
+            checkStaticDisplay();
+            checkDynamicDisplay();
+        };
+    </script>
+</head>
+<body>
+
+<h1>选择森林并查看信息</h1>
+
+
+<form id="forest_select_form" method="POST">
+    <label for="forest_name">选择森林:</label>
+    <select name="forest_name" id="forest_name" required>
+        {% for forest in forests %}
+            <option value="{{ forest.f_name }}">{{ forest.f_name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">查看信息</button>
+</form>
+
+<br>
+
+{% if forest_static_info %}
+    <h2>静态信息筛选</h2>
+    <input type="checkbox" class="static-checkbox" id="location_checkbox" onclick="toggleColumn(this, 'location_column', true)"> 显示地理位置
+    <input type="checkbox" class="static-checkbox" id="area_checkbox" onclick="toggleColumn(this, 'area_column', true)"> 显示占地面积
+    <input type="checkbox" class="static-checkbox" id="soilType_checkbox" onclick="toggleColumn(this, 'soilType_column', true)"> 显示土壤类型
+    <input type="checkbox" class="static-checkbox" id="manager_checkbox" onclick="toggleColumn(this, 'manager_column', true)"> 显示管理机构
+    <input type="checkbox" class="static-checkbox" id="intro_checkbox" onclick="toggleColumn(this, 'intro_column', true)"> 显示森林简介
+
+    <h2>森林静态信息</h2>
+    <table border="1">
+        <tr>
+            <th class="static_column">森林名称</th>
+            <th class="location_column" style="display: none;">地理位置</th>
+            <th class="area_column" style="display: none;">占地面积 (平方公里)</th>
+            <th class="soilType_column" style="display: none;">土壤类型</th>
+            <th class="manager_column" style="display: none;">管理机构</th>
+            <th class="intro_column" style="display: none;">森林简介</th>
+        </tr>
+        <tr>
+            <td class="static_column">{{ forest_static_info.f_name }}</td>
+            <td class="location_column" style="display: none;">{{ forest_static_info.f_location }}</td>
+            <td class="area_column" style="display: none;">{{ forest_static_info.f_area }}</td>
+            <td class="soilType_column" style="display: none;">{{ forest_static_info.f_soilType }}</td>
+            <td class="manager_column" style="display: none;">{{ forest_static_info.f_manager }}</td>
+            <td class="intro_column" style="display: none;">{{ forest_static_info.f_intro }}</td>
+        </tr>
+    </table>
+{% endif %}
+
+<br>
+
+{% if forest_variables %}
+    <h2>动态信息筛选</h2>
+    <input type="checkbox" class="dynamic-checkbox" id="temperature_checkbox" onclick="toggleColumn(this, 'temperature_column', false, true)"> 显示温度
+    <input type="checkbox" class="dynamic-checkbox" id="humidity_checkbox" onclick="toggleColumn(this, 'humidity_column', false, true)"> 显示湿度
+    <input type="checkbox" class="dynamic-checkbox" id="precipitation_checkbox" onclick="toggleColumn(this, 'precipitation_column', false, true)"> 显示降水量
+    <input type="checkbox" class="dynamic-checkbox" id="resourceDistribution_checkbox" onclick="toggleColumn(this, 'resourceDistribution_column', false, true)"> 显示资源分布
+    <input type="checkbox" class="dynamic-checkbox" id="vegetationCoverage_checkbox" onclick="toggleColumn(this, 'vegetationCoverage_column', false, true)"> 显示植被覆盖
+    <input type="checkbox" class="dynamic-checkbox" id="historicalCulture_checkbox" onclick="toggleColumn(this, 'historicalCulture_column', false, true)"> 显示历史文化
+    <input type="checkbox" class="dynamic-checkbox" id="hydrologicalFeatures_checkbox" onclick="toggleColumn(this, 'hydrologicalFeatures_column', false, true)"> 显示水文特征
+    <input type="checkbox" class="dynamic-checkbox" id="disasterSituation_checkbox" onclick="toggleColumn(this, 'disasterSituation_column', false, true)"> 显示灾害情况
+    <input type="checkbox" class="dynamic-checkbox" id="wildlife_checkbox" onclick="toggleColumn(this, 'wildlife_column', false, true)"> 显示野生动物
+    <input type="checkbox" class="dynamic-checkbox" id="economicValue_checkbox" onclick="toggleColumn(this, 'economicValue_column', false, true)"> 显示经济价值
+
+    <h2>森林动态信息</h2>
+    <table border="1">
+        <tr>
+            <th class="dynamic_column">日期</th>
+            <th class="temperature_column" style="display: none;">温度 (°C)</th>
+            <th class="humidity_column" style="display: none;">湿度 (%)</th>
+            <th class="precipitation_column" style="display: none;">降水量 (mm)</th>
+            <th class="resourceDistribution_column" style="display: none;">资源分布</th>
+            <th class="vegetationCoverage_column" style="display: none;">植被覆盖</th>
+            <th class="historicalCulture_column" style="display: none;">历史文化</th>
+            <th class="hydrologicalFeatures_column" style="display: none;">水文特征</th>
+            <th class="disasterSituation_column" style="display: none;">灾害情况</th>
+            <th class="wildlife_column" style="display: none;">野生动物</th>
+            <th class="economicValue_column" style="display: none;">经济价值</th>
+        </tr>
+        {% for variable in forest_variables %}
+        <tr>
+            <td class="dynamic_column">{{ variable.f_date }}</td>
+            <td class="temperature_column" style="display: none;">{{ variable.f_temperature }}</td>
+            <td class="humidity_column" style="display: none;">{{ variable.f_humidity }}</td>
+            <td class="precipitation_column" style="display: none;">{{ variable.f_precipitation }}</td>
+            <td class="resourceDistribution_column" style="display: none;">{{ variable.f_resourceDistribution }}</td>
+            <td class="vegetationCoverage_column" style="display: none;">{{ variable.f_vegetationCoverage }}</td>
+            <td class="historicalCulture_column" style="display: none;">{{ variable.f_historicalCulture }}</td>
+            <td class="hydrologicalFeatures_column" style="display: none;">{{ variable.f_hydrologicalFeatures }}</td>
+            <td class="disasterSituation_column" style="display: none;">{{ variable.f_disasterSituation }}</td>
+            <td class="wildlife_column" style="display: none;">{{ variable.f_wildlife }}</td>
+            <td class="economicValue_column" style="display: none;">{{ variable.f_economicValue }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+</body>
+</html>
