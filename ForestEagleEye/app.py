@@ -69,12 +69,13 @@ class User(Base):
     u_telphone = Column(String(15), unique=True)  # 联系电话
     u_password = Column(String(100), nullable=False)  # 用户密码
     u_email = Column(String(50), nullable=False, unique=True)  # 邮箱
-    u_role = Column(Enum("普通用户", "林业从业人员", "林业管理人员", "环境管理人员", "林业监管人员"), nullable=False, default="普通用户")  # 用户所属角色（普通用户、林业从业人员、林业管理人员、环境管理人员、林业局监管人员）
+    u_role = Column(Enum("普通用户", "林业从业人员", "林业管理人员", "林业监管人员"), nullable=False, default="普通用户")  # 用户所属角色（普通用户、林业从业人员、林业管理人员、环境管理人员、林业局监管人员）
     u_forest = Column(String(100))  # 所属森林（林业管理人员、环境管理人员、林业局监管人员需要选择）
     u_avatarPath = Column(String(100), nullable=False, default="src/assets/default-avatar.png")  # 头像图片路径
     u_signature = Column(String(30), default="这个人很懒，什么都没有留下...")  # 个性签名
     u_signupTime = Column(DateTime, nullable=False, default=datetime.now)  # 注册时间
     u_newestTime = Column(DateTime, nullable=False, onupdate=datetime.now, default=datetime.now)  # 最近登录时间
+    u_institution = Column(Integer,ForeignKey("institutions.i_id"),nullable=True)    # 用户所属机构（除普通用户外需选择）
 
     # u_submitTips = relationship()  # 提交的建议与举报
     # u_approveTips = relationship()  # 审批的建议与举报
@@ -107,6 +108,15 @@ class Activity(Base):
     a_approveTime = Column(DateTime, nullable=True)  # 活动审批时间
     a_dismissreason = Column(String(100), nullable=True)  # 驳回理由
 
+### 机构相关表
+# 管理机构
+class Institution(Base):
+    __tablename__ = "institutions"
+    i_id = Column(Integer,primary_key=True,nullable=False,unique=True)  # 机构编号
+    i_name=Column(String(20),nullable=False,unique=True)   # 机构名称
+    i_forest=Column(Integer, ForeignKey('forests.f_id'))   # 机构对应森林id
+    i_type=Column(Enum('从业机构','管理机构'),nullable=False)   # 机构类别
+
 
 ### 森林相关表
 # 所有森林常量表
@@ -114,11 +124,10 @@ class Forest(Base):
     __tablename__ = "forests"
     f_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 森林编号
     f_name = Column(String(100), nullable=False, unique=True)  # 森林名称
-    f_location = Column(String(100), nullable=False)  # 森林地理位置
-    f_area = Column(Integer, nullable=False)  # 森林占地面积
-    f_soilType = Column(String(100), nullable=False)  # 土壤类型
-    f_manager = Column(String(100), nullable=False)  # 森林管理机构
-    f_intro = Column(String(1000))  # 森林简介
+    f_location = Column(String(100), nullable=False,default='中国大陆')  # 森林地理位置
+    f_area = Column(Integer, nullable=False,default=0)  # 森林占地面积
+    f_soilType = Column(String(100), nullable=False,default='暂无')  # 土壤类型
+    f_intro = Column(String(1000),default="森林管理员尚未添加简介...")  # 森林简介
 
 
 # 森林变量表
@@ -176,13 +185,29 @@ class ForestVariableBase(Base):
 
 # 这是删除所有数据的操作，不到万不得已千万不要做
 # 如果之前创建过同名数据库且不明白如何数据库迁移，可以把下面一句注释去掉，运行清除之前的表并创建新表，然后记得加上注释
-# Base.metadata.drop_all(engine)
+#Base.metadata.drop_all(engine)
 
 Base.metadata.create_all(engine)
 
 db_session_class = sessionmaker(bind=engine)
 db_session = db_session_class()
 
+# 以下是为了测试临时添加的森林、管理机构和从业机构
+# 完整功能上线后，需删除！
+"""
+forest = Forest(f_name='测试森林')
+db_session.add(forest)
+db_session.commit()
+print('hello')
+administrator=Institution(i_name="管理机构-测试",i_forest=forest.f_id,i_type='管理机构')
+db_session.add(administrator)
+db_session.commit()
+
+practitioner=Institution(i_name='从业机构-测试',i_forest=forest.f_id,i_type='从业机构')
+db_session.add(practitioner)
+db_session.commit()
+"""
+# 完整功能上线后，以上需删除！
 
 def hash_password(password):
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
@@ -227,6 +252,10 @@ def register():
 
         # 错误排除后创建新用户
         user = User(u_name=username, u_password=password, u_email=email)
+        user.u_role=request.form['role']
+        if user.u_role!='普通用户':
+            user.u_forest=request.form['forest']
+            user.u_institution=request.form['inst']
         db_session.add(user)
         db_session.commit()
 
@@ -250,6 +279,11 @@ def login():
             user.u_newestTime = datetime.now()  # 最新登录时间设置为当前时间
             days = user.u_newestTime.day - user.u_signupTime.day + 1
             db_session.commit()  # 提交更改到数据库
+            
+            # 在森林表和机构表中查询forest和inst的名称+编号
+            forest=db_session.query(Forest).filter_by(f_id=user.u_forest).first()
+            inst=db_session.query(Institution).filter_by(i_id=user.u_institution).first()
+            
             success = "欢迎来到林上鹰眼！"
             return jsonify({
                 'status': 'success', 
@@ -263,7 +297,10 @@ def login():
                 'role':user.u_role,
                 'username':user.u_name,
                 'email':user.u_email,
-                'signature':user.u_signature
+                'signature':user.u_signature,
+
+                'forest':f"{forest.f_name}(FO{forest.f_id})",
+                'inst':f"{inst.i_name}(INST{inst.i_id})",
             })
         else:
             error = "登录失败，邮箱或密码错误"
@@ -303,6 +340,33 @@ def setUserInfo():
         db_session.commit()
         return jsonify({"status": "success", "message": "用户昵称修改成功！"})
     return jsonify({"status": "fail", "message": "修改失败！"}), 401
+
+# 获取全部森林（用于非普通用户角色的注册）
+@app.route("/get_all_forests",methods=["GET"])
+def getAllForests():
+    forests=[{'value': forest.f_id, "label": forest.f_name} for forest in db_session.query(Forest).all()]
+    if forests:
+        return jsonify({'forests':forests})
+    return 401
+
+# 获取对应森林的机构（用于非普通用户角色的注册）
+@app.route("/get_relative_inst",methods=['POST'])
+def getRelativeInstitutions():
+    forest_id=request.form['forest']
+    if request.form['role'] == '林业从业人员':
+        inst_type='从业机构'
+    else:
+        inst_type='管理机构'
+    try:
+        insts = [{'value': inst.i_id, 'label': inst.i_name} for inst in db_session.query(Institution).filter_by(i_forest=forest_id, i_type=inst_type)]
+        db_session.commit()
+        if insts:
+            return jsonify({'insts': insts})
+        else:
+            return jsonify({'error': 'No institutions found for the given criteria.'}), 404
+    except Exception as e:
+        return jsonify({'error': f'An error occurred while querying the database: {str(e)}'}), 500
+
 
 
 # 林业活动界面
@@ -596,3 +660,7 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+ 
+

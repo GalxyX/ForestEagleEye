@@ -89,6 +89,9 @@ export default {
           sessionStorage.setItem('signupTime',response.data.signupTime);
           sessionStorage.setItem('days',response.data.days);
           sessionStorage.setItem('signature',response.data.signature);
+          
+          sessionStorage.setItem('forest',response.data.forest);
+          sessionStorage.setItem('inst',response.data.inst);
 
           // 暂时转到活动页面
           this.$router.push('/activities');

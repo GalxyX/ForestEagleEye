@@ -28,7 +28,17 @@
       </tr>
     </tbody>
   </table>
-</div>  </template>
+</div>  
+
+<select id="mySelect" v-model="selectedOption">
+      <option value="option1">选项 1</option>
+      <option value="option2">选项 2</option>
+      <option value="option3">选项 3</option>
+    </select>
+
+
+
+</template>
   
   <script>
   import NavigationBar from '../components/navbar.vue'

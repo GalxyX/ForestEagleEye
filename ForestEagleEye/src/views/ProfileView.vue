@@ -9,7 +9,7 @@
             <div style="margin-left: 15px; margin-top:50px;">
               <text class="side-username">{{username}}</text>
               <text v-if="role==='普通用户'" style="color:white; font-size: small; display:block; text-align: left;">您还没有所属团队~</text>
-              <text v-else style="color:white; font-size: small;">暂时写死的团队名称</text>
+              <text v-else style="color:white; font-size: small;">{{inst}}</text>
             </div>
           </div>
 
@@ -78,12 +78,12 @@
               <div class="info-value">{{role}}</div>
             </div>
             <div class="info-row" v-if="role!=='普通用户'">
-              <div class="info-label">所属团队</div>
-              <div class="info-value">暂时写死的团队名称</div>
+              <div class="info-label">所属森林</div>
+              <div class="info-value">{{forest}}</div>
             </div>
             <div class="info-row" v-if="role!=='普通用户'">
-              <div class="info-label">职位</div>
-              <div class="info-value">暂时写死的职位</div>
+              <div class="info-label">所属机构</div>
+              <div class="info-value">{{inst}}</div>
             </div>
 
             <div class="info-row">
@@ -122,6 +122,8 @@
         user_id:'',
         email:'',
         role:'',
+        forest:'',
+        inst:'',
         signupTime:'',
         newestTime:'',
         days:'',
@@ -143,6 +145,9 @@
       this.newestTime=sessionStorage.getItem('newestTime');
       this.days=sessionStorage.getItem('days');
       this.signature=sessionStorage.getItem('signature');
+      this.inst=sessionStorage.getItem('inst');
+      this.forest=sessionStorage.getItem('forest');
+
 
 
       const hour= new Date().getHours();
@@ -184,11 +189,13 @@
                 'Content-Type': 'application/x-www-form-urlencoded',
               },
             });
+            this.signature = this.editedSignature;
+            sessionStorage.setItem('signature',this.signature);
+
           }
           catch(error){
             alert(response.data.message);
           }
-          this.signature = this.editedSignature;
         }
         this.isEditing = false;
       },

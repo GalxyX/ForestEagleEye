@@ -51,6 +51,40 @@
                     required
                   />
                 </div>
+
+                <!--选择角色-->
+                <div class="detail-wrapper">
+                  <label for="role">角色</label>
+                  <div style="display:flex;flex-direction:column;">
+                    <div style="display:flex;">
+                      <label class="radio"><input type="radio" value="普通用户" v-model="role">普通用户</label>
+                      <label class="radio"><input type="radio" value="林业从业人员" v-model="role">林业从业人员</label>
+                    </div>
+                    <div style="display:flex;">
+                      <label class="radio"><input type="radio" value="林业管理人员" v-model="role">林业管理人员</label>
+                      <label class="radio"><input type="radio" value="林业监管人员" v-model="role">林业监管人员</label>
+                    </div>
+                  </div>
+                </div>
+                <!--选择森林和团队-->
+                <div style="display: flex;" v-if="role!=='普通用户'">
+                  <div class="detail-wrapper">
+                    <label>森林</label>
+                    <select id="forest" v-model="forest">
+                      <option v-for="f in forests" :value="f.value">{{ f.label }}</option>
+                    </select>
+                  </div>
+                  <div class="detail-wrapper">
+                    <label>机构</label>
+                    <select id="inst" v-model="inst">
+                      <option v-for="i in insts" :value="i.value">{{ i.label }}</option>
+                    </select>
+                  </div>
+                  
+                </div>
+
+
+
                 <div class="input-wrapper">
                   <label for="verification">验证码</label>
                   <div>
@@ -72,15 +106,66 @@
 
 <script>
 import axios from 'axios';
-
+import { ref } from 'vue';
 
 export default {
   data() {
     return {
       email: '',
+      code:'',
+      username:'',
+      password:'',
+      role:'普通用户',
+      forest:null,
+      inst:null,
+      forests:ref(),
+      insts:ref(),
     };
   },
+  watch:{
+      role(newValue){
+        // role变化则对应都清空
+        this.forest=null;
+        this.inst=null;
+        if(newValue!=='普通用户'){
+          this.fetchForest();
+        }
+      },
+      forest(newValue){
+        if(newValue)
+          this.fetchInst();
+        
+      }
+    },
   methods: {
+    //获取全部森林
+    async fetchForest(){
+      try{
+        const response =await axios.get('http://127.0.0.1:5000/get_all_forests');
+        this.forests=response.data.forests;
+      }catch(error){
+        console.error('Error Fetching options:', error);
+      }
+    },
+
+    //依据forest和role选择该森林下的机构
+    async fetchInst(){
+      try {
+        const params=new URLSearchParams();
+        params.append('forest',this.forest);
+        params.append('role',this.role);
+
+        const response = await axios.post('http://127.0.0.1:5000/get_relative_inst',params, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+        this.insts=response.data.insts;
+      } catch (error) {
+        console.error('Error Fetching options:', error);
+        alert(error);
+      }
+    },
     async send_verification_code() {
       try {
         const params = new URLSearchParams();
@@ -106,6 +191,12 @@ export default {
         params.append('email', this.email);
         params.append('password', this.password);
         params.append('code', this.code);
+        params.append('role',this.role);
+        // 若是除普通用户以外的角色，还需添加管辖森林和所属机构团队
+        if(this.role!=='普通用户'){
+          params.append('forest',this.forest);
+          params.append('inst',this.inst);
+        }
 
         const response = await axios.post('http://127.0.0.1:5000/register', params, {
           headers: {
@@ -140,7 +231,7 @@ main > div {
   background: white;
   border-radius: 30px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 60%;
+  width: 65%;
 
   display: flex;
   align-items: center;
@@ -150,8 +241,8 @@ main > div {
 .image-box {
   display: block;
 
-  height: 70vh;
-  width: 60%;
+  height: 80vh;
+  width: 50%;
   background-image: url(../assets/register.png);
   background-repeat: no-repeat;
   background-size: cover;
@@ -159,17 +250,16 @@ main > div {
 }
 
 .signup-box {
-  width: 40%;
+  width: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 section {
-  width: 85%;
+  width: 60%;
   max-width: 500px;
   margin-top: 10px;
-  margin-right:50px;
 }
 
 .title-wrapper {
@@ -284,5 +374,76 @@ a {
 a:hover {
   text-decoration: underline;
 }
+.detail-wrapper{
+  width:100%;
+  margin-bottom: 1%;
+}
+.detail-wrapper label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: smaller;
+  width:40%;
+}
+select{
+  width: 95%;
+  box-sizing: border-box;
+  padding: 5px;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+}
+select:hover{
+  border: 1.5px solid #60a130;
+}
+select:focus{
+  border: 1.5px solid #60a130;
+  background-color: #f6fdf3;
+  outline: none;
+}
+
+select option{
+  background-color: white;
+  line-height: 2;
+}
+select option:hover{
+  background-color: #f6fdf3;
+  color:#60a130;
+}
+.radio{
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.radio:hover {
+  color: #60a130;
+}
+
+.radio input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid grey;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+}
+
+  .radio input[type="radio"]:checked {
+    border: 2px solid #60a130;
+  }
+
+  .radio input[type="radio"]:checked::before {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #60a130;
+    margin-top: 2px;
+    margin-left: 2px;
+  }
+
+
 
 </style>
