@@ -89,12 +89,14 @@ export default {
           sessionStorage.setItem('signupTime',response.data.signupTime);
           sessionStorage.setItem('days',response.data.days);
           sessionStorage.setItem('signature',response.data.signature);
-          
-          sessionStorage.setItem('forest',response.data.forest);
-          sessionStorage.setItem('inst',response.data.inst);
+
+          if(response.data.role!=='普通用户'){
+            sessionStorage.setItem('forest',response.data.forest);
+            sessionStorage.setItem('inst',response.data.inst);
+          }
 
           // 暂时转到活动页面
-          this.$router.push('/activities');
+          this.$router.push('/encyclopedia');
         } 
       } catch (error) {
         if(response.data.message=="请求错误")

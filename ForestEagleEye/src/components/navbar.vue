@@ -57,6 +57,7 @@
         });
         if(response.data.status==='success'){
           localStorage.clear();//清除缓存
+          sessionStorage.clear();//清除会话
           this.$router.push('/login');
         }
 

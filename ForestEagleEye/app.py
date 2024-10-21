@@ -200,7 +200,7 @@ db_session = db_session_class()
 forest = Forest(f_name='测试森林')
 db_session.add(forest)
 db_session.commit()
-print('hello')
+
 administrator=Institution(i_name="管理机构-测试",i_forest=forest.f_id,i_type='管理机构')
 db_session.add(administrator)
 db_session.commit()
@@ -287,8 +287,7 @@ def login():
             inst=db_session.query(Institution).filter_by(i_id=user.u_institution).first()
             
             success = "欢迎来到林上鹰眼！"
-            return jsonify({
-                'status': 'success', 
+            data={                'status': 'success', 
                 'message': success,
 
                 'days': days,
@@ -299,11 +298,12 @@ def login():
                 'role':user.u_role,
                 'username':user.u_name,
                 'email':user.u_email,
-                'signature':user.u_signature,
-
-                'forest':f"{forest.f_name}(FO{forest.f_id})",
-                'inst':f"{inst.i_name}(INST{inst.i_id})",
-            })
+                'signature':user.u_signature
+                }
+            if user.u_role!='普通用户':
+                data['forest']=f"{forest.f_name}(FO{forest.f_id})"
+                data['inst']=f"{inst.i_name}(INST{inst.i_id})"
+            return jsonify(data)
         else:
             error = "登录失败，邮箱或密码错误"
             return jsonify({"status": "fail", "message": error})

@@ -1,82 +1,42 @@
 <template>
-<div id="app">
-  <table>
-    <thead>
-      <tr>
-        <th>字段 1</th>
-        <th>字段 2</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="item in dataList" :key="item.id">
-        <td v-if="!isEditing(item.id)">{{ item.field1 }}</td>
-        <td v-if="!isEditing(item.id)">{{ item.field2 }}</td>
-        <td>
-          <button @click="toggleEdit(item.id)">编辑</button>
-        </td>
-        <td v-if="isEditing(item.id)">
-          <input v-model="editedItem.field1" />
-        </td>
-        <td v-if="isEditing(item.id)">
-          <input v-model="editedItem.field2" />
-        </td>
-        <td v-if="isEditing(item.id)">
-          <button @click="saveEdit(item.id)">保存</button>
-          <button @click="cancelEdit(item.id)">取消</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>  
+  <!-- 页面内容 -->
+  <NavigationBar />
+  <div class="main">
+    <aside class="sidebar">
+      我是sidebar
 
-<select id="mySelect" v-model="selectedOption">
-      <option value="option1">选项 1</option>
-      <option value="option2">选项 2</option>
-      <option value="option3">选项 3</option>
-    </select>
-
-
-
+    </aside>
+    <main class="content">
+      这里是主要内容
+    </main>
+    
+  </div>
 </template>
-  
-  <script>
-  import NavigationBar from '../components/navbar.vue'
-  
-  export default {
-    name: 'encyclopedia',
-    components: {
-      NavigationBar
-    },
-    data() {
-      return {
-        dataList: [
-          { id: 1, field1: '数据 1', field2: '数据 2' },
-          // 更多数据项...
-        ],
-        editingId: null,
-        editedItem: {}
-      };
-    },
-    methods: {
-    isEditing(id) {
-      return this.editingId === id;
-    },
-    toggleEdit(id) {
-      this.editingId = id;
-      this.editedItem = {...this.dataList.find(item => item.id === id) };
-    },
-    saveEdit(id) {
-      const index = this.dataList.findIndex(item => item.id === id);
-      this.dataList[index] = {...this.editedItem };
-      this.editingId = null;
-    },
-    cancelEdit(id) {
-      this.editingId = null;
-    }
+
+<script>
+import NavigationBar from '../components/navbar.vue'
+
+export default {
+  name: 'encyclopedia',
+  components: {
+    NavigationBar
   }
-};
-  </script>
-  
-  <style scoped>
-  </style>
+}
+</script>
+
+<style scoped>
+.main{
+  padding-top: 50px;
+  background-color: #F0F2F5;
+  display: flex;
+}
+.sidebar {
+  width: 15vw;
+  height:90vh;
+  background-color: #456E02;
+}
+.content {
+  flex: 1;
+  height:90vh;
+}
+</style>
