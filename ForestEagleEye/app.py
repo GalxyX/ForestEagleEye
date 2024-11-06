@@ -44,10 +44,10 @@ verification_codes = {}  # 存储邮箱和验证码的字典
 # MySQL 数据库连接配置
 db_config={
     'user':'root',
-    'password':'20040616',#这里改成自己的数据库密码
+    'password':'LLX20041111',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
-    'database': 'forest',#这里改成自己的数据库名字
+    'database': 'llx_db',#这里改成自己的数据库名字
     'charset':'utf8mb4'}
 # 创建数据库连接
 engine = create_engine("mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset={charset}".format(**db_config))
