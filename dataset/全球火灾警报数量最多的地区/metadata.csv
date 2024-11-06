@@ -1,0 +1,12 @@
+title,全球火灾警报数量最多的地区
+unit,significance
+confidence,h
+page_size,5
+period,week
+weeks,4
+dataset,viirs
+layer_start_date,
+layer_end_date,
+date_downloaded,2024-11-05
+metadata,https://api.resourcewatch.org/v1/gfw-metadata/widget_fire_alert_location
+link,https://www.globalforestwatch.org/dashboards/global/?category=fires&location=WyJnbG9iYWwiXQ%3D%3D

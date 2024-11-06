@@ -26,10 +26,10 @@
             </div>
             <div v-if="isEditing">
               <textarea v-model="editedSignature"
-                :maxlength="30" 
+                :maxlength="99" 
                 @input="updateInputInfo">
               </textarea>
-              <span class="input-info">{{ editedSignature.length }}/30</span>
+              <span class="input-info">{{ editedSignature.length }}/99</span>
               <button @click="saveSignature">保存</button>
             </div>
             <h4 v-if="!isEditing">{{ signature }}</h4>
@@ -176,8 +176,12 @@
         this.isEditingName = true;
       },
       async saveSignature() {
-        if(this.editedSignature){
-           //向后端发送请求更改内容
+
+        if(this.editedSignature!==this.signature){
+          if(!this.editedSignature)
+            this.editedSignature="这个人很懒，什么都没有留下...";
+          if(this.editedSignature.length>99)
+            this.editedSignature=this.editedSignature.substring(0,98);
           try{
             const params = new URLSearchParams();
             params.append('target','signature');
@@ -191,7 +195,7 @@
             });
             this.signature = this.editedSignature;
             sessionStorage.setItem('signature',this.signature);
-
+            alert(response.data.message);
           }
           catch(error){
             alert(response.data.message);
@@ -213,6 +217,7 @@
                 'Content-Type': 'application/x-www-form-urlencoded',
               },
             });
+            alert(response.data.message);
           }
           catch(error){
             alert(response.data.message);
@@ -326,6 +331,10 @@
     display:block; 
     text-align: left;
     margin-bottom: 5px;
+    width:200px;
+    white-space: nowrap; /* 保持文本在一行显示 */
+    overflow: hidden; /* 隐藏超出部分 */
+    text-overflow: ellipsis; /* 超出部分显示省略号 */
   }
 
   .side-label{

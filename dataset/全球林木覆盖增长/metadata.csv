@@ -1,0 +1,7 @@
+title,全球林木覆盖增长
+threshold,0
+unit,ha
+page_size,5
+date_downloaded,2024-11-05
+metadata,https://api.resourcewatch.org/v1/gfw-metadata/umd_tree_cover_gain_from_height
+link,https://www.globalforestwatch.org/dashboards/global/?category=forest-change&location=WyJnbG9iYWwiXQ%3D%3D

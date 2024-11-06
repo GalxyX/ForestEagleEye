@@ -30,7 +30,8 @@
             <div class="vertical-divider"></div>
             <img class="user-avatar" src="../assets/default-avatar.png">
             <span class="user-nickname">{{username}}</span>
-            <button class="btn-logout" @click="logout">退出登录</button>
+            <button class="btn-logout" @click="logout" v-if="username">退出登录</button>
+            <button class="btn-logout" @click="login" v-else="">登录/注册</button>
         </div>
       </div>
     </nav>
@@ -48,6 +49,9 @@
     };
   },
   methods:{
+    login(){
+      this.$router.push('/login');
+    },
     async logout() {
       try {
         const response = await axios.post('http://127.0.0.1:5000/logout',{

@@ -1,0 +1,10 @@
+title,按主要驱动因素分列的全球年度森林覆盖减少
+tsc_driver_group,all
+highlighted,false
+extent_year,2000
+threshold,30
+start_year,2001
+end_year,2023
+date_downloaded,2024-11-05
+metadata,https://api.resourcewatch.org/v1/gfw-metadata/tsc_tree_cover_loss_drivers_v2023
+link,https://www.globalforestwatch.org/dashboards/global/?category=forest-change&location=WyJnbG9iYWwiXQ%3D%3D

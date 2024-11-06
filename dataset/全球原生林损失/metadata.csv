@@ -1,0 +1,10 @@
+title,全球原生林损失
+threshold,30
+extent_year,2000
+forest_type,primary_forest
+start_year,2002
+end_year,2023
+highlighted,false
+date_downloaded,2024-11-05
+metadata,https://api.resourcewatch.org/v1/gfw-metadata/widget_primary_forest_loss
+link,https://www.globalforestwatch.org/dashboards/global/?category=forest-change&location=WyJnbG9iYWwiXQ%3D%3D

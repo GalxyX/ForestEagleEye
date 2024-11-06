@@ -1,0 +1,11 @@
+title,全球地上存活林木生物量
+threshold,30
+start_year,2001
+end_year,2018
+extent_year,2000
+layers,loss
+page_size,5
+unit,total_biomass
+date_downloaded,2024-11-05
+metadata,https://api.resourcewatch.org/v1/gfw-metadata/aboveground_biomass
+link,https://www.globalforestwatch.org/dashboards/global/?category=climate&location=WyJnbG9iYWwiXQ%3D%3D

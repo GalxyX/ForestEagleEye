@@ -40,6 +40,11 @@ const router = createRouter({
       component: () => import('../views/forum.vue'),
     },
     {
+      path:'/game',
+      name: 'game',
+      component: () => import('../views/game.vue'),
+    },
+    {
       path:'/profile',
       name: 'profile',
       component: () => import('../views/ProfileView.vue'),
@@ -48,6 +53,15 @@ const router = createRouter({
       path:'/message',
       name: 'message',
       component: () => import('../views/message.vue'),
+    },
+    {
+      path:'/forest_detail/:id',
+      name: 'forest_detail',
+      component: () => import('../components/ForestDetailView.vue'),
+      meta:{
+        id: 1,
+        title:'森林详情',
+      }
     },
   ]
 });

@@ -1,0 +1,8 @@
+title,全球每年林木覆盖损失
+threshold,30
+extent_year,2000
+start_year,2001
+end_year,2023
+date_downloaded,2024-11-05
+metadata,https://api.resourcewatch.org/v1/gfw-metadata/widget_tree_cover_loss
+link,https://www.globalforestwatch.org/dashboards/global/?category=forest-change&location=WyJnbG9iYWwiXQ%3D%3D

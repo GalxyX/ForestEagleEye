@@ -1,0 +1,6 @@
+title,全球 FAO 森林覆盖
+unit,ha
+fao_year,2020
+date_downloaded,2024-11-05
+metadata,https://api.resourcewatch.org/v1/gfw-metadata/widget_forest_cover_fao
+link,https://www.globalforestwatch.org/dashboards/global/?category=land-cover&location=WyJnbG9iYWwiXQ%3D%3D

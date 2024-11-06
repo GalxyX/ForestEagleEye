@@ -1,0 +1,8 @@
+title,全球土壤有机碳
+start_year,2001
+end_year,2018
+page_size,5
+variable,totalbiomass
+date_downloaded,2024-11-05
+metadata,https://api.resourcewatch.org/v1/gfw-metadata/soil_organic_carbon
+link,https://www.globalforestwatch.org/dashboards/global/?category=climate&location=WyJnbG9iYWwiXQ%3D%3D

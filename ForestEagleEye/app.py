@@ -16,6 +16,7 @@ import os
 from flask_cors import CORS
 from sqlalchemy.exc import SQLAlchemyError,OperationalError
 import re
+import pandas as pd
 
 
 app = Flask(__name__,
@@ -74,7 +75,7 @@ class User(Base):
     u_role = Column(Enum("普通用户", "林业从业人员", "林业管理人员", "林业监管人员"), nullable=False, default="普通用户")  # 用户所属角色（普通用户、林业从业人员、林业管理人员、环境管理人员、林业局监管人员）
     u_forest = Column(String(100))  # 所属森林（林业管理人员、环境管理人员、林业局监管人员需要选择）
     u_avatarPath = Column(String(100), nullable=False, default="src/assets/default-avatar.png")  # 头像图片路径
-    u_signature = Column(String(30), default="这个人很懒，什么都没有留下...")  # 个性签名
+    u_signature = Column(String(100), default="这个人很懒，什么都没有留下...")  # 个性签名
     u_signupTime = Column(DateTime, nullable=False, default=datetime.now)  # 注册时间
     u_newestTime = Column(DateTime, nullable=False, onupdate=datetime.now, default=datetime.now)  # 最近登录时间
     u_institution = Column(Integer,ForeignKey("institutions.i_id"),nullable=True)    # 用户所属机构（除普通用户外需选择）
@@ -95,7 +96,7 @@ class Activity(Base):
     a_submitTime = Column(DateTime, nullable=False, default=datetime.now)  # 申请提交时间
     a_attachment = Column(String(100), default="")  # 申请附件
     a_name = Column(String(100), nullable=False)  # 活动名称
-    a_type = Column(Enum("伐木", "采摘", "旅游参观", "野营", "捕猎"), nullable=False)  # 活动类型
+    a_type = Column(Enum("伐木", "采摘", "旅游参观", "野营", "捕猎","冥想","徒步"), nullable=False)  # 活动类型
     a_forest = Column(String(100), nullable=False)  # 审批单位（森林名称）
     a_location = Column(String(100), nullable=False)  # 活动地点（具体地点）
     a_beginTime = Column(DateTime, nullable=False)  # 活动开始时间
@@ -279,7 +280,7 @@ def login():
         user = db_session.query(User).filter_by(u_email=email, u_password=password).first()
         if user:
             user.u_newestTime = datetime.now()  # 最新登录时间设置为当前时间
-            days = user.u_newestTime.day - user.u_signupTime.day + 1
+            days = (user.u_newestTime - user.u_signupTime).days + 1
             db_session.commit()  # 提交更改到数据库
             
             # 在森林表和机构表中查询forest和inst的名称+编号
@@ -790,6 +791,19 @@ def forest_info():
                                forest_variables=forest_variables)
 
     return render_template("forest_info.html", forests=forests)
+
+@app.route("/get_world_tree_cover_json",methods=["GET","POST"])
+def get_world_tree_cover_json():
+    # 数据预处理
+    iso_data=pd.read_csv("d://Desktop//forest1//ForestEagleEye//dataset//树木覆盖的全球位置//treecover_extent_2010_by_region__ha.csv").fillna(0)
+    iso_meta=pd.read_csv("d://Desktop//forest1//ForestEagleEye//dataset//树木覆盖的全球位置//iso_metadata.csv").fillna(0)
+    mergedata=pd.merge(iso_data,iso_meta,on='iso')
+    df=mergedata['name','umd_tree_cover_extent_2010__ha'].to_dict()
+    return jsonify(df)
+
+
+
+
 
 
 

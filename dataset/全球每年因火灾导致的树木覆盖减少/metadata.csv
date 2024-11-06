@@ -1,0 +1,7 @@
+title,全球每年因火灾导致的树木覆盖减少
+threshold,30
+start_year,2001
+end_year,2023
+date_downloaded,2024-11-05
+metadata,https://api.resourcewatch.org/v1/gfw-metadata/umd_tree_cover_loss_from_fires
+link,https://www.globalforestwatch.org/dashboards/global/?category=fires&location=WyJnbG9iYWwiXQ%3D%3D
