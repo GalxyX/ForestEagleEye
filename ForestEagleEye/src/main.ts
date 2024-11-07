@@ -8,7 +8,6 @@ import Echarts from 'vue-echarts'
 import * as echarts from 'echarts'
 //引入element-plus
 import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css';
 
 const app = createApp(App)
 
