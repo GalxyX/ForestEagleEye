@@ -459,4 +459,8 @@ footer {
   padding: 10px; /* 根据需要调整内边距 */
   color:green;
 }
+<<<<<<< HEAD
 </style>
+=======
+</style>
+>>>>>>> 1312137d13c8f1507044bac004e8c25de30dfac7

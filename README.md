@@ -1,7 +1,5 @@
-# ForestEagleEye 林上鹰眼——基于 OceanBase 的森林环境监控系统
-
+# ForestEagleEye 林上鹰眼——基于MySQL的森林环境资源平台
 A forest environment monitoring system
-
 ## used doc url
 
 ---

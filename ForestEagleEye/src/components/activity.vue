@@ -277,4 +277,8 @@ footer {
   max-width: 200px;
   white-space: nowrap; /* 防止文本换行 */
 }
+<<<<<<< HEAD
 </style>
+=======
+</style>
+>>>>>>> 1312137d13c8f1507044bac004e8c25de30dfac7
