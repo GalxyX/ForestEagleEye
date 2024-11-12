@@ -148,8 +148,6 @@
       this.inst=sessionStorage.getItem('inst');
       this.forest=sessionStorage.getItem('forest');
 
-
-
       const hour= new Date().getHours();
       if (hour < 6) {
         this.greeting = '凌晨好，';

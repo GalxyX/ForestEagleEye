@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, url_for, f
 import pymysql
 import hashlib
 import sqlalchemy
+from sqlalchemy import Column, Integer, String, JSON
 from sqlalchemy import insert
 from werkzeug.utils import secure_filename
 from sqlalchemy import create_engine, Column, Enum, Integer, Table, String, ForeignKey, DateTime, Text, Boolean, Float
@@ -116,9 +117,8 @@ class Activity(Base):
 class Institution(Base):
     __tablename__ = "institutions"
     i_id = Column(Integer,primary_key=True,nullable=False,unique=True)  # 机构编号
-    i_name=Column(String(20),nullable=False,unique=True)   # 机构名称
-    i_forest=Column(Integer, ForeignKey('forests.f_id'))   # 机构对应森林id
-    i_type=Column(Enum('从业机构','管理机构'),nullable=False)   # 机构类别
+    i_name = Column(String(20),nullable=False,unique=True)   # 机构名称
+    i_type = Column(Enum('从业机构','管理机构'),nullable=False)   # 机构类别
 
 
 ### 森林相关表
@@ -131,6 +131,7 @@ class Forest(Base):
     f_area = Column(Integer, nullable=False,default=0)  # 森林占地面积
     f_soilType = Column(String(100), nullable=False,default='暂无')  # 土壤类型
     f_intro = Column(String(1000),default="森林管理员尚未添加简介...")  # 森林简介
+    f_manager = Column(Integer,ForeignKey('institutions.i_id')) # 森林管理机构id
 
 
 # 森林变量表
@@ -197,19 +198,19 @@ db_session = db_session_class()
 
 # 以下是为了测试临时添加的森林、管理机构和从业机构
 # 完整功能上线后，需删除！
-"""
-forest = Forest(f_name='测试森林')
-db_session.add(forest)
-db_session.commit()
-
-administrator=Institution(i_name="管理机构-测试",i_forest=forest.f_id,i_type='管理机构')
+'''
+administrator=Institution(i_name="管理机构-测试",i_type='管理机构')
 db_session.add(administrator)
 db_session.commit()
 
-practitioner=Institution(i_name='从业机构-测试',i_forest=forest.f_id,i_type='从业机构')
+practitioner=Institution(i_name='从业机构-测试',i_type='从业机构')
 db_session.add(practitioner)
 db_session.commit()
-"""
+
+forest = Forest(f_name='测试森林',f_manager=administrator.i_id)
+db_session.add(forest)
+db_session.commit()
+'''
 # 完整功能上线后，以上需删除！
 
 def hash_password(password):
@@ -344,10 +345,20 @@ def setUserInfo():
         return jsonify({"status": "success", "message": "用户昵称修改成功！"})
     return jsonify({"status": "fail", "message": "修改失败！"}), 401
 
-# 获取全部森林（用于非普通用户角色的注册）
+# 获取全部森林
 @app.route("/get_all_forests",methods=["GET"])
 def getAllForests():
-    forests=[{'value': forest.f_id, "label": forest.f_name} for forest in db_session.query(Forest).all()]
+    # 获取所有管理机构的名称和 ID
+    institutions = {inst.i_id: inst.i_name for inst in db_session.query(Institution).filter_by(i_type='管理机构').all()}
+
+    forests=[{
+        'value': forest.f_id, 
+        "label": forest.f_name, 
+        "location": forest.f_location, 
+        "area": forest.f_area, 
+        "manager" : institutions.get(forest.f_manager)  # 使用森林的管理机构 ID 从字典中获取名称
+    } for forest in db_session.query(Forest).all()]
+
     if forests:
         return jsonify({'forests':forests})
     return 401
@@ -355,13 +366,12 @@ def getAllForests():
 # 获取对应森林的机构（用于非普通用户角色的注册）
 @app.route("/get_relative_inst",methods=['POST'])
 def getRelativeInstitutions():
-    forest_id=request.form['forest']
     if request.form['role'] == '林业从业人员':
         inst_type='从业机构'
     else:
         inst_type='管理机构'
     try:
-        insts = [{'value': inst.i_id, 'label': inst.i_name} for inst in db_session.query(Institution).filter_by(i_forest=forest_id, i_type=inst_type)]
+        insts = [{'value': inst.i_id, 'label': inst.i_name} for inst in db_session.query(Institution).filter_by(i_type=inst_type)]
         db_session.commit()
         if insts:
             return jsonify({'insts': insts})
@@ -673,7 +683,7 @@ def get_forest_variable_table(forest_name):
 def get_all_forests():
     return db_session.query(Forest).all()
 
-@app.route("/add_forest", methods=["GET", "POST"])
+@app.route("/add_forest", methods=["POST"])
 def add_forest():
     if request.method == "POST":
         try:
@@ -694,14 +704,12 @@ def add_forest():
             )
             db_session.add(new_forest)
             db_session.commit()
-
-            flash("森林信息添加成功", "success")
+            return jsonify({'status':'success to add forest'})
+        
         except SQLAlchemyError as e:
             db_session.rollback()
+            return jsonify({'status':'fail to add forest'})
 
-        return redirect(url_for("add_forest"))
-
-    return render_template("add_forest.html")
 
 @app.route("/forest_variable", methods=["GET", "POST"])
 def view_forest_variable():
@@ -792,14 +800,26 @@ def forest_info():
 
     return render_template("forest_info.html", forests=forests)
 
-@app.route("/get_world_tree_cover_json",methods=["GET","POST"])
+@app.route("/get_world_tree_cover_json",methods=["GET"])
 def get_world_tree_cover_json():
     # 数据预处理
     iso_data=pd.read_csv("d://Desktop//forest1//ForestEagleEye//dataset//树木覆盖的全球位置//treecover_extent_2010_by_region__ha.csv").fillna(0)
     iso_meta=pd.read_csv("d://Desktop//forest1//ForestEagleEye//dataset//树木覆盖的全球位置//iso_metadata.csv").fillna(0)
-    mergedata=pd.merge(iso_data,iso_meta,on='iso')
-    df=mergedata['name','umd_tree_cover_extent_2010__ha'].to_dict()
-    return jsonify(df)
+    if(iso_data.empty or iso_meta.empty):
+        return jsonify({
+            'status':'fail',
+            'datalist': None
+        }),404
+    else:
+        mergedata=pd.merge(iso_data,iso_meta,on='iso')
+        # 整理为列表字典格式
+        datalist = [{'name': row['name'], 'value': row['umd_tree_cover_extent_2010__ha']} for index, row in mergedata.iterrows()]
+        return jsonify({
+            'status':'success',
+            'datalist': datalist
+        }),200
+
+        
 
 
 
