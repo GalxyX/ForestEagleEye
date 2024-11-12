@@ -5,7 +5,8 @@ import sqlalchemy
 from sqlalchemy import Column, Integer, String, JSON
 from sqlalchemy import insert
 from werkzeug.utils import secure_filename
-from sqlalchemy import create_engine, Column, Enum, Integer, Table, String, ForeignKey, DateTime, Text, Boolean, Float
+from sqlalchemy import text
+from sqlalchemy import create_engine, Column, Enum, Integer, Table, String, ForeignKey, DateTime, Text, Boolean, Float,inspect
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from datetime import datetime
 from flask import render_template  # 引入模板插件
@@ -20,16 +21,25 @@ import re
 import pandas as pd
 
 
-app = Flask(__name__,
-static_folder='./public/static',  #设置静态文件夹目录
-template_folder = "./public/templates")  #设置vue编译输出目录dist文件夹，为Flask模板文件目录
+
+app = Flask(
+    __name__,
+    static_folder="public/static",  # 指定静态文件目录
+    template_folder="public/templates"  # 指定模板文件目录
+)
 app.secret_key = "123456789"
+
+# 配置上传文件夹路径
+UPLOAD_FOLDER = os.path.join(app.static_folder, "uploads")
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+# 确保上传目录存在
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
 
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 
-UPLOAD_FOLDER = os.path.join(app.static_folder, "uploads")
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 app.config["MAIL_SERVER"] = "smtp.qq.com"  # 邮件服务器
 app.config["MAIL_PORT"] = 587
@@ -45,7 +55,7 @@ verification_codes = {}  # 存储邮箱和验证码的字典
 # MySQL 数据库连接配置
 db_config={
     'user':'root',
-    'password':'20040616',#这里改成自己的数据库密码
+    'password':'hxyym123',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
     'database': 'forest',#这里改成自己的数据库名字
@@ -87,6 +97,57 @@ class User(Base):
     # u_comments = relationship()  # 评论
     # u_likes = relationship()  # 点赞的帖子
     # u_question = relationship()  # 存小林问答问过的问题及回答
+
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    p_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 帖子唯一标识
+    p_title = Column(String(200), nullable=False)  # 帖子标题
+    p_content = Column(Text, nullable=False)  # 帖子内容
+    p_timestamp = Column(DateTime, default=datetime.now, nullable=False)  # 发帖时间
+    p_user_id = Column(Integer, ForeignKey("users.u_id"), nullable=False)  # 发帖用户ID
+
+    original_post_id = Column(Integer, ForeignKey("posts.p_id"), nullable=True)  # 被转发的帖子ID
+
+    # 定义关系
+    images = relationship("Image", back_populates="post", cascade="all, delete-orphan")  # 帖子图片
+    comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")  # 帖子评论
+    likes = relationship("Like", back_populates="post", cascade="all, delete-orphan")  # 帖子点赞
+    author = relationship("User", backref="posts")  # 帖子作者
+
+    # 建立 original_post 关系，引用被转发的帖子
+    original_post = relationship("Post", remote_side=[p_id], backref="shared_posts")  # 引用原始帖子
+
+class Comment(Base):
+    __tablename__ = "comments"
+    c_id = Column(Integer, primary_key=True, nullable=False, unique=True)
+    c_content = Column(Text, nullable=False)
+    c_timestamp = Column(DateTime, default=datetime.now, nullable=False)
+    c_user_id = Column(Integer, ForeignKey("users.u_id"), nullable=False)
+    c_post_id = Column(Integer, ForeignKey("posts.p_id"), nullable=False)
+    author = relationship("User", backref="comments")
+    post = relationship("Post", back_populates="comments")
+    images = relationship("Image", back_populates="comment", cascade="all, delete-orphan")  # 新增的关系
+
+
+class Like(Base):
+    __tablename__ = "likes"
+    l_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 点赞唯一标识
+    l_user_id = Column(Integer, ForeignKey("users.u_id"), nullable=False)  # 点赞用户ID
+    l_post_id = Column(Integer, ForeignKey("posts.p_id"), nullable=False)  # 点赞的帖子ID
+    user = relationship("User", backref="likes")  # 点赞用户
+    post = relationship("Post", back_populates="likes")  # 被点赞的帖子
+
+
+class Image(Base):
+    __tablename__ = "images"
+    img_id = Column(Integer, primary_key=True, nullable=False, unique=True)
+    file_path = Column(String(255), nullable=False)
+    post_id = Column(Integer, ForeignKey("posts.p_id"), nullable=True)
+    comment_id = Column(Integer, ForeignKey("comments.c_id"), nullable=True)  # 新增的外键
+    post = relationship("Post", back_populates="images")
+    comment = relationship("Comment", back_populates="images")  # 定义与 Comment 的关系
 
 
 # 活动表
@@ -189,7 +250,10 @@ class ForestVariableBase(Base):
 
 # 这是删除所有数据的操作，不到万不得已千万不要做
 # 如果之前创建过同名数据库且不明白如何数据库迁移，可以把下面一句注释去掉，运行清除之前的表并创建新表，然后记得加上注释
-#Base.metadata.drop_all(engine)
+# with engine.connect() as connection:
+#     connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
+#     Base.metadata.drop_all(engine)
+#     connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
 
 Base.metadata.create_all(engine)
 
@@ -230,9 +294,9 @@ def send_verification_code():
     msg.body = f"您的验证码为 {code}"
     try:
         mail.send(msg)
-        return jsonify({"status": "success", "message": "验证码已发送到您的邮箱"})
+        return jsonify({"status": "success", "message": "验证码已发送到您的邮箱"}),100
     except Exception as e:
-        return jsonify({"status": "fail", "message": "发送邮件失败，请检查邮箱输入是否有误"})
+        return jsonify({"status": "fail", "message": "发送邮件失败，请检查邮箱输入是否有误"}),250
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -278,7 +342,8 @@ def login():
     if request.method == "POST":
         email = request.form["email"]
         password = hash_password(request.form["password"])
-        user = db_session.query(User).filter_by(u_email=email, u_password=password).first()
+        # user = db_session.query(User).filter_by(u_email=email, u_password=password).first() mkbk测试改动
+        user = db_session.query(User).filter_by(u_email=email).first()
         if user:
             user.u_newestTime = datetime.now()  # 最新登录时间设置为当前时间
             days = (user.u_newestTime - user.u_signupTime).days + 1
@@ -821,12 +886,204 @@ def get_world_tree_cover_json():
 
         
 
+# 这里是论坛首页，现在的session我写死了等于一个字符串，到时候只需登录的时候把session动态填写一下就好
+# 返回字典 post代表帖子信息，user代表用户信息
+@app.route('/forum', methods=['GET'])
+def forum_home():
+    session['username'] = 'mkbk'
+    user = db_session.query(User).filter_by(u_name=session['username']).first()
+
+    if user is None:
+        print("error")
+        return redirect(url_for('login'))
+
+    posts = db_session.query(Post).order_by(Post.p_timestamp.desc()).all()
+
+    post_data = []
+    for post in posts:
+        post_images = [image.file_path for image in post.images[:3]]
+        like_count = len(post.likes)
+        is_liked = any(like.l_user_id == user.u_id for like in post.likes)
+
+        post_data.append({
+            "id": post.p_id,
+            "title": post.p_title,
+            "content_preview": post.p_content[:100],
+            "images": post_images,
+            "like_count": like_count,
+            "is_liked": is_liked,
+            "author": {
+                "username": post.author.u_name,
+                "avatar": f"/{post.author.u_avatarPath}"
+            },
+            "original_post": {
+                "id": post.original_post.p_id,
+                "title": post.original_post.p_title
+            } if post.original_post else None
+        })
+
+    user_data = {
+        "username": user.u_name,
+        "avatar": f"/{user.u_avatarPath}" if user.u_avatarPath else "forum/default-avatar.png"
+    }
+
+    return render_template('forum_home.html', posts=post_data, user=user_data)
+
+# 发表帖子
+@app.route('/forum/post', methods=['GET', 'POST'])
+def forum_post():
+    session['username'] = 'mkbk'
+    if request.method == 'POST':
+        if 'username' not in session:
+            return jsonify({"error": "User not logged in"}), 403
+
+        title = request.form['title']
+        content = request.form['content']
+        images = request.files.getlist('images')
+
+        user = db_session.query(User).filter_by(u_name=session['username']).first()
+        new_post = Post(p_title=title, p_content=content, author=user)
+        db_session.add(new_post)
+        db_session.commit()
+
+        for index, image in enumerate(images[:9]):
+            if image.filename != '':
+                filename = secure_filename(f"{new_post.p_id}_{index + 1}_{image.filename}")
+                filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+                image.save(filepath)
+
+                relative_path = f"uploads/{filename}"
+                new_image = Image(file_path=relative_path, post=new_post)
+                db_session.add(new_image)
+        db_session.commit()
+
+        return redirect(url_for('forum_home'))
+
+    return render_template('forum_post.html')
 
 
+@app.route('/post/<int:post_id>', methods=['GET'])
+def post_detail(post_id):
+    session['username'] = 'mkbk'
+    post = db_session.query(Post).get(post_id)
+    comments = db_session.query(Comment).filter_by(c_post_id=post_id).all()
+
+    post_data = {
+        "id": post.p_id,
+        "title": post.p_title,
+        "content": post.p_content,
+        "images": [image.file_path for image in post.images],
+        "author": {
+            "username": post.author.u_name,
+            "avatar": f"/{post.author.u_avatarPath}"
+        },
+        "original_post": {
+            "id": post.original_post.p_id,
+            "title": post.original_post.p_title,
+            "author": post.original_post.author.u_name
+        } if post.original_post else None
+    }
+
+    comments_data = []
+    for comment in comments:
+        comment_images = [image.file_path for image in comment.images[:3]]
+        comments_data.append({
+            "content": comment.c_content,
+            "author": {
+                "username": comment.author.u_name,
+                "avatar": f"/{comment.author.u_avatarPath}"
+            },
+            "images": comment_images
+        })
+
+    return render_template('post_detail.html', post=post_data, comments=comments_data)
+
+@app.route('/post/<int:post_id>/comment', methods=['POST'])
+def post_comment(post_id):
+    session['username'] = 'mkbk'
+    if 'username' not in session:
+        return jsonify({"error": "User not logged in"}), 403
+
+    content = request.form['content']
+    images = request.files.getlist('images')
+
+    user = db_session.query(User).filter_by(u_name=session['username']).first()
+    new_comment = Comment(c_content=content, c_post_id=post_id, author=user)
+    db_session.add(new_comment)
+    db_session.commit()
+
+    for index, image in enumerate(images[:3]):
+        if image.filename != '':
+            filename = secure_filename(f"{new_comment.c_id}_{index + 1}_{image.filename}")
+            filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            image.save(filepath)
+
+            relative_path = f"uploads/{filename}"
+            new_image = Image(file_path=relative_path, comment=new_comment)
+            db_session.add(new_image)
+    db_session.commit()
+
+    return redirect(url_for('post_detail', post_id=post_id))
+@app.route('/post/<int:post_id>/like', methods=['POST'])
+def like_post(post_id):
+    session['username'] = 'mkbk'
+    if 'username' not in session:
+        return jsonify({"error": "User not logged in"}), 403
+
+    user = db_session.query(User).filter_by(u_name=session['username']).first()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    existing_like = db_session.query(Like).filter_by(l_user_id=user.u_id, l_post_id=post_id).first()
+
+    if existing_like:
+        db_session.delete(existing_like)
+        action = "unliked"
+    else:
+        new_like = Like(l_user_id=user.u_id, l_post_id=post_id)
+        db_session.add(new_like)
+        action = "liked"
+
+    db_session.commit()
+
+    like_count = db_session.query(Like).filter_by(l_post_id=post_id).count()
+    return jsonify({
+        "action": action,
+        "like_count": like_count,
+        "post_id": post_id,
+        "is_liked": action == "liked"
+    })
 
 
+@app.route('/post/<int:post_id>/share', methods=['POST'])
+def share_post(post_id):
+    session['username'] = 'mkbk'
+    if 'username' not in session:
+        return jsonify({"error": "User not logged in"}), 403
 
+    user = db_session.query(User).filter_by(u_name=session['username']).first()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
 
+    original_post = db_session.query(Post).filter_by(p_id=post_id).first()
+    if original_post is None:
+        return jsonify({"error": "Original post not found"}), 404
+
+    share_content = request.json.get('content', '')
+
+    new_post = Post(
+        p_title=f"{user.u_name} 转发了帖子: {original_post.p_title}",
+        p_content=share_content,
+        author=user,
+        original_post_id=original_post.p_id
+    )
+    db_session.add(new_post)
+    db_session.commit()
+
+    return jsonify({
+        "message": "Post shared successfully",
+        "shared_post_id": new_post.p_id
+    })
 
 @app.route("/")
 def index():
@@ -834,6 +1091,66 @@ def index():
         username = session["username"]
         return render_template("index.html", username=username)
     return render_template("login.html")
+
+@app.route('/user/<string:username>', methods=['GET'])
+def user_profile(username):
+    user = db_session.query(User).filter_by(u_name=username).first()
+    if user is None:
+        return redirect(url_for('forum_home'))
+
+    # 获取要显示的栏目，默认为“我的发布”
+    tab = request.args.get('tab', 'my_posts')
+
+    if tab == 'my_posts':
+        # 仅查询原创发布的帖子，排除转发的帖子
+        posts = db_session.query(Post).filter(Post.p_user_id == user.u_id, Post.original_post_id == None).order_by(Post.p_timestamp.desc()).all()
+    elif tab == 'my_likes':
+        # 查询用户点赞的帖子
+        posts = db_session.query(Post).join(Like).filter(Like.l_user_id == user.u_id).order_by(Post.p_timestamp.desc()).all()
+    elif tab == 'my_favorites':  # “我的转发”
+        # 查询用户转发的帖子（即 original_post_id 不为空的帖子）
+        posts = db_session.query(Post).filter(Post.p_user_id == user.u_id, Post.original_post_id != None).order_by(Post.p_timestamp.desc()).all()
+    else:
+        posts = []
+
+    # 格式化帖子数据
+    post_data = []
+    for post in posts:
+        post_images = [image.file_path for image in post.images[:3]]
+        like_count = db_session.query(Like).filter_by(l_post_id=post.p_id).count()
+        is_liked = db_session.query(Like).filter_by(l_user_id=user.u_id, l_post_id=post.p_id).first() is not None
+
+        # 如果是转发的帖子，包含原帖信息
+        original_post_data = None
+        if post.original_post:
+            original_post_data = {
+                "id": post.original_post.p_id,
+                "title": post.original_post.p_title,
+                "author": {
+                    "username": post.original_post.author.u_name,
+                    "avatar": f"/{post.original_post.author.u_avatarPath}"
+                }
+            }
+
+        post_data.append({
+            "id": post.p_id,
+            "title": post.p_title,
+            "content_preview": post.p_content[:100],
+            "images": post_images,
+            "like_count": like_count,
+            "is_liked": is_liked,
+            "author": {
+                "username": post.author.u_name,
+                "avatar": f"/{post.author.u_avatarPath}"
+            },
+            "original_post": original_post_data  # 添加原帖信息
+        })
+
+    return render_template('user_profile.html', user=user, posts=post_data, current_tab=tab)
+
+
+
+
 
 
 if __name__ == "__main__":
