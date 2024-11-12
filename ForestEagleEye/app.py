@@ -961,6 +961,80 @@ def forum_post():
 
     return render_template('forum_post.html')
 
+# 这里是论坛首页，现在的session我写死了等于一个字符串，到时候只需登录的时候把session动态填写一下就好
+# 返回字典 post代表帖子信息，user代表用户信息
+@app.route('/forum', methods=['GET'])
+def forum_home():
+    session['username'] = 'mkbk'
+    user = db_session.query(User).filter_by(u_name=session['username']).first()
+
+    if user is None:
+        print("error")
+        return redirect(url_for('login'))
+
+    posts = db_session.query(Post).order_by(Post.p_timestamp.desc()).all()
+
+    post_data = []
+    for post in posts:
+        post_images = [image.file_path for image in post.images[:3]]
+        like_count = len(post.likes)
+        is_liked = any(like.l_user_id == user.u_id for like in post.likes)
+
+        post_data.append({
+            "id": post.p_id,
+            "title": post.p_title,
+            "content_preview": post.p_content[:100],
+            "images": post_images,
+            "like_count": like_count,
+            "is_liked": is_liked,
+            "author": {
+                "username": post.author.u_name,
+                "avatar": f"/{post.author.u_avatarPath}"
+            },
+            "original_post": {
+                "id": post.original_post.p_id,
+                "title": post.original_post.p_title
+            } if post.original_post else None
+        })
+
+    user_data = {
+        "username": user.u_name,
+        "avatar": f"/{user.u_avatarPath}" if user.u_avatarPath else "forum/default-avatar.png"
+    }
+
+    return render_template('forum_home.html', posts=post_data, user=user_data)
+
+# 发表帖子
+@app.route('/forum/post', methods=['GET', 'POST'])
+def forum_post():
+    session['username'] = 'mkbk'
+    if request.method == 'POST':
+        if 'username' not in session:
+            return jsonify({"error": "User not logged in"}), 403
+
+        title = request.form['title']
+        content = request.form['content']
+        images = request.files.getlist('images')
+
+        user = db_session.query(User).filter_by(u_name=session['username']).first()
+        new_post = Post(p_title=title, p_content=content, author=user)
+        db_session.add(new_post)
+        db_session.commit()
+
+        for index, image in enumerate(images[:9]):
+            if image.filename != '':
+                filename = secure_filename(f"{new_post.p_id}_{index + 1}_{image.filename}")
+                filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+                image.save(filepath)
+
+                relative_path = f"uploads/{filename}"
+                new_image = Image(file_path=relative_path, post=new_post)
+                db_session.add(new_image)
+        db_session.commit()
+
+        return redirect(url_for('forum_home'))
+
+    return render_template('forum_post.html')
 
 @app.route('/post/<int:post_id>', methods=['GET'])
 def post_detail(post_id):
@@ -1054,7 +1128,114 @@ def like_post(post_id):
         "is_liked": action == "liked"
     })
 
+@app.route('/post/<int:post_id>', methods=['GET'])
+def post_detail(post_id):
+    session['username'] = 'mkbk'
+    post = db_session.query(Post).get(post_id)
+    comments = db_session.query(Comment).filter_by(c_post_id=post_id).all()
 
+    post_data = {
+        "id": post.p_id,
+        "title": post.p_title,
+        "content": post.p_content,
+        "images": [image.file_path for image in post.images],
+        "author": {
+            "username": post.author.u_name,
+            "avatar": f"/{post.author.u_avatarPath}"
+        },
+        "original_post": {
+            "id": post.original_post.p_id,
+            "title": post.original_post.p_title,
+            "author": post.original_post.author.u_name
+        } if post.original_post else None
+    }
+
+    comments_data = []
+    for comment in comments:
+        comment_images = [image.file_path for image in comment.images[:3]]
+        comments_data.append({
+            "content": comment.c_content,
+            "author": {
+                "username": comment.author.u_name,
+                "avatar": f"/{comment.author.u_avatarPath}"
+            },
+            "images": comment_images
+        })
+
+    return render_template('post_detail.html', post=post_data, comments=comments_data)
+
+@app.route('/post/<int:post_id>/comment', methods=['POST'])
+def post_comment(post_id):
+    session['username'] = 'mkbk'
+    if 'username' not in session:
+        return jsonify({"error": "User not logged in"}), 403
+
+    content = request.form['content']
+    images = request.files.getlist('images')
+
+    user = db_session.query(User).filter_by(u_name=session['username']).first()
+    new_comment = Comment(c_content=content, c_post_id=post_id, author=user)
+    db_session.add(new_comment)
+    db_session.commit()
+
+    for index, image in enumerate(images[:3]):
+        if image.filename != '':
+            filename = secure_filename(f"{new_comment.c_id}_{index + 1}_{image.filename}")
+            filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            image.save(filepath)
+
+            relative_path = f"uploads/{filename}"
+            new_image = Image(file_path=relative_path, comment=new_comment)
+            db_session.add(new_image)
+    db_session.commit()
+
+    return redirect(url_for('post_detail', post_id=post_id))
+@app.route('/post/<int:post_id>/like', methods=['POST'])
+def like_post(post_id):
+    session['username'] = 'mkbk'
+    if 'username' not in session:
+        return jsonify({"error": "User not logged in"}), 403
+
+    user = db_session.query(User).filter_by(u_name=session['username']).first()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    existing_like = db_session.query(Like).filter_by(l_user_id=user.u_id, l_post_id=post_id).first()
+
+    if existing_like:
+        db_session.delete(existing_like)
+        action = "unliked"
+    else:
+        new_like = Like(l_user_id=user.u_id, l_post_id=post_id)
+        db_session.add(new_like)
+        action = "liked"
+
+    db_session.commit()
+
+    like_count = db_session.query(Like).filter_by(l_post_id=post_id).count()
+    return jsonify({
+        "action": action,
+        "like_count": like_count,
+        "post_id": post_id,
+        "is_liked": action == "liked"
+    })
+
+@app.route('/post/<int:post_id>/share', methods=['POST'])
+def share_post(post_id):
+    session['username'] = 'mkbk'
+    if 'username' not in session:
+        return jsonify({"error": "User not logged in"}), 403
+
+<<<<<<< HEAD
+    user = db_session.query(User).filter_by(u_name=session['username']).first()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    original_post = db_session.query(Post).filter_by(p_id=post_id).first()
+    if original_post is None:
+        return jsonify({"error": "Original post not found"}), 404
+
+=======
 @app.route('/post/<int:post_id>/share', methods=['POST'])
 def share_post(post_id):
     session['username'] = 'mkbk'
@@ -1069,6 +1250,7 @@ def share_post(post_id):
     if original_post is None:
         return jsonify({"error": "Original post not found"}), 404
 
+>>>>>>> ae5004a9f1b2d924f338916020b719302454ac7f
     share_content = request.json.get('content', '')
 
     new_post = Post(
