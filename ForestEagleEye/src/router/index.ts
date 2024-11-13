@@ -63,7 +63,12 @@ const router = createRouter({
         id: 1,
         title: '森林详情'
       }
-    }
+    },
+    {
+      path: '/forests/:id/edit', // 使用动态路径参数 :id
+      name: 'ForestEdit',
+      component: () => import('../components/ForestEditView.vue'),
+    },
   ]
 })
 

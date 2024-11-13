@@ -93,6 +93,7 @@
     box-shadow: 0 5px 15px rgba(225, 225, 225, 0.4);
     background-color: white; 
     transition: background-color 0.3s ease;
+    z-index:99;
   }
 
   .navbar-container {
