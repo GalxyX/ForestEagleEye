@@ -887,10 +887,16 @@ def forest_info():
     return render_template("forest_info.html", forests=forests)
 
 @app.route("/get_world_tree_cover_json",methods=["GET"])
-def get_world_tree_cover_json():
+def get_world_tree_cover_json(): 
+    # 获取当前文件的绝对路径
+    current_file_path = os.path.abspath(__file__)
+    current_dir = os.path.dirname(current_file_path)
+    iso_data_fp = os.path.join(current_dir, 'src/assets/data/treecover_extent_2010_by_region__ha.csv')
+    iso_meta_fp = os.path.join(current_dir, 'src/assets/data/iso_metadata.csv')
+    print(iso_meta_fp)
     # 数据预处理
-    iso_data=pd.read_csv("src/assets/data/treecover_extent_2010_by_region__ha.csv").fillna(0)
-    iso_meta=pd.read_csv("src/assets/data//iso_metadata.csv").fillna(0)
+    iso_data=pd.read_csv(iso_data_fp).fillna(0)
+    iso_meta=pd.read_csv(iso_meta_fp).fillna(0)
     if(iso_data.empty or iso_meta.empty):
         return jsonify({
             'status':'fail',
