@@ -239,7 +239,7 @@
       //这里的ElNotification标红不是因为报错，是因为全局导入的el-ui这里无需再写，编译器的问题，不用管可以直接跑
       ElNotification({
         title: '创建成功',
-        message: '森林已添加到林上鹰眼数据库~',
+        message: '森林已成功添加到林上鹰眼数据库~',
         type: 'success',
       });
       formEl.resetFields();

@@ -55,7 +55,7 @@ verification_codes = {}  # 存储邮箱和验证码的字典
 # MySQL 数据库连接配置
 db_config={
     'user':'root',
-    'password':'hxyym123',#这里改成自己的数据库密码
+    'password':'20040616',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
     'database': 'forest',#这里改成自己的数据库名字
@@ -189,10 +189,18 @@ class Forest(Base):
     f_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 森林编号
     f_name = Column(String(100), nullable=False, unique=True)  # 森林名称
     f_location = Column(String(100), nullable=False,default='中国大陆')  # 森林地理位置
-    f_area = Column(Integer, nullable=False,default=0)  # 森林占地面积
+    f_area = Column(Integer, nullable=False,default=100)  # 森林占地面积
     f_soilType = Column(String(100), nullable=False,default='暂无')  # 土壤类型
     f_intro = Column(String(1000),default="森林管理员尚未添加简介...")  # 森林简介
     f_manager = Column(Integer,ForeignKey('institutions.i_id')) # 森林管理机构id
+
+    f_resourceDistribution = Column(String(1000),nullable=True)  # 资源分布
+    f_vegetationCoverage = Column(String(1000),nullable=True)  # 植被覆盖
+    f_historicalCulture = Column(String(1000),nullable=True)  # 历史文化
+    f_hydrologicalFeatures = Column(String(1000),nullable=True)  # 水文特征
+    f_disasterSituation = Column(String(1000),nullable=True)  # 灾害情况
+    f_wildlife = Column(String(1000),nullable=True)  # 野生动物
+    f_economicValue = Column(String(1000),nullable=True)  # 经济价值
 
 
 # 森林变量表
@@ -204,13 +212,8 @@ class ForestVariableBase(Base):
     f_temperature = Column(Float)  # 温度
     f_humidity = Column(Float)  # 湿度
     f_precipitation = Column(Float)  # 降水量
-    f_resourceDistribution = Column(String(1000))  # 资源分布
-    f_vegetationCoverage = Column(String(1000))  # 植被覆盖
-    f_historicalCulture = Column(String(1000))  # 历史文化
-    f_hydrologicalFeatures = Column(String(1000))  # 水文特征
-    f_disasterSituation = Column(String(1000))  # 灾害情况
-    f_wildlife = Column(String(1000))  # 野生动物
-    f_economicValue = Column(String(1000))  # 经济价值
+
+    
 
 
 """
@@ -250,10 +253,10 @@ class ForestVariableBase(Base):
 
 # 这是删除所有数据的操作，不到万不得已千万不要做
 # 如果之前创建过同名数据库且不明白如何数据库迁移，可以把下面一句注释去掉，运行清除之前的表并创建新表，然后记得加上注释
-# with engine.connect() as connection:
-#     connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
-#     Base.metadata.drop_all(engine)
-#     connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
+#with engine.connect() as connection: 
+#    connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
+#    Base.metadata.drop_all(engine)
+#    connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
 
 Base.metadata.create_all(engine)
 
@@ -769,11 +772,29 @@ def add_forest():
             )
             db_session.add(new_forest)
             db_session.commit()
-            return jsonify({'status':'success to add forest'})
+            return jsonify({'message':'success to add forest','status':'success'})
         
         except SQLAlchemyError as e:
             db_session.rollback()
-            return jsonify({'status':'fail to add forest'})
+            return jsonify({'message':'fail to add forest','status':'error'})
+
+@app.route("/delete_forest", methods=["POST"])
+def delete_forest():
+    if request.method=='POST':
+        print(request)
+        try:
+            f_id=request.form['f_id']
+            forest_to_delete = db_session.query(Forest).filter_by(f_id=f_id).first()
+            if forest_to_delete:
+                db_session.delete(forest_to_delete)
+                db_session.commit()
+                return jsonify({'message':'该记录已成功在林上鹰眼数据库删除~'})
+            else:
+                raise Exception("Forest not found")
+        except SQLAlchemyError as e:
+            db_session.rollback()
+            return jsonify({'message':'操作失败，请重新尝试'})
+
 
 
 @app.route("/forest_variable", methods=["GET", "POST"])
@@ -868,8 +889,8 @@ def forest_info():
 @app.route("/get_world_tree_cover_json",methods=["GET"])
 def get_world_tree_cover_json():
     # 数据预处理
-    iso_data=pd.read_csv("d://Desktop//forest1//ForestEagleEye//dataset//树木覆盖的全球位置//treecover_extent_2010_by_region__ha.csv").fillna(0)
-    iso_meta=pd.read_csv("d://Desktop//forest1//ForestEagleEye//dataset//树木覆盖的全球位置//iso_metadata.csv").fillna(0)
+    iso_data=pd.read_csv("src/assets/data/treecover_extent_2010_by_region__ha.csv").fillna(0)
+    iso_meta=pd.read_csv("src/assets/data//iso_metadata.csv").fillna(0)
     if(iso_data.empty or iso_meta.empty):
         return jsonify({
             'status':'fail',
@@ -884,13 +905,12 @@ def get_world_tree_cover_json():
             'datalist': datalist
         }),200
 
-        
 
 # 这里是论坛首页，现在的session我写死了等于一个字符串，到时候只需登录的时候把session动态填写一下就好
 # 返回字典 post代表帖子信息，user代表用户信息
 @app.route('/forum', methods=['GET'])
 def forum_home():
-    session['username'] = 'mkbk'
+    session['username'] = '最高rara'
     user = db_session.query(User).filter_by(u_name=session['username']).first()
 
     if user is None:
@@ -932,7 +952,7 @@ def forum_home():
 # 发表帖子
 @app.route('/forum/post', methods=['GET', 'POST'])
 def forum_post():
-    session['username'] = 'mkbk'
+    session['username'] = '最高rara'
     if request.method == 'POST':
         if 'username' not in session:
             return jsonify({"error": "User not logged in"}), 403
@@ -961,143 +981,8 @@ def forum_post():
 
     return render_template('forum_post.html')
 
-# 这里是论坛首页，现在的session我写死了等于一个字符串，到时候只需登录的时候把session动态填写一下就好
-# 返回字典 post代表帖子信息，user代表用户信息
-@app.route('/forum', methods=['GET'])
-def forum_home():
-    session['username'] = 'mkbk'
-    user = db_session.query(User).filter_by(u_name=session['username']).first()
 
-    if user is None:
-        print("error")
-        return redirect(url_for('login'))
 
-    posts = db_session.query(Post).order_by(Post.p_timestamp.desc()).all()
-
-    post_data = []
-    for post in posts:
-        post_images = [image.file_path for image in post.images[:3]]
-        like_count = len(post.likes)
-        is_liked = any(like.l_user_id == user.u_id for like in post.likes)
-
-        post_data.append({
-            "id": post.p_id,
-            "title": post.p_title,
-            "content_preview": post.p_content[:100],
-            "images": post_images,
-            "like_count": like_count,
-            "is_liked": is_liked,
-            "author": {
-                "username": post.author.u_name,
-                "avatar": f"/{post.author.u_avatarPath}"
-            },
-            "original_post": {
-                "id": post.original_post.p_id,
-                "title": post.original_post.p_title
-            } if post.original_post else None
-        })
-
-    user_data = {
-        "username": user.u_name,
-        "avatar": f"/{user.u_avatarPath}" if user.u_avatarPath else "forum/default-avatar.png"
-    }
-
-    return render_template('forum_home.html', posts=post_data, user=user_data)
-
-# 发表帖子
-@app.route('/forum/post', methods=['GET', 'POST'])
-def forum_post():
-    session['username'] = 'mkbk'
-    if request.method == 'POST':
-        if 'username' not in session:
-            return jsonify({"error": "User not logged in"}), 403
-
-        title = request.form['title']
-        content = request.form['content']
-        images = request.files.getlist('images')
-
-        user = db_session.query(User).filter_by(u_name=session['username']).first()
-        new_post = Post(p_title=title, p_content=content, author=user)
-        db_session.add(new_post)
-        db_session.commit()
-
-        for index, image in enumerate(images[:9]):
-            if image.filename != '':
-                filename = secure_filename(f"{new_post.p_id}_{index + 1}_{image.filename}")
-                filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-                image.save(filepath)
-
-                relative_path = f"uploads/{filename}"
-                new_image = Image(file_path=relative_path, post=new_post)
-                db_session.add(new_image)
-        db_session.commit()
-
-        return redirect(url_for('forum_home'))
-
-    return render_template('forum_post.html')
-
-@app.route('/post/<int:post_id>', methods=['GET'])
-def post_detail(post_id):
-    session['username'] = 'mkbk'
-    post = db_session.query(Post).get(post_id)
-    comments = db_session.query(Comment).filter_by(c_post_id=post_id).all()
-
-    post_data = {
-        "id": post.p_id,
-        "title": post.p_title,
-        "content": post.p_content,
-        "images": [image.file_path for image in post.images],
-        "author": {
-            "username": post.author.u_name,
-            "avatar": f"/{post.author.u_avatarPath}"
-        },
-        "original_post": {
-            "id": post.original_post.p_id,
-            "title": post.original_post.p_title,
-            "author": post.original_post.author.u_name
-        } if post.original_post else None
-    }
-
-    comments_data = []
-    for comment in comments:
-        comment_images = [image.file_path for image in comment.images[:3]]
-        comments_data.append({
-            "content": comment.c_content,
-            "author": {
-                "username": comment.author.u_name,
-                "avatar": f"/{comment.author.u_avatarPath}"
-            },
-            "images": comment_images
-        })
-
-    return render_template('post_detail.html', post=post_data, comments=comments_data)
-
-@app.route('/post/<int:post_id>/comment', methods=['POST'])
-def post_comment(post_id):
-    session['username'] = 'mkbk'
-    if 'username' not in session:
-        return jsonify({"error": "User not logged in"}), 403
-
-    content = request.form['content']
-    images = request.files.getlist('images')
-
-    user = db_session.query(User).filter_by(u_name=session['username']).first()
-    new_comment = Comment(c_content=content, c_post_id=post_id, author=user)
-    db_session.add(new_comment)
-    db_session.commit()
-
-    for index, image in enumerate(images[:3]):
-        if image.filename != '':
-            filename = secure_filename(f"{new_comment.c_id}_{index + 1}_{image.filename}")
-            filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            image.save(filepath)
-
-            relative_path = f"uploads/{filename}"
-            new_image = Image(file_path=relative_path, comment=new_comment)
-            db_session.add(new_image)
-    db_session.commit()
-
-    return redirect(url_for('post_detail', post_id=post_id))
 @app.route('/post/<int:post_id>/like', methods=['POST'])
 def like_post(post_id):
     session['username'] = 'mkbk'
@@ -1190,52 +1075,9 @@ def post_comment(post_id):
     db_session.commit()
 
     return redirect(url_for('post_detail', post_id=post_id))
-@app.route('/post/<int:post_id>/like', methods=['POST'])
-def like_post(post_id):
-    session['username'] = 'mkbk'
-    if 'username' not in session:
-        return jsonify({"error": "User not logged in"}), 403
 
-    user = db_session.query(User).filter_by(u_name=session['username']).first()
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
 
-    existing_like = db_session.query(Like).filter_by(l_user_id=user.u_id, l_post_id=post_id).first()
 
-    if existing_like:
-        db_session.delete(existing_like)
-        action = "unliked"
-    else:
-        new_like = Like(l_user_id=user.u_id, l_post_id=post_id)
-        db_session.add(new_like)
-        action = "liked"
-
-    db_session.commit()
-
-    like_count = db_session.query(Like).filter_by(l_post_id=post_id).count()
-    return jsonify({
-        "action": action,
-        "like_count": like_count,
-        "post_id": post_id,
-        "is_liked": action == "liked"
-    })
-
-@app.route('/post/<int:post_id>/share', methods=['POST'])
-def share_post(post_id):
-    session['username'] = 'mkbk'
-    if 'username' not in session:
-        return jsonify({"error": "User not logged in"}), 403
-
-<<<<<<< HEAD
-    user = db_session.query(User).filter_by(u_name=session['username']).first()
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
-
-    original_post = db_session.query(Post).filter_by(p_id=post_id).first()
-    if original_post is None:
-        return jsonify({"error": "Original post not found"}), 404
-
-=======
 @app.route('/post/<int:post_id>/share', methods=['POST'])
 def share_post(post_id):
     session['username'] = 'mkbk'
@@ -1250,7 +1092,6 @@ def share_post(post_id):
     if original_post is None:
         return jsonify({"error": "Original post not found"}), 404
 
->>>>>>> ae5004a9f1b2d924f338916020b719302454ac7f
     share_content = request.json.get('content', '')
 
     new_post = Post(
@@ -1267,12 +1108,6 @@ def share_post(post_id):
         "shared_post_id": new_post.p_id
     })
 
-@app.route("/")
-def index():
-    if "username" in session:
-        username = session["username"]
-        return render_template("index.html", username=username)
-    return render_template("login.html")
 
 @app.route('/user/<string:username>', methods=['GET'])
 def user_profile(username):

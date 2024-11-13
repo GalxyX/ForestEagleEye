@@ -99,9 +99,9 @@
                     <div v-if="activeIndex === '3'">
                       <div class="container" >
                         <ForestAddBox v-if="showAddBox" @back="onAddBoxClose"/>
-                        <ForestEditBox v-else-if="showEditBox" @back="onEditBoxClose":forestID="forestID"/>
+                        <ForestEditBox v-else-if="showEditBox" @back="onEditBoxClose":forestProps="forestProps"/>
                         <div v-else="">
-                          <el-table :data="allForestTableData" style="width: 100%; ">
+                          <el-table :data="allForestTableData" stripe style="width: 100%; ">
                           <el-table-column fixed="left" prop="value" label="序号" width="200" />
                           <el-table-column prop="label" label="名称" width="200" />
                           <el-table-column prop="location" label="地理位置" width="200" />
@@ -121,7 +121,7 @@
                                 link
                                 type="info"
                                 size="small"
-                                @click.prevent="deleteRow(scope.$index)"
+                                @click.prevent="deleteRow(scope.row)"
                               >
                                 删除
                               </el-button>
@@ -175,7 +175,7 @@ export default {
 
       //百科编辑-编辑详情
       showEditBox:false,
-      forestID:ref(null),
+      forestProps:ref([]),
 
       //百科编辑-创建森林
       showAddBox:false,
@@ -303,13 +303,36 @@ export default {
       this.fetchAllForestData();
     },
     async editRow(forest){
-      // 使用 router.push 跳转到编辑详情页，并传递森林 ID
-      this.forestID = forest.value;
-      console.log(this.forestID);
+      this.forestProps = forest;
       this.showEditBox=true;
     },
-    async deleteRow(){
-
+    async deleteRow(forest){
+      //获取当前森林
+      //向后端发送删除请求
+      try{    
+        const params= new URLSearchParams;
+        params.append('f_id',forest.value);
+        const response = await axios.post('http://127.0.0.1:5000/delete_forest', params,{
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+        //这里的ElNotification标红不是因为报错，是因为全局导入的el-ui这里无需再写，编译器的问题，不用管可以直接跑
+        ElNotification({
+          title: '删除成功',
+          message: response.data.message,
+          type: 'success',
+        })
+        this.fetchAllForestData();
+      }
+      catch(error){
+        //这里的ElNotification标红不是因为报错，是因为全局导入的el-ui这里无需再写，编译器的问题，不用管可以直接跑
+        ElNotification({
+          title: '删除失败',
+          message: response.data.message,
+          type: 'error',
+        })
+      }
     },
 }};
 </script>

@@ -105,6 +105,7 @@
 </template>
 
 <script>
+import { Position } from '@element-plus/icons';
 import axios from 'axios';
 import { ref } from 'vue';
 
@@ -181,7 +182,9 @@ export default {
         // 处理错误
         console.error('Error sending verification code:', error);
         alert(response.data.message);
+        return;
       }
+
     },
     async register() {
       try {
@@ -197,11 +200,7 @@ export default {
           params.append('inst',this.inst);
         }
 
-        const response = await axios.post('http://127.0.0.1:5000/register', params, {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        });
+        const response = await axios.post('http://127.0.0.1:5000/register', params);
 
         // 处理响应
         alert(response.data.message);

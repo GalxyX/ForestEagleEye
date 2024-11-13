@@ -193,7 +193,11 @@
             });
             this.signature = this.editedSignature;
             sessionStorage.setItem('signature',this.signature);
-            alert(response.data.message);
+            ElNotification({
+              title: '修改成功',
+              message: '个性签名已成功修改~',
+              type: 'success',
+            });
           }
           catch(error){
             alert(response.data.message);
@@ -215,7 +219,11 @@
                 'Content-Type': 'application/x-www-form-urlencoded',
               },
             });
-            alert(response.data.message);
+            ElNotification({
+              title: '修改成功',
+              message: '用户名已成功修改~',
+              type: 'success',
+            });
           }
           catch(error){
             alert(response.data.message);
@@ -223,7 +231,7 @@
           this.username = this.editedName;
           // 更新会话中的存储
           sessionStorage.setItem('username',this.username);
-          location.reload();
+          //location.reload();
         }
         this.isEditingName = false;
       },
