@@ -2,8 +2,9 @@
     <nav class="navbar">
       <div class="navbar-container">
         <!--logo-->
-        <img class="homelogo" src="../assets/logo.png">
-
+        <router-link to="/" class="nav-link">
+          <img class="homelogo" src="../assets/logo.png">
+        </router-link>
         <!-- 中间页面导航 -->
         <ul class="nav-list">
           <div class="nav-item">

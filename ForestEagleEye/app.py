@@ -44,7 +44,7 @@ verification_codes = {}  # 存储邮箱和验证码的字典
 # MySQL 数据库连接配置
 db_config={
     'user':'root',
-    'password':'20040616',#这里改成自己的数据库密码
+    'password':'a!oe3q4r',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
     'database': 'forest',#这里改成自己的数据库名字
