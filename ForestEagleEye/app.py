@@ -19,7 +19,7 @@ from flask_cors import CORS
 from sqlalchemy.exc import SQLAlchemyError,OperationalError
 import re
 import pandas as pd
-
+import requests
 
 
 app = Flask(
@@ -65,6 +65,14 @@ engine = create_engine("mysql+pymysql://{user}:{password}@{host}:{port}/{databas
 
 Base = declarative_base()
 
+
+# 森林百科-获取当前文件目录
+current_file_path = os.path.abspath(__file__)
+current_dir = os.path.dirname(current_file_path)
+# 森林百科-获取天气数据-城市编号字典
+Amap=pd.read_excel(os.path.join(current_dir, 'src/assets/data/AMap_adcode_citycode.xlsx'))
+CityCodeMap=pd.Series(Amap['adcode'].values,index=Amap['name']).to_dict()
+API_KEY = "a4ff6e3b16fa5bc76d719f465c90e6da"# 申请的高德地图API密钥，不要改
 
 class user_participate_activity(Base):
     __tablename__ = "user_participate_activity"
@@ -188,7 +196,7 @@ class Forest(Base):
     __tablename__ = "forests"
     f_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 森林编号
     f_name = Column(String(100), nullable=False, unique=True)  # 森林名称
-    f_location = Column(String(100), nullable=False,default='中国大陆')  # 森林地理位置
+    f_location = Column(String(100), nullable=False,default='中国/中国大陆/中华人民共和国')  # 森林地理位置
     f_area = Column(Integer, nullable=False,default=100)  # 森林占地面积
     f_soilType = Column(String(100), nullable=False,default='暂无')  # 土壤类型
     f_intro = Column(String(1000),default="森林管理员尚未添加简介...")  # 森林简介
@@ -197,7 +205,6 @@ class Forest(Base):
     f_resourceDistribution = Column(String(1000),nullable=True)  # 资源分布
     f_vegetationCoverage = Column(String(1000),nullable=True)  # 植被覆盖
     f_historicalCulture = Column(String(1000),nullable=True)  # 历史文化
-    f_hydrologicalFeatures = Column(String(1000),nullable=True)  # 水文特征
     f_disasterSituation = Column(String(1000),nullable=True)  # 灾害情况
     f_wildlife = Column(String(1000),nullable=True)  # 野生动物
     f_economicValue = Column(String(1000),nullable=True)  # 经济价值
@@ -207,14 +214,12 @@ class Forest(Base):
 # 定义基础表模型
 class ForestVariableBase(Base):
     __abstract__ = True  # 抽象基类
-    f_id = Column(Integer, primary_key=True, autoincrement=True)  # 主键，自增
-    f_date = Column(DateTime, nullable=False, default=datetime.now)  # 日期，默认当前时间
+    f_date = Column(DateTime, nullable=False, default=datetime.now,primary_key=True)  # 日期，默认当前时间
     f_temperature = Column(Float)  # 温度
     f_humidity = Column(Float)  # 湿度
-    f_precipitation = Column(Float)  # 降水量
-
+    f_winddirection = Column(String(20))  # 风向
+    f_windpower = Column(String(20))  # 风力
     
-
 
 """
     思想：以上创建了每个森林变量表的基类，每个森林所有时刻的变量存在一张表内，不同森林的变量存在不同表内，使用以下方法创建、访问、插入。
@@ -815,7 +820,7 @@ def view_forest_variable():
 
 @app.route("/add_forest_variable", methods=["POST"])
 def add_forest_variable():
-    forest_name = request.form["forest_name"]
+    forest_name = request.form["f_name"]
     print(forest_name)
     ForestVariable = get_forest_variable_table(forest_name)
     try:
@@ -889,8 +894,6 @@ def forest_info():
 @app.route("/get_world_tree_cover_json",methods=["GET"])
 def get_world_tree_cover_json(): 
     # 获取当前文件的绝对路径
-    current_file_path = os.path.abspath(__file__)
-    current_dir = os.path.dirname(current_file_path)
     iso_data_fp = os.path.join(current_dir, 'src/assets/data/treecover_extent_2010_by_region__ha.csv')
     iso_meta_fp = os.path.join(current_dir, 'src/assets/data/iso_metadata.csv')
     print(iso_meta_fp)
@@ -910,6 +913,56 @@ def get_world_tree_cover_json():
             'status':'success',
             'datalist': datalist
         }),200
+
+@app.route('/get_weather',methods=['POST'])
+def get_weather():
+    city=request.form['city']
+    altcity=request.form['altcity']
+    forest_name = request.form["f_name"]
+    adcode=CityCodeMap.get(city,'no data')
+    if adcode=='no data':
+        adcode=CityCodeMap.get(altcity,'no data')
+    if adcode!='no data':
+        # 向高德API发送请求
+        url = f"https://restapi.amap.com/v3/weather/weatherInfo?key={API_KEY}&city={adcode}&extensions=base&output=JSON"
+        response = requests.get(url)
+        data = response.json()
+        
+        if data['status']:
+            w_temperature=data['lives'][0]['temperature']
+            w_winddirection=data['lives'][0]['winddirection']
+            w_windpower=data['lives'][0]['windpower']
+            w_humidity=data['lives'][0]['humidity']
+            w_time=datetime.strptime(data['lives'][0]['reporttime'], '%Y-%m-%d %H:%M:%S')
+
+            # 添加到数据库
+            ForestVariable = get_forest_variable_table(forest_name)
+            try:
+                new_variable = ForestVariable(
+                    f_temperature=float(w_temperature),
+                    f_humidity=float(w_humidity),
+                    f_winddirection=w_winddirection,
+                    f_windpower=w_windpower,        
+                    f_date=w_time
+                )
+                db_session.add(new_variable)
+                db_session.commit()
+            
+            except SQLAlchemyError as e:
+                db_session.rollback()
+            
+            # 返回前端展示数据
+            weather=[{
+                'temperature': w_temperature,
+                'winddirection': w_winddirection,
+                'windpower': w_windpower,
+                'humidity': w_humidity,
+                'time': w_time.strftime('%Y-%m-%d %H:%M:%S')  # 将 datetime 对象转换为 ISO 格式的字符串
+            }]
+            return jsonify({'status':'success','weather':weather}),200
+    return jsonify({'status':'fail'}),404
+
+
 
 
 # 这里是论坛首页，现在的session我写死了等于一个字符串，到时候只需登录的时候把session动态填写一下就好

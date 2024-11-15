@@ -1,7 +1,25 @@
-import pandas as pd
-iso_data=pd.read_csv("d://Desktop//forest1//ForestEagleEye//dataset//树木覆盖的全球位置//treecover_extent_2010_by_region__ha.csv").fillna(0)
-iso_meta=pd.read_csv("d://Desktop//forest1//ForestEagleEye//dataset//树木覆盖的全球位置//iso_metadata.csv").fillna(0)
-mergedata=pd.merge(iso_data,iso_meta,on='iso')
-data = [{'name': row['name'], 'value': row['umd_tree_cover_extent_2010__ha']} for index, row in mergedata.iterrows()]
+import requests
 
+API_KEY = "a4ff6e3b16fa5bc76d719f465c90e6da"
 
+city = "110000"
+
+#extensions = "all"
+
+url = f"https://restapi.amap.com/v3/weather/weatherInfo?key={API_KEY}&city={city}&extensions=all&output=JSON"
+
+response = requests.get(url)
+
+data = response.json()
+
+print(data)
+
+s_city = data["forecasts"][0]["city"]
+s_date = data["forecasts"][0]["casts"][0]["date"]
+s_dayweather = data["forecasts"][0]["casts"][0]["dayweather"]
+s_daytemp = data["forecasts"][0]["casts"][0]["daytemp"]
+
+print(f"城市: {s_city}")
+print(f"日期: {s_date}")
+print(f"白天天气: {s_dayweather}")
+print(f"白天温度: {s_daytemp}")

@@ -360,11 +360,12 @@ export default {
   bottom: 0;
   font-size:xx-small;
 }
+
 .container{
-    background-color: white;
-    width:95%;
-    margin-bottom: 20px;
-    padding:10px 40px 30px 40px;
+  background-color: white;
+  width:95%;
+  margin-bottom: 20px;
+  padding:10px 40px 30px 40px;
 }
 .try-btn{
   color:#60a103;

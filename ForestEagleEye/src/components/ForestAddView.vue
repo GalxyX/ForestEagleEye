@@ -5,6 +5,7 @@
         </template>
     </el-page-header>
     <el-divider></el-divider>
+    
     <el-form
       ref="ruleFormRef"
       style="max-width: 600px"

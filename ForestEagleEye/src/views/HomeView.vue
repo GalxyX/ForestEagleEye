@@ -272,7 +272,7 @@ function show_next_pic(i: number) {
   <footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</footer>
 </template>
 
-<style>
+<style scoped>
 html,
 body {
   scroll-behavior: smooth;
