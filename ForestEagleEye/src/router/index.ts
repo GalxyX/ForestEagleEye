@@ -38,9 +38,19 @@ const router = createRouter({
     {
       path: '/forum',
       name: 'forum',
-      component: () => import('../views/forum.vue')
+      component: () => import('../views/ForumView.vue')
     },
     {
+      path: '/post/:id',
+      name: 'post',
+      component: () => import('../views/postDetailView.vue')
+    },
+    {
+      path: '/post/:id/share',
+      name: 'sharepost',
+      component: () => import('../views/postShareView.vue')
+    },
+   {
       path: '/game',
       name: 'game',
       component: () => import('../views/game.vue')
