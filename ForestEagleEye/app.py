@@ -258,31 +258,38 @@ class ForestVariableBase(Base):
 
 # 这是删除所有数据的操作，不到万不得已千万不要做
 # 如果之前创建过同名数据库且不明白如何数据库迁移，可以把下面一句注释去掉，运行清除之前的表并创建新表，然后记得加上注释
-#with engine.connect() as connection: 
-#    connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
-#    Base.metadata.drop_all(engine)
-#    connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
+# with engine.connect() as connection: 
+#     connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
+#     # inspector = inspect(engine)
+#     # foreign_keys = inspector.get_foreign_keys('institutions')
+#     # foreign_key_names = [fk['name'] for fk in foreign_keys]
+    
+#     # if 'institutions_ibfk_1' in foreign_key_names:
+#     #     # 删除外键约束
+#     #     connection.execute(text("ALTER TABLE institutions DROP FOREIGN KEY institutions_ibfk_1;"))
+#     Base.metadata.drop_all(engine)
+#     connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
 
-Base.metadata.create_all(engine)
+# Base.metadata.create_all(engine)
 
 db_session_class = sessionmaker(bind=engine)
 db_session = db_session_class()
 
 # 以下是为了测试临时添加的森林、管理机构和从业机构
 # 完整功能上线后，需删除！
-'''
-administrator=Institution(i_name="管理机构-测试",i_type='管理机构')
-db_session.add(administrator)
-db_session.commit()
 
-practitioner=Institution(i_name='从业机构-测试',i_type='从业机构')
-db_session.add(practitioner)
-db_session.commit()
+# administrator=Institution(i_name="管理机构-测试",i_type='管理机构')
+# db_session.add(administrator)
+# db_session.commit()
 
-forest = Forest(f_name='测试森林',f_manager=administrator.i_id)
-db_session.add(forest)
-db_session.commit()
-'''
+# practitioner=Institution(i_name='从业机构-测试',i_type='从业机构')
+# db_session.add(practitioner)
+# db_session.commit()
+
+# forest = Forest(f_name='测试森林',f_manager=administrator.i_id)
+# db_session.add(forest)
+# db_session.commit()
+
 # 完整功能上线后，以上需删除！
 
 def hash_password(password):
@@ -934,7 +941,7 @@ def setForestInfo():
 # 返回字典 post代表帖子信息，user代表用户信息
 @app.route('/forum', methods=['GET'])
 def forum_home():
-    session['username'] = '最高rara'
+    session['username'] = 'galaxy'
     user = db_session.query(User).filter_by(u_name=session['username']).first()
 
     if user is None:
@@ -970,13 +977,13 @@ def forum_home():
         "username": user.u_name,
         "avatar": f"/{user.u_avatarPath}" if user.u_avatarPath else "forum/default-avatar.png"
     }
-
+    return jsonify(post_data)
     return render_template('forum_home.html', posts=post_data, user=user_data)
 
 # 发表帖子
 @app.route('/forum/post', methods=['GET', 'POST'])
 def forum_post():
-    session['username'] = '最高rara'
+    session['username'] = 'galaxy'
     if request.method == 'POST':
         if 'username' not in session:
             return jsonify({"error": "User not logged in"}), 403
@@ -1000,7 +1007,7 @@ def forum_post():
                 new_image = Image(file_path=relative_path, post=new_post)
                 db_session.add(new_image)
         db_session.commit()
-
+        
         return redirect(url_for('forum_home'))
 
     return render_template('forum_post.html')
@@ -1009,7 +1016,7 @@ def forum_post():
 
 @app.route('/post/<int:post_id>/like', methods=['POST'])
 def like_post(post_id):
-    session['username'] = 'mkbk'
+    session['username'] = 'galaxy'
     if 'username' not in session:
         return jsonify({"error": "User not logged in"}), 403
 
@@ -1039,7 +1046,7 @@ def like_post(post_id):
 
 @app.route('/post/<int:post_id>', methods=['GET'])
 def post_detail(post_id):
-    session['username'] = 'mkbk'
+    session['username'] = 'galaxy'
     post = db_session.query(Post).get(post_id)
     comments = db_session.query(Comment).filter_by(c_post_id=post_id).all()
 
@@ -1070,12 +1077,12 @@ def post_detail(post_id):
             },
             "images": comment_images
         })
-
+    return jsonify({"posts":post_data, "comments":comments_data})
     return render_template('post_detail.html', post=post_data, comments=comments_data)
 
 @app.route('/post/<int:post_id>/comment', methods=['POST'])
 def post_comment(post_id):
-    session['username'] = 'mkbk'
+    session['username'] = 'galaxy'
     if 'username' not in session:
         return jsonify({"error": "User not logged in"}), 403
 
@@ -1104,7 +1111,7 @@ def post_comment(post_id):
 
 @app.route('/post/<int:post_id>/share', methods=['POST'])
 def share_post(post_id):
-    session['username'] = 'mkbk'
+    session['username'] = 'galaxy'
     if 'username' not in session:
         return jsonify({"error": "User not logged in"}), 403
 
