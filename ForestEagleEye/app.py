@@ -429,7 +429,8 @@ def getAllForests():
         "label": forest.f_name, 
         "location": forest.f_location, 
         "area": forest.f_area, 
-        "manager" : institutions.get(forest.f_manager)  # 使用森林的管理机构 ID 从字典中获取名称
+        "manager" : institutions.get(forest.f_manager),  # 使用森林的管理机构 ID 从字典中获取名称
+        "intro" : forest.f_intro,
     } for forest in db_session.query(Forest).all()]
 
     if forests:
@@ -748,10 +749,8 @@ def create_forest_variable_table(forest_name):
         print(f"Table {table_name} already exists.")
     return ForestVariable
 
-
 def get_forest_variable_table(forest_name):
     return create_forest_variable_table(forest_name)
-
 
 def get_all_forests():
     return db_session.query(Forest).all()
@@ -801,7 +800,6 @@ def delete_forest():
             return jsonify({'message':'操作失败，请重新尝试'})
 
 
-
 @app.route("/forest_variable", methods=["GET", "POST"])
 def view_forest_variable():
     if request.method == "POST":
@@ -817,53 +815,6 @@ def view_forest_variable():
                                forest_variables=forest_variables, selected_forest_name=forest_name)
     else:
         return render_template("forest_variable.html", forests=get_all_forests())
-
-@app.route("/add_forest_variable", methods=["POST"])
-def add_forest_variable():
-    forest_name = request.form["f_name"]
-    print(forest_name)
-    ForestVariable = get_forest_variable_table(forest_name)
-    try:
-        f_temperature = request.form["f_temperature"]
-        f_humidity = request.form["f_humidity"]
-        f_precipitation = request.form["f_precipitation"]
-        f_resourceDistribution = request.form["f_resourceDistribution"]
-        f_vegetationCoverage = request.form["f_vegetationCoverage"]
-        f_historicalCulture = request.form["f_historicalCulture"]
-        f_hydrologicalFeatures = request.form["f_hydrologicalFeatures"]
-        f_disasterSituation = request.form["f_disasterSituation"]
-        f_wildlife = request.form["f_wildlife"]
-        f_economicValue = request.form["f_economicValue"]
-
-        new_variable = ForestVariable(
-            f_temperature=f_temperature,
-            f_humidity=f_humidity,
-            f_precipitation=f_precipitation,
-            f_resourceDistribution=f_resourceDistribution,
-            f_vegetationCoverage=f_vegetationCoverage,
-            f_historicalCulture=f_historicalCulture,
-            f_hydrologicalFeatures=f_hydrologicalFeatures,
-            f_disasterSituation=f_disasterSituation,
-            f_wildlife=f_wildlife,
-            f_economicValue=f_economicValue,
-            f_date=datetime.now()
-        )
-
-        db_session.add(new_variable)
-        db_session.commit()
-
-        flash("森林变量信息添加成功", "success")
-
-    except SQLAlchemyError as e:
-        db_session.rollback()
-
-    try:
-        forest_variables = db_session.query(ForestVariable).all()
-    except SQLAlchemyError as e:
-        forest_variables = []
-
-    return render_template("forest_variable.html", forests=get_all_forests(),
-                           forest_variables=forest_variables, selected_forest_name=forest_name)
 
 
 @app.route("/forest_info", methods=["GET", "POST"])
@@ -914,6 +865,7 @@ def get_world_tree_cover_json():
             'datalist': datalist
         }),200
 
+# 此处获取到weather记录后，会同步添加到数据库
 @app.route('/get_weather',methods=['POST'])
 def get_weather():
     city=request.form['city']
@@ -961,6 +913,19 @@ def get_weather():
             }]
             return jsonify({'status':'success','weather':weather}),200
     return jsonify({'status':'fail'}),404
+
+@app.route('/setForestInfo',methods=['POST'])
+def setForestInfo():
+    if request.method == 'POST':
+        intro=request.form['intro']
+        print(intro)
+        forest = db_session.query(Forest).filter_by(f_id=request.form["id"]).first()
+        # 更新记录
+        forest.f_intro=intro
+        db_session.commit()
+        return jsonify({'status':'success','message':'edited f_intro successfully'}),200
+    return jsonify({'status':'fail','message':'failed to edit f_intro'}),404
+
 
 
 
@@ -1040,7 +1005,7 @@ def forum_post():
 
     return render_template('forum_post.html')
 
-
+        
 
 @app.route('/post/<int:post_id>/like', methods=['POST'])
 def like_post(post_id):

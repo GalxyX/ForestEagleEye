@@ -33,8 +33,8 @@
             <h1>编辑气候概况</h1>
             <div style="display: flex; align-items: center; gap: 10px;">
               <h2>点击按钮获取本林区的最新气象数据，并更新到林上鹰眼数据库</h2>
-              <el-button type="success" style="width: 80px;" v-if="!showLoading" @click="fetchWeatherData">获取数据</el-button>
-              <el-button  type="success" loading style="width: 80px;" v-else disabled>Loading</el-button>
+              <el-button type="success" plain style="width: 80px;" v-if="!showLoading" @click="fetchWeatherData">获取数据</el-button>
+              <el-button  type="success" plain loading style="width: 80px;" v-else disabled>Loading</el-button>
             </div>
             <el-descriptions
               direction="vertical"
@@ -54,7 +54,17 @@
           </div>
           <el-divider border-style="dashed" />
           <div>
-            <h1>编辑森林简介</h1>
+            <div style="display: flex; align-items: center; margin-top: 10px;">
+              <h1>编辑森林简介</h1>
+              <img v-if="!isEditIntro" @click="toggleEditIntro" src="../assets/icon-pencil2.png" style="height:18px; margin-left:5px;margin-top: 20px;">
+            </div>
+            <div v-if="isEditIntro===false" style="color:grey; font-size: 10.5pt; margin-top: 15px;">{{intro}}</div>
+            <div v-else disabled>
+              <el-input  v-model="editedIntro"  placeholder="输入修改后的森林简介"  type="textarea" maxlength="1000" show-word-limit />
+              <el-button class="ml-3" type="success" @click="submitIntro" style="margin-top: 10px;">
+                上传至林上鹰眼
+              </el-button>
+            </div>
           </div>
           <el-divider border-style="dashed" />
           <div>
@@ -74,11 +84,11 @@
             </el-descriptions>
 
             <el-upload
-              ref="upload"
+              ref="uploadResource"
               class="upload-demo"
               action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
               :limit="1"
-              :on-exceed="handleExceed"
+              :on-exceed="handleExceedResource"
               :auto-upload="false"
             >
               <template #trigger>
@@ -89,13 +99,44 @@
               </template>
               
             </el-upload>
-            <el-button class="ml-3" type="success" @click="submitUpload">
+            <el-button class="ml-3" type="success" @click="submitUploadResource">
                 上传至林上鹰眼
             </el-button>
           </div>
           <el-divider border-style="dashed" />
           <div>
             <h1>灾害情况</h1>
+            <h2>按照参考格式上传数据文件，林上鹰眼会自动帮您保存到数据库中</h2>
+            <el-descriptions
+              direction="vertical"
+              style="margin-bottom: 10px;"
+              :column="5"
+              border
+            >
+              <el-descriptions-item label="日期">2024-11-18</el-descriptions-item>
+              <el-descriptions-item label="灾害类型">火灾</el-descriptions-item>
+              <el-descriptions-item label="受损森林面积(公顷)">2.00</el-descriptions-item>
+              <el-descriptions-item label="灾情概述">本林区东北角处发生了森林火灾，灾情较为严重。</el-descriptions-item>
+            </el-descriptions>
+            <el-upload
+              ref="uploadDisaster"
+              class="upload-demo"
+              action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+              :limit="1"
+              :on-exceed="handleExceedDisaster"
+              :auto-upload="false"
+            >
+              <template #trigger>
+                <el-button type="success" plain>选择文件</el-button>
+                <h3 style="margin-left: 10px;">
+                  您只能上传1个.xlsx格式的文件,多余的文件将被覆盖
+                </h3>
+              </template>
+              
+            </el-upload>
+            <el-button class="ml-3" type="success" @click="submitUploadDisaster">
+                上传至林上鹰眼
+            </el-button>
           </div>
           <el-divider border-style="dashed" />
           <div>
@@ -131,10 +172,9 @@
   import { ArrowLeft } from '@element-plus/icons-vue'
   import { normalize } from 'echarts/types/src/scale/helper.js';
   import axios from 'axios';
-  import { ElNotification } from 'element-plus';
   import { genFileId } from 'element-plus'
-  import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
-  import { Plus } from '@element-plus/icons-vue'
+  import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
+  import { Plus } from '@element-plus/icons-vue';
 
   // 定义森林属性的接口
   interface ForestProps {
@@ -143,6 +183,7 @@
     location: string;
     area: number;
     manager: string;
+    intro: string;
   }
 
   // 定义 props，并使用 ForestProps 接口作为类型注解
@@ -154,8 +195,8 @@
   });
 
   // 检查 props.forestProps 是否存在，然后解构赋值
-  const { value: f_id, label: f_name, location: f_location, area: f_area, manager: f_manager } =
-  props.forestProps || {};
+  const { value: f_id, label: f_name, location: f_location, area: f_area, manager: f_manager, intro: f_intro } =
+  props.forestProps || [];
 
   // 返回触发事件
   const emit = defineEmits(['back']);
@@ -178,6 +219,7 @@
   const w_windpower = ref(null);
   const w_humidity = ref(null);
   const w_time = ref(null);
+
   const fetchWeatherData = async() => {
     showLoading.value = true;
     showWeatherDataBox.value=false;
@@ -222,19 +264,74 @@
     showLoading.value=false;
 
   }
+  // 编辑简介
+  const editedIntro =ref('');
+  const isEditIntro = ref(false);
+  var intro = f_intro;
+  const toggleEditIntro = () =>{
+    isEditIntro.value = true;
+  }
+  const submitIntro= async() => {
+    
+    if(editedIntro.value!=f_intro){
+      if(!editedIntro){
+        editedIntro="森林管理员尚未添加简介...";
+      }
+      // 向后端发送更改请求
+      try{
+        const params = new URLSearchParams();
+        params.append('intro',editedIntro.value);
+        params.append('id',f_id);
 
-  const upload = ref<UploadInstance>()
+        const response = await axios.post('http://127.0.0.1:5000/setForestInfo',params,{
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });     
+        if(response.data.status==='success'){
+          console.log('进来了success的分支');
+          intro=editedIntro.value;
+          ElNotification({
+            title: '更新成功',
+            message: '修改已成功添加到林上鹰眼数据库中~',
+            type: 'success',
+          });
+        }
+      }
+      catch(error){      
+      }
+    }
+    isEditIntro.value=false;
 
-  const handleExceed: UploadProps['onExceed'] = (files) => {
-    upload.value!.clearFiles()
+        
+  }
+
+
+  // 资源数据
+  const uploadResource = ref<UploadInstance>()
+  const handleExceedResource: UploadProps['onExceed'] = (files) => {
+    uploadResource.value!.clearFiles()
     const file = files[0] as UploadRawFile
     file.uid = genFileId()
-    upload.value!.handleStart(file)
+    uploadResource.value!.handleStart(file)
+  }
+  const submitUploadResource = () => {
+    uploadResource.value!.submit()
   }
 
-  const submitUpload = () => {
-    upload.value!.submit()
+  // 灾害数据
+  const uploadDisaster = ref<UploadInstance>()
+  const handleExceedDisaster: UploadProps['onExceed'] = (files) => {
+    uploadDisaster.value!.clearFiles()
+    const file = files[0] as UploadRawFile
+    file.uid = genFileId()
+    uploadDisaster.value!.handleStart(file)
   }
+  const submitUploadDisaster = () => {
+    uploadDisaster.value!.submit()
+  }
+
+
 
 
   const fileList = ref<UploadUserFile[]>([]);

@@ -249,9 +249,9 @@
     catch(error){
       //这里的ElNotification标红不是因为报错，是因为全局导入的el-ui这里无需再写，编译器的问题，不用管可以直接跑
       ElNotification({
-          title: '操作失败',
-          message: '操作失败，请重新尝试',
-          type: 'error',
+        title: '操作失败',
+        message: '操作失败，请重新尝试',
+        type: 'error',
       })
       console.log('error to post!')
     }
