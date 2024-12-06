@@ -212,6 +212,8 @@ class Forest(Base):
 
 # 森林变量表
 # 定义基础表模型
+
+### 森林气象变量表
 class ForestVariableBase(Base):
     __abstract__ = True  # 抽象基类
     f_date = Column(DateTime, nullable=False, default=datetime.now,primary_key=True)  # 日期，默认当前时间
@@ -219,7 +221,24 @@ class ForestVariableBase(Base):
     f_humidity = Column(Float)  # 湿度
     f_winddirection = Column(String(20))  # 风向
     f_windpower = Column(String(20))  # 风力
-    
+
+### 森林灾害变量表
+class ForestDisasterBase(Base):
+    __abstract__ = True
+    d_date = Column(DateTime, nullable=False, default=datetime.now,primary_key=True)  # 日期，默认当前时间
+    d_type = Column(Enum("火灾", "极端天气", "干旱", "土壤侵蚀", "酸雨","地质灾害","生物灾害","人为灾害"), nullable=False)  # 灾害类型
+    d_loss = Column(Float)  # 受损面积
+    d_desc = Column(String(1000))
+
+### 森林动植物资源变量表
+class ForestResourceBase(Base):
+    __abstract__ = True
+    r_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 编号
+    r_name = Column(String(100))
+    r_type = Column(Enum("动物", "植物","微生物"), nullable=False)  # 资源类型
+    r_latitude = Column(Float)  # 分布中心纬度
+    r_longitude = Column(Float)  # 分布中心经度
+    r_radius = Column(Float)  # 分布中心半径
 
 """
     思想：以上创建了每个森林变量表的基类，每个森林所有时刻的变量存在一张表内，不同森林的变量存在不同表内，使用以下方法创建、访问、插入。
@@ -461,7 +480,104 @@ def getRelativeInstitutions():
     except Exception as e:
         return jsonify({'error': f'An error occurred while querying the database: {str(e)}'}), 500
 
+# 森林百科-编辑详情-上传森林相册图片
+@app.route("/uploadForestImage")
+def uploadForestImage():
+    print('上传森林相册图片...')
+    return jsonify(),200
 
+
+### 动态创建并获取动植物资源详情的表格
+def create_resource_variable_table(f_name):
+    class ForestResource(ForestResourceBase):
+        __tablename__ = f'forest_resource_{f_name}'
+        __table_args__ = {'extend_existing':True}
+    inspector = inspect(engine)
+    table_name = f'forest_resource_{f_name}'
+    if not inspector.has_table(table_name):
+        ForestResource.__table__.create(bind=engine)
+        print(f'Table {table_name} created.')
+    else:
+        print(f'Table {table_name} already exists.')
+    return ForestResource
+
+def get_forest_resource_table(f_name):
+    return create_resource_variable_table(f_name)
+
+# 森林百科-编辑相册-上传动植物资源文件
+@app.route("/uploadResourceFile",methods=["POST"])
+def uploadResourceFile():
+    if 'file' not in request.files:
+        return jsonify({'error': '未上传文件'})
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': '文件名无效'})
+    # 文件上传成功，转为变量表添加记录
+    df = pd.read_excel(file.stream)
+
+    # 添加到数据库
+    f_name = request.form['f_name']
+    ForestResource = get_forest_resource_table(f_name)
+    try:
+        for index, row in df.iterrows():
+            new_resource = ForestResource(
+                r_name=row['资源名称'],
+                r_type=row['资源类型'],
+                r_latitude=row['分布中心纬度'],
+                r_longitude=row['分布中心经度'],
+                r_radius=row['分布范围半径(公里)']
+            )
+            db_session.add(new_resource)
+        db_session.commit()
+    except SQLAlchemyError as e:
+        db_session.rollback()
+    return jsonify({'message': '文件上传成功'}),200
+
+
+### 动态创建并获取灾害详情的表格
+def create_disaster_variable_table(f_name):
+    class ForestDisaster(ForestDisasterBase):
+        __tablename__ = f'forest_disaster_{f_name}'
+        __table_args__ = {'extend_existing':True}
+    inspector = inspect(engine)
+    table_name = f'forest_disaster_{f_name}'
+    if not inspector.has_table(table_name):
+        ForestDisaster.__table__.create(bind=engine)
+        print(f'Table {table_name} created.')
+    else:
+        print(f'Table {table_name} already exists.')
+    return ForestDisaster
+
+def get_forest_disaster_table(f_name):
+    return create_disaster_variable_table(f_name)
+# 森林百科-编辑相册-上传灾害文件
+@app.route("/uploadDisasterFile",methods=["POST"])
+def uploadDisasterFile():
+    if 'file' not in request.files:
+        return jsonify({'error': '未上传文件'})
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': '文件名无效'})
+    # 文件上传成功，转为变量表添加记录
+    df = pd.read_excel(file.stream)
+    df['日期'] = pd.to_datetime(df['日期'])
+
+    # 添加到数据库
+    f_name = request.form['f_name']
+    ForestDisaster = get_forest_disaster_table(f_name)
+    try:
+        for index, row in df.iterrows():
+            new_disaster = ForestDisaster(
+                d_date=row['日期'],
+                d_type=row['灾害类型'],
+                d_loss=row['受损森林面积(公顷)'],
+                d_desc=row['灾情概述']
+            )
+            db_session.add(new_disaster)
+            db_session.commit()
+    except SQLAlchemyError as e:
+        db_session.rollback()
+    return jsonify({'message': '文件上传成功'}),200
 
 # 林业活动界面
 @app.route("/activity")

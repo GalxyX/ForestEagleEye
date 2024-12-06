@@ -77,19 +77,19 @@
               border
             >
               <el-descriptions-item label="资源名称">野猪</el-descriptions-item>
-              <el-descriptions-item label="资源类型(植物/动物)">动物</el-descriptions-item>
+              <el-descriptions-item label="资源类型">动物</el-descriptions-item>
               <el-descriptions-item label="分布中心经度">123.123</el-descriptions-item>
               <el-descriptions-item label="分布中心纬度">45.45</el-descriptions-item>
-              <el-descriptions-item label="分布范围">5</el-descriptions-item>
+              <el-descriptions-item label="分布范围半径(公里)">5</el-descriptions-item>
             </el-descriptions>
 
             <el-upload
               ref="uploadResource"
-              class="upload-demo"
-              action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+              action="http://127.0.0.1:5000/uploadResourceFile"
               :limit="1"
               :on-exceed="handleExceedResource"
               :auto-upload="false"
+              :data="uploadForest"
             >
               <template #trigger>
                 <el-button type="success" plain>选择文件</el-button>
@@ -120,11 +120,11 @@
             </el-descriptions>
             <el-upload
               ref="uploadDisaster"
-              class="upload-demo"
-              action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+              action="http://127.0.0.1:5000/uploadDisasterFile"
               :limit="1"
               :on-exceed="handleExceedDisaster"
               :auto-upload="false"
+              :data="uploadForest"
             >
               <template #trigger>
                 <el-button type="success" plain>选择文件</el-button>
@@ -132,7 +132,6 @@
                   您只能上传1个.xlsx格式的文件,多余的文件将被覆盖
                 </h3>
               </template>
-              
             </el-upload>
             <el-button class="ml-3" type="success" @click="submitUploadDisaster">
                 上传至林上鹰眼
@@ -155,9 +154,10 @@
             <el-dialog v-model="dialogVisible">
               <img w-full :src="dialogImageUrl" alt="Preview Image" />
             </el-dialog>
+            <el-button class="ml-3" type="success" style="margin-top: 10px;" @click="submitUploadImage">
+                上传至林上鹰眼
+            </el-button>
           </div>
-
-
         </div>
 
       
@@ -289,7 +289,6 @@
           },
         });     
         if(response.data.status==='success'){
-          console.log('进来了success的分支');
           intro=editedIntro.value;
           ElNotification({
             title: '更新成功',
@@ -306,7 +305,7 @@
         
   }
 
-
+  const uploadForest=ref({ f_id: f_id , f_name: f_name});
   // 资源数据
   const uploadResource = ref<UploadInstance>()
   const handleExceedResource: UploadProps['onExceed'] = (files) => {
@@ -317,6 +316,11 @@
   }
   const submitUploadResource = () => {
     uploadResource.value!.submit()
+    ElNotification({
+      title: '更新成功',
+      message: '资源数据成功添加到林上鹰眼数据库~',
+      type: 'success',
+    });
   }
 
   // 灾害数据
@@ -329,24 +333,30 @@
   }
   const submitUploadDisaster = () => {
     uploadDisaster.value!.submit()
+    ElNotification({
+      title: '更新成功',
+      message: '灾害数据成功添加到林上鹰眼数据库~',
+      type: 'success',
+    });
   }
 
 
 
-
+  // 上传森林相册图片
   const fileList = ref<UploadUserFile[]>([]);
-
   const dialogImageUrl = ref('')
   const dialogVisible = ref(false)
-
   const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
     console.log(uploadFile, uploadFiles)
   }
-
   const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
     dialogImageUrl.value = uploadFile.url!
     dialogVisible.value = true
   }
+  const submitUploadImage = () => {
+    uploadDisaster.value!.submit()
+  }
+
   
 </script>
 
