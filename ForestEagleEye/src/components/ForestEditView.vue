@@ -32,7 +32,15 @@
           <div>
             <h1>编辑气候概况</h1>
             <div style="display: flex; align-items: center; gap: 10px;">
-              <h2>点击按钮获取本林区的最新气象数据，并更新到林上鹰眼数据库</h2>
+              <h2>
+                <el-alert
+                title="温馨提示：点击按钮获取本林区的最新气象数据，并更新到林上鹰眼数据库"
+                type="warning"
+                :closable="false"
+                style="font-size: small;">
+              </el-alert>
+              </h2>
+              
               <el-button type="success" plain style="width: 80px;" v-if="!showLoading" @click="fetchWeatherData">获取数据</el-button>
               <el-button  type="success" plain loading style="width: 80px;" v-else disabled>Loading</el-button>
             </div>
@@ -69,7 +77,15 @@
           <el-divider border-style="dashed" />
           <div>
             <h1>编辑资源分布</h1>
-            <h2>按照参考格式上传数据文件，林上鹰眼会自动帮您保存到数据库中</h2>
+            <h2>
+              <el-alert
+              title="温馨提示：按照参考格式上传数据文件，林上鹰眼会自动帮您保存到数据库中"
+              type="warning"
+              :closable="false"
+              style="font-size: small;">
+            </el-alert>
+            </h2>
+            
             <el-descriptions
               direction="vertical"
               style="margin-bottom: 10px;"
@@ -106,7 +122,14 @@
           <el-divider border-style="dashed" />
           <div>
             <h1>灾害情况</h1>
-            <h2>按照参考格式上传数据文件，林上鹰眼会自动帮您保存到数据库中</h2>
+            <h2>
+              <el-alert
+                title="温馨提示：按照参考格式上传数据文件，林上鹰眼会自动帮您保存到数据库中"
+                type="warning"
+                :closable="false"
+                style="font-size: small;">
+              </el-alert>
+            </h2>
             <el-descriptions
               direction="vertical"
               style="margin-bottom: 10px;"
@@ -140,7 +163,14 @@
           <el-divider border-style="dashed" />
           <div>
             <h1>森林相册</h1>
-            <h2>为本林区上传资料图片,单次上传不得超过9张</h2>
+            <h2>
+              <el-alert
+                title="温馨提示：为本林区上传资料图片，单次上传不得超过9张"
+                type="warning"
+                :closable="false"
+                style="font-size: small;">
+              </el-alert>
+            </h2>
             <el-upload
               v-model:file-list="fileList"
               action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"

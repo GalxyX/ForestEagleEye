@@ -599,26 +599,38 @@ def activity():
 
 
 # 我的申请界面，显示当前用户已申请的活动
-@app.route("/apply")
+@app.route("/apply",methods=["POST"])
 def apply():
-    if "username" in session:
-        # 获取当前用户的申请中或已通过的活动
-        username = session.get("username")  # 从会话中获取用户名
-        user = db_session.query(User).filter_by(u_name=username).first()
-        if user:
-            u_id = user.u_id
-        approving_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id, Activity.a_state == "approving").all()
-        approved_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id, Activity.a_state == "approved").all()
-        dismissed_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id, Activity.a_state == "dismissed").all()
+    u_id = request.form.get("user_id")
+    #print(u_id)
+    if not u_id:
+        flash("未提供有效的user_id", "error")
+        return jsonify({"error": "未提供有效的user_id"}), 400
+    user = db_session.query(User).filter_by(u_id=u_id).first()
+    if not user:
+        flash("用户不存在", "error")
+        return jsonify({"error": "用户不存在"}), 404
+        # 根据当前管理员的森林名称和状态查询活动
+    approving_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id, Activity.a_state == "approving").all()
+    approved_activities = db_session.query(Activity).filter(Activity.a_applicantId== u_id, Activity.a_state == "approved").all()
+    dismissed_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id, Activity.a_state == "dismissed").all()
 
-        return render_template("apply.html", approving_activities=approving_activities, approved_activities=approved_activities, dismissed_activities=dismissed_activities)
-    return redirect(url_for("index"))
+    # 将活动转换为字典格式返回
+    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in approving_activities]
+    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in approved_activities]
+    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in dismissed_activities]
+
+    # 返回 JSON 数据
+    return jsonify({
+        "approving_activities": approving_activities_data,
+        "approved_activities": approved_activities_data,
+        "dismissed_activities": dismissed_activities_data
+    })
 
 
-# 创建活动
-@app.route("/create_activity", methods=["GET", "POST"])
+# 创建活动(没有处理上传的图片！！)
+@app.route("/create_activity", methods=["POST"])
 def create_activity():
-
     if request.method == "POST":
         # 从表单中获取数据
         a_name = request.form["a_name"]
@@ -630,28 +642,36 @@ def create_activity():
         a_forest = request.form["a_forest"]
         a_type = request.form["a_type"]
         a_ableParticipate = request.form.get("a_ableParticipate") is not None
-
+        # 打印出所有接收到的字段
+        print(f"接收到的表单字段: {a_name}, {a_location}, {a_beginTime}, {a_endTime}, {a_participantNumber}, {a_introduction}, {a_forest}, {a_type}, {a_ableParticipate}")
+        '''
         # 处理文件上传
         a_picPath = request.files["a_picPath"]
         if a_picPath:
+            print(f"接收到文件: {a_picPath.filename}")
             filename = secure_filename(a_picPath.filename)
             a_picPath.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        else:
+            print("没有接收到文件")
+        '''
+        # 将前端传来的字符串转为 datetime 对象
+        a_beginTime = datetime.strptime(a_beginTime, "%Y-%m-%dT%H:%M")
+        a_endTime = datetime.strptime(a_endTime, "%Y-%m-%dT%H:%M")
 
-        # 根据用户名查询用户
-        username = session.get("username")  # 从会话中获取用户名
-        user = db_session.query(User).filter_by(u_name=username).first()
-        if user:
-            u_id = user.u_id
+        u_id = request.form.get("user_id")
+        if not u_id:
+            return jsonify({"message": "用户ID缺失", "status": "error"}), 400
+        print(u_id)
         # 创建新的 Activity 实例
         new_activity = Activity(
             a_applicantId=u_id,
             a_name=a_name,
             a_location=a_location,
-            a_beginTime=datetime.strptime(a_beginTime, "%Y-%m-%dT%H:%M"),
-            a_endTime=datetime.strptime(a_endTime, "%Y-%m-%dT%H:%M"),
+            a_beginTime=a_beginTime,
+            a_endTime=a_endTime,
             a_participantNumber=int(a_participantNumber),
             a_introduction=a_introduction,
-            a_picPath=filename,
+            #a_picPath=filename,
             a_ableParticipate=a_ableParticipate,
             a_type=a_type,
             a_forest=a_forest,
@@ -659,35 +679,67 @@ def create_activity():
         )
 
         # 将新活动添加到数据库会话并提交
-        db_session.add(new_activity)
-        db_session.commit()
+        try:
+            db_session.add(new_activity)
+            db_session.commit()
+        except Exception as e:
+            print(f"数据库操作失败: {e}")
+            db_session.rollback()
+            return jsonify({"message": "创建活动失败", "status": "error"}), 500
 
-        flash("活动创建成功，等待审批", "success")
-        return redirect(url_for("activity"))
+        # 返回成功的 JSON 响应
+        return jsonify({"message": "活动创建成功，等待审批", "status": "success"}), 200
 
-    return render_template("create_activity.html")
+    # 对于 GET 请求，可以返回活动创建页面的 JSON 数据（如果需要的话）
+    return jsonify({"message": "GET请求不支持", "status": "error"}), 405
 
 
 # 活动详情页，申请人和审批人公用界面，但是会传递一个is_approver参数决定前端是否显示“同意”“驳回”
-@app.route("/activity_detail/<int:activity_id>")
+@app.route("/activity_detail/<int:activity_id>", methods=["POST"])
 def activity_detail(activity_id):
+    u_id = request.form.get("user_id")
+    if not u_id:
+        return jsonify({"message": "用户ID缺失", "status": "error"}), 400
+    #print(u_id)
+    user = db_session.query(User).filter_by(u_id=u_id).first()
+    current_user_role = user.u_role
+    # 判断当前用户是否为审批人
+    is_approver = current_user_role == "林业管理人员"
+    #print("执行到了")
+    #print(is_approver)
+
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
     if not activity:
         flash("活动不存在", "error")
         return redirect(url_for("activity"))
 
-    username = session.get("username")  # 从会话中获取用户名
-    user = db_session.query(User).filter_by(u_name=username).first()
-    current_user_role = user.u_role
-    # 判断当前用户是否为审批人
-    is_approver = current_user_role == "林业管理人员"
-    return render_template("activity_detail.html", activity=activity, is_approver=is_approver)
+    # 返回 JSON 数据，供 Vue.js 前端使用
+    return jsonify({
+        'activity': {
+            'a_id': activity.a_id,
+            'a_name': activity.a_name,
+            'a_location': activity.a_location,
+            'a_type': activity.a_type,
+            'a_beginTime': activity.a_beginTime,
+            'a_endTime': activity.a_endTime,
+            'a_participantNumber': activity.a_participantNumber,
+            'a_enrolledNumber': activity.a_enrolledNumber,
+            'a_forest': activity.a_forest,
+            'a_introduction': activity.a_introduction,
+            'a_state': activity.a_state,
+            'a_applicantId': activity.a_applicantId,
+            'a_submitTime': activity.a_submitTime,
+            'a_picPath': activity.a_picPath,
+            'a_ableParticipate': activity.a_ableParticipate
+        },
+        'isApprover': is_approver
+    })
+
 
 
 # 申请人删除所申请的活动
 @app.route("/delete_activity/<int:activity_id>", methods=["POST"])
 def delete_activity(activity_id):
-
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
     if activity:
         db_session.delete(activity)
@@ -696,16 +748,24 @@ def delete_activity(activity_id):
     else:
         flash("活动不存在或已被删除", "error")
 
-    return redirect(url_for("apply"))
-
 
 # 我的审批界面
-@app.route("/approve")
+@app.route("/approve", methods=["POST"])
 def approve():
-    # 假设当前管理员的森林名称存储在session中
-    username = session.get("username")  # 从会话中获取用户名
-    user = db_session.query(User).filter_by(u_name=username).first()
-    current_forest = user.u_forest
+    u_id = request.form.get("user_id")
+    #print(u_id)
+    if not u_id:
+        flash("未提供有效的user_id", "error")
+        return jsonify({"error": "未提供有效的user_id"}), 400
+    user = db_session.query(User).filter_by(u_id=u_id).first()
+    if not user:
+        flash("用户不存在", "error")
+        return jsonify({"error": "用户不存在"}), 404
+
+    forest = db_session.query(Forest).filter_by(f_id=user.u_forest).first()
+    current_forest = forest.f_name
+
+
 
     if not current_forest:
         flash("您尚未登录或没有权限访问此页面", "error")
@@ -716,8 +776,18 @@ def approve():
     approved_activities = db_session.query(Activity).filter(Activity.a_forest == current_forest, Activity.a_state == "approved").all()
     dismissed_activities = db_session.query(Activity).filter(Activity.a_forest == current_forest, Activity.a_state == "dismissed").all()
 
-    # 渲染模板并传递活动列表,传递用户的角色是因为在活动详情页时如果为审批人会添加审批通过或驳回按钮
-    return render_template("approve.html", approving_activities=approving_activities, approved_activities=approved_activities, dismissed_activities=dismissed_activities)
+    # 将活动转换为字典格式返回
+    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in approving_activities]
+    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in approved_activities]
+    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in dismissed_activities]
+
+    # 返回 JSON 数据
+    return jsonify({
+        "approving_activities": approving_activities_data,
+        "approved_activities": approved_activities_data,
+        "dismissed_activities": dismissed_activities_data
+    })
+
 
 
 # 审批通过
@@ -727,16 +797,19 @@ def approve_activity(activity_id):
     # 更新活动状态为 'approved'
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
     # 获取当前审批人的id
-    username = session.get("username")  # 从会话中获取用户名
-    user = db_session.query(User).filter_by(u_name=username).first()
+    user_id = request.form.get("user_id")
+    user = db_session.query(User).filter_by(u_id=user_id).first()
     # 修改状态
     activity.a_state = "approved"
+    print("执行到了同意")
+    print(activity.a_id)
+    print(activity.a_state)
     # 存储审批人的id
     activity.a_approver_id = user.u_id
     # 存储审批时间
     activity.a_approveTime = datetime.now()
-
-    return redirect(url_for("approve"))
+    db_session.commit()  # 确保提交更改
+    return jsonify({"message": "Activity approved successfully"}), 200
 
 
 # 审批驳回
@@ -745,38 +818,76 @@ def dismiss_activity(activity_id):
     dismiss_reason = request.form.get("dismiss_reason", "")
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
     # 获取当前审批人的id
-    username = session.get("username")  # 从会话中获取用户名
-    user = db_session.query(User).filter_by(u_name=username).first()
+    user_id = request.form.get("user_id")
+    user = db_session.query(User).filter_by(u_id=user_id).first()
     # 修改状态
     activity.a_state = "dismissed"
+    #print("执行到了驳回")
     # 存储审批人的id
     activity.a_approver_id = user.u_id
     # 存储审批时间
     activity.a_approveTime = datetime.now()
     # 存储驳回理由
     activity.a_dismissreason = dismiss_reason
-    return redirect(url_for("approve"))
+    db_session.commit()  # 确保提交更改
+    return jsonify({"message": "Activity dismissed successfully"}), 200
 
 
 # 活动风采界面
-@app.route("/activities")
+@app.route("/activities",methods=["POST"])
 def activities():
-    # 筛选面向大众且截止时间晚于当前时间且审批通过的活动
+    #print("zhix1")
     # 获取当前时间
     now = datetime.now()
-    activities = db_session.query(Activity).filter(Activity.a_ableParticipate == True, Activity.a_endTime > now, Activity.a_state == "approved").all()
-    return render_template("activities.html", activities=activities)
+    activities = db_session.query(Activity).filter(Activity.a_ableParticipate == True, Activity.a_endTime > now,
+                                                   Activity.a_state == "approved").all()
+
+    # 返回 JSON 数据而不是渲染 HTML 模板
+    activities_data = []
+    for activity in activities:
+        activities_data.append({
+            'id': activity.a_id,
+            'name': activity.a_name,
+            #'picPath': activity.a_picPath,
+            'location': activity.a_location,
+            'type': activity.a_type,
+            'introduction': activity.a_introduction,
+            'participantNumber': activity.a_participantNumber,
+            'enrolledNumber': activity.a_enrolledNumber
+        })
+    #print("zhix2")
+    #print(activities_data)
+    return jsonify(activities=activities_data)
 
 
 # 报名活动界面
 @app.route("/activity_enroll/<int:activity_id>", methods=["GET"])
 def activity_enroll(activity_id):
+    #print(activity_id)
+    # 查询数据库，获取指定活动的详情
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
-    if activity:
-        return render_template("activity_enroll.html", activity=activity)
-    else:
-        flash("活动不存在或已结束", "error")
-        return redirect(url_for("activities"))
+    #print("执行到了1")
+    if not activity:
+        return jsonify({"success": False, "message": "活动未找到"}), 404
+
+    # 检查活动是否可以报名（如活动时间未过等）
+    now = datetime.now()
+    if activity.a_endTime <= now or not activity.a_ableParticipate:
+        return jsonify({"success": False, "message": "活动不可报名或已结束"}), 400
+
+    # 返回活动详情
+    activity_data = {
+        "id": activity.a_id,
+        "name": activity.a_name,
+        "picPath": activity.a_picPath,
+        "location": activity.a_location,
+        "type": activity.a_type,
+        "introduction": activity.a_introduction,
+        "participantNumber": activity.a_participantNumber,
+        "enrolledNumber": activity.a_enrolledNumber,
+    }
+
+    return jsonify({"success": True, "activity": activity_data})
 
 
 # 点击报名后
@@ -784,18 +895,18 @@ def activity_enroll(activity_id):
 def enroll(activity_id):
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
     if not activity or not activity.a_ableParticipate or activity.a_endTime <= datetime.now():
-        flash("活动不可报名或已结束", "error")
-        return redirect(url_for("activities"))
+        return jsonify({"success": False, "message": "活动不可报名或已结束"})
 
-    participant_number = request.form["participantNumber"]
+
+    participant_number = request.form.get("participantNumber")
     remark = request.form.get("remark", "")  # 获取备注信息，默认为空字符串
+
     if int(participant_number) > (activity.a_participantNumber - activity.a_enrolledNumber):
-        flash("报名人数超过剩余名额", "error")
-        return redirect(url_for("activity_enroll", activity_id=activity_id))
+        return jsonify({"success": False, "message": "报名人数超过剩余名额"})
 
     # 获取用户id
-    username = session.get("username")  # 从会话中获取用户名
-    user_id = db_session.query(User).filter_by(u_name=username).first().u_id
+    user_id = request.form.get("user_id")
+
     # 创建用户和活动的联系
     activity.a_enrolledNumber += int(participant_number)
     new_participant = user_participate_activity(
@@ -806,49 +917,62 @@ def enroll(activity_id):
     )
     db_session.add(new_participant)
     db_session.commit()
-    flash("报名成功", "success")
-    return redirect(url_for("activities"))
+    return jsonify({"success": True})
+
 
 
 # 我的报名界面
-@app.route("/myenrolled")
+@app.route("/myenrolled", methods=["POST"])
 def myenrolled():
-    print(session)
-    username = session.get("username")  # 从会话中获取用户名
-    user = db_session.query(User).filter_by(u_name=username).first()
+    user_id = request.form.get("user_id")
+    user = db_session.query(User).filter_by(u_id=user_id).first()
+
     if user:
         woos = db_session.query(user_participate_activity).filter_by(user_id=user.u_id).all()
         # 从每个记录中提取 activity_id，并将其存储在列表中
         activity_ids = [woo.activity_id for woo in woos]
     else:
-        flash("找不到用户", "error")
-        return redirect(url_for("login"))
+        return jsonify({"success": False, "message": "找不到用户"}), 400
+
     participations = db_session.query(Activity).filter(Activity.a_id.in_(activity_ids)).all()
 
-    return render_template("myenrolled.html", participations=participations)
+    # 返回活动数据
+    activities = [
+        {
+            "a_id": participation.a_id,
+            "a_name": participation.a_name,
+            "a_location": participation.a_location,
+            "a_type": participation.a_type,
+            "a_beginTime": participation.a_beginTime
+        }
+        for participation in participations
+    ]
+
+    return jsonify({"success": True, "participations": activities})
+
 
 
 # 普通用户取消报名
 @app.route("/cancel_enrollment/<int:activity_id>", methods=["POST"])
 def cancel_enrollment(activity_id):
-    username = session.get("username")  # 从会话中获取用户名
-    user = db_session.query(User).filter_by(u_name=username).first()
+    user_id = request.form.get("user_id")
+    user = db_session.query(User).filter_by(u_id=user_id).first()
+
     if not user:
-        flash("您尚未登录或没有权限执行此操作", "error")
-        return redirect(url_for("login"))
+        return jsonify({"success": False, "message": "您尚未登录或没有权限执行此操作"}), 403
 
     # 查询
-    participation = db_session.query(user_participate_activity).filter_by(user_id=user.u_id, activity_id=activity_id).first()
-    activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
-    activity.a_enrolledNumber -= participation.participateNumber
+    participation = db_session.query(user_participate_activity).filter_by(user_id=user.u_id,
+                                                                          activity_id=activity_id).first()
     if participation:
+        activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
+        activity.a_enrolledNumber -= participation.participateNumber
         db_session.delete(participation)
         db_session.commit()
-        flash("取消报名成功", "success")
+        return jsonify({"success": True, "message": "取消报名成功"})
     else:
-        flash("取消报名失败，可能您已取消报名或不存在此活动", "error")
+        return jsonify({"success": False, "message": "取消报名失败，可能您已取消报名或不存在此活动"}), 400
 
-    return redirect(url_for("myenrolled"))
 
 
 @app.route("/user", methods=["GET"])

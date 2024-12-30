@@ -13,14 +13,8 @@
           <div class="nav-item">
             <router-link to="/activities" class="nav-link">林业活动</router-link>
           </div>
-          <div class="nav-item" router-link to="/reflect">
-            <router-link to="/reflect" class="nav-link">举报建议</router-link>
-          </div>
           <div class="nav-item">
             <router-link to="/forum" class="nav-link">林上论坛</router-link>
-          </div>
-          <div class="nav-item">
-            <router-link to="/game" class="nav-link">林上游戏</router-link>
           </div>
         </ul>
 
@@ -114,6 +108,7 @@
   .nav-item {
    align-items: center;
    align-self: center;
+   width: 80px;
   }
   
   .nav-link {
@@ -121,6 +116,7 @@
     text-decoration: none;
     transition: color 0.3s ease;
   }
+
   
 .nav-item:hover .nav-link{
   color: #60a103; /* 鼠标悬停时链接的颜色 */

@@ -31,11 +31,6 @@ const router = createRouter({
       component: () => import('../views/encyclopedia.vue')
     },
     {
-      path: '/reflect',
-      name: 'reflect',
-      component: () => import('../views/reflect.vue')
-    },
-    {
       path: '/forum',
       name: 'forum',
       component: () => import('../views/ForumView.vue')
@@ -49,11 +44,6 @@ const router = createRouter({
       path: '/post/:id/share',
       name: 'sharepost',
       component: () => import('../views/postShareView.vue')
-    },
-   {
-      path: '/game',
-      name: 'game',
-      component: () => import('../views/game.vue')
     },
     {
       path: '/profile',
@@ -79,6 +69,43 @@ const router = createRouter({
       name: 'ForestEdit',
       component: () => import('../components/ForestEditView.vue'),
     },
+    {
+      path: '/create_activity',
+      name: 'create_activity',
+      component: () => import('../components/create_activity.vue'),
+    },
+    {
+      path: '/approve',
+      name: 'approve',
+      component: () => import('../components/approve.vue'),
+    },
+    {
+      path: '/apply',
+      name: 'apply',
+      component: () => import('../components/apply.vue'),
+    },
+    {
+      path: '/enroll',
+      name: 'enroll',
+      component: () => import('../components/enroll.vue'),
+    },
+    {
+        path: '/activity_detail/:activityId',  // 这里的 activityId 是动态参数
+        name: 'activity_detail',
+        component: () => import('../components/activity_detail.vue'),  // Vue 组件路径
+        meta: {
+            title: '活动详情'
+        }
+    },
+    {
+        path: '/enroll_activity/:activityId',  // 这里的 activityId 是动态参数
+        name: 'enroll_activity',
+        component: () => import('../components/enroll_activity.vue'),  // Vue 组件路径
+        meta: {
+            title: '活动详情'
+        }
+    },
+
   ]
 })
 

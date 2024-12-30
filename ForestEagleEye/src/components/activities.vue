@@ -3,10 +3,10 @@
   <!-- 导航栏 -->
     <nav>
       <ul>
-        <li v-if="user_role === '林业从业人员' || user_role === '林业监管人员'">
+        <li v-if="user_role === '林业从业人员'">
           <router-link to="/apply">我的申请</router-link>
         </li>
-        <li v-if="user_role === '林业管理人员' || user_role === '林业监管人员'">
+        <li v-if="user_role === '林业管理人员'">
           <router-link to="/approve">我的审批</router-link>
         </li>
         <li><router-link to="/enroll">我的报名</router-link></li>
@@ -31,17 +31,14 @@
 <script>
 
 import axios from 'axios';
-const user_role = sessionStorage.getItem('role');
+const user_role = sessionStorage.getItem('user_role');
 export default {
   data() {
     return {
-      activities: [],  // 存储活动数据
-      user_role: ''    // 初始化用户角色
+      activities: []  // 存储活动数据
     };
   },
   mounted() {
-    this.user_role = sessionStorage.getItem('role') || '';
-    console.log("用户角色为:", user_role);
     // 组件创建时调用 API 获取活动数据
     this.fetchActivities();
   },
