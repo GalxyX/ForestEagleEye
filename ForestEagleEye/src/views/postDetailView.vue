@@ -14,8 +14,8 @@
             <section>
               <p>{{ post?.content }}</p>
               <div class="postimage-container">
-                <img v-for="image in post?.images" :key="image" :src="image ? `/public/static/${image}` : '#'"
-                  alt="image" />
+                <ImageViewer v-for="image in post?.images" :key="image" :alt="image"
+                  :src="image ? `/public/static/${image}` : '#'" height="200px" width="200px" />
               </div>
               <div v-if="post?.original_post" class="oriPost-container" @click="toOriPost">
                 <h2>{{ post?.original_post?.title }}</h2>
@@ -29,10 +29,16 @@
             </section>
 
             <section class="postComment-container">
-              <textarea placeholder="理性发言，友善互动" v-model="comment" rows="99999" style="resize: none;"></textarea>
-              <!-- @keyup.enter="submitComment" -->
+              <div>
+                <textarea placeholder="理性发言，友善互动" v-model="comment" rows="99999" style="resize: none;"></textarea>
+                <!-- @keyup.enter="submitComment" -->
+                <p @click="submitComment">评论✍</p>
+              </div>
               <input type="file" accept="image/*" multiple @change="handleFileUpload" ref="fileInput" />
-              <p @click="submitComment">评论✍</p>
+              <!--上传图片的预览-->
+              <ul>
+
+              </ul>
             </section>
             <p id="wrongWarning" v-if="warningSentence">{{ warningSentence }}</p>
 
@@ -45,8 +51,10 @@
                 </span>
                 <p>{{ comment.content }}</p>
                 <div class="commentImage-container">
-                  <img v-for="image in comment.images" :key="image" :src="image ? `/public/static/${image}` : '#'"
-                    alt="image" />
+                  <!-- <img v-for="image in comment.images" :key="image" :src="image ? `/public/static/${image}` : '#'"
+                    alt="image" @click="previewImage(image)" /> -->
+                  <ImageViewer v-for="image in comment.images" :key="image" :alt="image"
+                    :src="image ? `/public/static/${image}` : '#'" height="100px" width="100px" />
                 </div>
               </div>
             </section>
@@ -61,8 +69,9 @@
 import router from '@/router';
 import Nav from '../components/navbar.vue'
 import axios from 'axios';
-import { onMounted, reactive, ref } from 'vue';
+import { createApp, onMounted, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import ImageViewer from '@/components/imageViewer.vue';
 interface Post {
   id: number;
   title: string;
@@ -154,6 +163,10 @@ const submitComment = async () => {
       console.log('Comment submitted:', comment.value);
       comment.value = '';
       images.value = [];
+      const imagesList = document.querySelector('.postComment-container ul');
+      if (imagesList) {
+        imagesList.innerHTML = '';
+      }
       if (fileInput.value) {
         fileInput.value.value = '';
       }
@@ -180,6 +193,27 @@ const handleFileUpload = (e: Event) => {
   }
   else {
     images.value = Array.from(files);
+  }
+
+  //上传图片的预览
+  const imagesList = document.querySelector('.postComment-container ul');
+  if (images.value.length && imagesList) {
+    imagesList.innerHTML = '';
+    for (let i = 0; i < images.value.length; i++) {
+      const li = document.createElement('li');
+      imagesList.appendChild(li);
+      const app = createApp(ImageViewer, {
+        src: URL.createObjectURL(images.value[i]),
+        alt: images.value[i].name,
+        height: '100px',
+        width: '100px'
+      });
+      app.mount(li);
+    }
+  }
+  else {
+    warningSentence.value = "显示图片预览失败";
+    console.error('No images selected or container not found');
   }
 };
 //跳转原帖
@@ -253,11 +287,12 @@ article {
   gap: 10px;
 }
 
+/* 
 .postimage-container img {
   height: 200px;
   max-width: 200px;
   object-fit: cover;
-}
+} */
 
 /* 转发 */
 .oriPost-container {
@@ -285,7 +320,7 @@ article {
 }
 
 .interact-buttons>p,
-.postComment-container>p {
+.postComment-container p {
   margin-top: 10px;
   border-radius: 5px;
   background-color: azure;
@@ -297,7 +332,7 @@ article {
 }
 
 /* 评论 */
-.postComment-container {
+.postComment-container>div {
   display: flex;
   justify-content: stretch;
   gap: 10px;
@@ -305,18 +340,25 @@ article {
   align-items: center;
 }
 
-.postComment-container>textarea {
+.postComment-container textarea {
   width: 60%;
   height: 80px;
   border-radius: 4px;
   padding-left: 10px;
 }
 
-.postComment-container>input {
+.postComment-container input {
   width: 160px;
-  height: 40px;
   border-radius: 4px;
-  padding-left: 10px;
+  margin: 20px;
+}
+
+.postComment-container ul {
+  display: flex;
+  gap: 10px;
+  margin-top: 0px;
+  flex-wrap: wrap;
+  list-style-type: none;
 }
 
 .comment-container {
@@ -347,9 +389,11 @@ article {
   gap: 10px;
 }
 
-.commentImage-container img {
+/* .commentImage-container img {
   height: 100px;
-}
+  width: 100px;
+  object-fit: cover;
+} */
 
 /*底部版权信息*/
 footer {

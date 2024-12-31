@@ -84,7 +84,7 @@ onMounted(async () => {
             <p>昨日数据0</p>
           </div>
         </div>
-        <RouterLink to="/profile">进入创作中心 ></RouterLink>
+        <RouterLink to="/postwrite">发点什么 ></RouterLink>
       </aside>
     </div>
   </main>
@@ -130,8 +130,10 @@ aside {
 aside>div {
   display: flex;
   gap: 20px;
-  margin-top: 20px;
+  margin: 20px 30px;
   text-align: center;
+  background-color: #E7E6E6;
+
 }
 
 aside a {
