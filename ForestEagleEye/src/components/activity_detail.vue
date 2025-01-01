@@ -1,411 +1,381 @@
 <template>
-    <div class="container">
-      <div class="page-header">
-        <div class="header-left">
-          <button class="btn-back" @click="goBack">
-            <i class="icon-back"></i>
-            返回
-          </button>
-          <span class="separator"></span>
-          <div class="header-title">
-            <span>活动详情</span>
-          </div>
+  <div class="container">
+    <!-- 顶部导航栏 -->
+    <NavigationBar />
+
+    <div class="all-contents">
+      <el-page-header @back="handleBack" content="活动详情" title="返回">
+      </el-page-header>
+      <el-divider></el-divider>
+
+      <div v-if="activity">
+        <!-- 审批流程展示 -->
+        <div class="h1">申请流程</div>
+        <div class="approval-steps">
+          <el-steps :active="getApprovalStep()" finish-status="success" align-center>
+            <el-step title="申请提交"></el-step>
+            <el-step title="审批中"></el-step>
+            <el-step title="申请通过"></el-step>
+            <el-step title="活动完成"></el-step>
+          </el-steps>
         </div>
-      </div>
-      <!-- 活动基本信息 -->
-      <div class="event-info">
-        <div class="info-left">
-          <div class="little-title">活动名称</div>
-          <div class="big-title">这里是活动名称（需要连后端）</div>
-          <div class="little-title">活动简介</div>
-          <div class="text">&nbsp;&nbsp;这里是活动介绍（需要连后端）这里是活动介绍（需要连后端）这里是活动介绍（需要连后端）这里是活动介绍（需要连后端）这里是活动介绍（需要连后端）这里是活动介绍（需要连后端）这里是活动介绍（需要连后端）这里是活动介绍（需要连后端）</div>
-          <div class="little-title">活动信息</div>
-          <div class="info-detail">
-            <div class="group1">
-              <div class="group2">
-              <div class="combination">
-              <div class="cover-text">
-                <div class="info-little-title">活动开始时间：</div>
-                <div class="info-text">（连后端）</div>
+        <!-- 活动信息 -->
+        <div class="h1">活动信息</div>
+        <div class="activity-info">
+            <div class="info-grid">
+              <div class="info-unit">
+                <p class="h2">活动名称</p>
+                <p class="h3">{{ activity.a_name }}</p>
               </div>
-            </div>
-  
-            <div class="combination">
-              <div class="cover-text">
-                <div class="info-little-title">活动地点：</div>
-                <div class="info-text">（连后端）</div>
+              <div class="info-unit">
+                <p class="h2">活动编号</p>
+                <p class="h3">{{ activity.a_id }}</p>
               </div>
-            </div>
-  
-            <div class="combination">
-              <div class="cover-text">
-                <div class="info-little-title">活动人数：</div>
-                <div class="info-text">（连后端）</div>
+              <div class="info-unit">
+                <p class="h2">活动地点</p>
+                <p class="h3">{{ activity.a_location }}</p>
               </div>
-            </div>
-  
-            <div class="combination">
-              <div class="cover-text">
-                <div class="info-little-title">活动编号：</div>
-                <div class="info-text">（连后端）</div>
+              <div class="info-unit">
+                <p class="h2">活动类型</p>
+                <p class="h3">{{ activity.a_type || "未知" }}</p>
               </div>
-            </div>
+              <div class="info-unit">
+                <p class="h2">活动开始时间</p>
+                <p class="h3">{{ activity.a_beginTime }}</p>
               </div>
-              <div class="group2">
-              <div class="combination">
-              <div class="cover-text">
-                <div class="info-little-title">活动结束时间：</div>
-                <div class="info-text">（连后端）</div>
+              <div class="info-unit">
+                <p class="h2">活动结束时间</p>
+                <p class="h3">{{ activity.a_endTime }}</p>
               </div>
-            </div>
-  
-            <div class="combination">
-              <div class="cover-text">
-                <div class="info-little-title">活动类型：</div>
-                <div class="info-text">（连后端）</div>
+              <div class="info-unit">
+                <p class="h2">活动人数</p>
+                <p class="h3">{{ activity.a_participantNumber }}</p>
               </div>
-            </div>
-  
-            <div class="combination">
-              <div class="cover-text">
-                <div class="info-little-title">剩余名额：</div>
-                <div class="info-text">（连后端）</div>
+              <div v-if="activity.a_ableParticipate" class="info-unit">
+                <p class="h2">已报名人数</p>
+                <p class="h3">{{ activity.a_enrolledNumber }}</p>
               </div>
-            </div>
-  
-            <div class="combination">
-              <div class="cover-text">
-                <div class="info-little-title">活动状态：</div>
-                <div class="group3">
-                    <!-- 使用 v-if 和 v-else-if 来根据不同状态显示不同的图标 -->
-                  <div v-if="activityStatus === 'pending'" class="circle yellow-circle"></div>
-                  <div v-else-if="activityStatus === 'ongoing'" class="circle green-circle"></div>
-                  <div v-else-if="activityStatus === 'finished'" class="circle red-circle"></div>
-                  <div v-else class="circle red-circle">
-                    <!-- <div class="red-circle">1</div> -->
-                  </div>
-        
-                  <!-- 这里使用 v-if 来决定是否显示状态文本 -->
-                  <span v-if="activityStatus === 'pending'"  class="info-text">即将开始</span>
-                  <span v-else-if="activityStatus === 'ongoing'"  class="info-text">进行中</span>
-                  <span v-else-if="activityStatus === 'finished'"  class="info-text">已结束</span>
-                  <span v-else  class="info-text">状态未知</span>
-                  
+              <div class="info-unit">
+                <p class="h2">活动主办单位</p>
+                <p class="h3">{{ activity.a_forest }}</p>
+              </div>
+              <div class="info-unit">
+                <p class="h2">活动简介</p>
+                <p class="h3">{{ activity.a_introduction }}</p>
+              </div>
+
+              <!-- 图片显示 -->
+              <div v-if="activity.a_picPath">
+                <h2 class="h2">活动封面</h2>
+                <div class="images">
+                  <img :src="activity.a_picPath" alt="活动封面" />
                 </div>
               </div>
+
             </div>
-              </div>
+        </div>
+
+        <el-divider></el-divider>
+        <!-- 审批信息 -->
+        <div class="approval-info">
+          <h2 class="h1">审批信息</h2>
+          <div class="info-grid">
+            <div class="info-unit">
+                <p class="h2">审批状态</p>
+                <p class="h3" :style="{ color: getStateColor(activity.a_state) }">
+                  <span v-if="activity.a_state" :style="{ backgroundColor: getStateColor(activity.a_state) }" class="status-dot"></span>
+                  {{ getStateText(activity.a_state) }}
+                </p>
+
+                <!-- <p class="h3">{{ activity.a_state === 'approving' ? '审批中' : activity.a_state === 'approved' ? '已通过' : '已驳回' }}</p> -->
             </div>
-            
-            <div class="combination">
-              <div class="cover-text">
-                <div class="info-little-title">活动主办单位：</div>
-                <div class="info-text">（连后端）</div>
-              </div>
+            <div class="info-unit">
+                <p class="h2">申请人编号</p>
+                <p class="h3">{{ activity.a_applicantId }}</p>
             </div>
-          
+            <div class="info-unit">
+                <p class="h2">申请提交时间</p>
+                <p class="h3">{{ activity.a_submitTime }}</p>
+            </div>
           </div>
         </div>
-        <div class="info-right">
-          <img class="event-img" src="../assets/default-avatar.png">
+
+        <div class="buttons">
+          <div class="action-buttons">
+            <form @click="deleteActivity">
+              <el-button round type="danger">删除活动</el-button>
+            </form>
+          </div>
+
+          <div class="action-buttons" v-if="isApprover && activity.a_state === 'approving'">
+            <form @click="approveActivity">
+              <el-button round type="success">同意</el-button>
+            </form>
+          </div>
+
+          <div class="action-buttons" v-if="isApprover && activity.a_state === 'approving'">
+            <form @click="dismissActivity">
+              <el-button round type="warning">驳回</el-button>
+            </form>
+          </div>
+          <div class="action-buttons" v-if="isApprover && activity.a_state === 'approving'">
+          <el-input
+                type="textarea"
+                v-model="dismissReason"
+                id="dismiss_reason"
+                placeholder="请输入驳回理由"
+                style="width: 300px;"
+          ></el-input> 
+          </div>
         </div>
+
       </div>
-  
-      <!-- 活动进程 -->
-      <div class="event-process">
-        <div class="little-title">活动进程</div>
-        <div class="timeline">
-          <el-timeline style=" width: 600px">
-            
-            <el-timeline-item timestamp="时间时间时间日期" placement="top">
-            <el-card>
-              <h4>活动创建</h4>
-              <p>{{某人}} 于{{时间}} 创建此项目</p>
-            </el-card>
-            </el-timeline-item>
-  
-            <!-- <el-timeline-item v-if="state==approving" timestamp="时间时间时间日期" placement="top">
-            <el-card>
-              <h4>活动审批结束</h4>
-              <p>{{某人}} 于{{时间}} 审批通过了此项目</p>
-            </el-card>
-            </el-timeline-item> -->
-  
-            </el-timeline>
-        </div>
-  
+      <div v-else>
+        <p>加载中...</p>
       </div>
     </div>
-  </template>
-  
-  <script>
-  // import axios from 'axios';
-  
-  // export default {
-  //   name: 'EventDetails',
-  //   data() {
-  //     return {
-  //       activity: {
-  //         name: '', // 活动名称
-  //         introduction: '', // 活动简介
-  //         type: '', // 活动类型
-  //         location: '', // 活动地点
-  //         beginTime: '', // 活动开始时间
-  //         endTime: '', // 活动结束时间
-  //         participantNumber: 0, // 活动人数
-  //         enrolledNumber: 0, // 已报名人数
-  //         state: '', // 活动状态
-  //         picPath: '', // 活动图片路径
-  //       },
-  //       activityStatus: '', // 活动状态，用于条件渲染
-  //     };
-  //   },
-  //   mounted() {
-  //     this.loadActivityFromSession(); // 尝试从 sessionStorage 加载活动详情
-  
-  //     // 如果 sessionStorage 中没有活动详情，则从后端获取
-  //     if (!this.activity.name) {
-  //       this.fetchActivityDetails();
-  //     }
-  //   },
-  //   methods: {
-  //     async fetchActivityDetails() {
-  //       try {
-  //         const response = await axios.get('http://127.0.0.1:5000/', {
-  //           params: {
-  //             a_id: this.$route.params.a_id, // 假设活动编号通过路由参数传递
-  //           },
-  //         });
-  //         const activityData = response.data;
-  //         this.activity = activityData;
-  //         this.activityStatus = this.getActivityStatus(activityData.state);
-  //         this.saveActivityToSession(); // 存储活动详情到 sessionStorage
-  //       } catch (error) {
-  //         console.error('Error fetching activity details:', error);
-  //         // 这里可以添加错误处理逻辑，例如显示错误消息
-  //       }
-  //     },
-  //     getActivityStatus(state) {
-  //       switch (state) {
-  //         case 'approving':
-  //           return 'pending';
-  //         case 'approved':
-  //           return 'ongoing';
-  //         case 'ongoing':
-  //           return 'ongoing';
-  //         case 'ended':
-  //           return 'finished';
-  //         default:
-  //           return 'unknown';
-  //       }
-  //     },
-  //     saveActivityToSession() {
-  //       sessionStorage.setItem('activityName', this.activity.name);
-  //       sessionStorage.setItem('activityIntroduction', this.activity.introduction);
-  //       sessionStorage.setItem('activityType', this.activity.type);
-  //       sessionStorage.setItem('activityLocation', this.activity.location);
-  //       sessionStorage.setItem('activityBeginTime', this.activity.beginTime);
-  //       sessionStorage.setItem('activityEndTime', this.activity.endTime);
-  //       sessionStorage.setItem('activityParticipantNumber', this.activity.participantNumber.toString());
-  //       sessionStorage.setItem('activityEnrolledNumber', this.activity.enrolledNumber.toString());
-  //       sessionStorage.setItem('activityState', this.activity.state);
-  //       sessionStorage.setItem('activityPicPath', this.activity.picPath);
-  //       sessionStorage.setItem('activityStatus', this.activityStatus);
-  //     },
-  //     loadActivityFromSession() {
-  //       this.activity.name = sessionStorage.getItem('activityName') || '';
-  //       this.activity.introduction = sessionStorage.getItem('activityIntroduction') || '';
-  //       this.activity.type = sessionStorage.getItem('activityType') || '';
-  //       this.activity.location = sessionStorage.getItem('activityLocation') || '';
-  //       this.activity.beginTime = sessionStorage.getItem('activityBeginTime') || '';
-  //       this.activity.endTime = sessionStorage.getItem('activityEndTime') || '';
-  //       this.activity.participantNumber = parseInt(sessionStorage.getItem('activityParticipantNumber') || '0', 10);
-  //       this.activity.enrolledNumber = parseInt(sessionStorage.getItem('activityEnrolledNumber') || '0', 10);
-  //       this.activity.state = sessionStorage.getItem('activityState') || '';
-  //       this.activity.picPath = sessionStorage.getItem('activityPicPath') || '';
-  //       this.activityStatus = sessionStorage.getItem('activityStatus') || '';
-  //     },
-  //   },
-  // };
-  </script>
-  
-  <style scoped>
-  .container {
-    background-color: white;
-    width: 1200px;
-    margin-bottom: 20px;
-    padding: 10px 25px 25px 25px;
-  }
-  
-  .page-header {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    position: relative; /* For the horizontal line at the bottom */
-  }
-  
-  .header-left {
-    display: flex;
-    align-items: center;
-  }
-  
-  .btn-back {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0.3rem;
-    color: #333;
-  }
-  
-  .icon-back::before {
-    content: '\2190'; /* Unicode character for left arrow */
-    margin-right: 0.5rem;
-  }
-  
-  .separator {
-    margin: 0 1rem;
-    width: 1px;
-    height: 1.5rem;
-    background-color: #ccc; /* Color of the vertical separator */
-  }
-  
-  .header-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #333;
-    margin-left: 10px; /* Add some space between the separator and the title */
-  }
-  
-  /* Add a horizontal line at the bottom of the page header */
-  .page-header::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 1px;
-    background-color: #ccc;
-  }
-  
-  .event-info{
-    display: flex;
-    flex-direction: row;
-    width:auto;
-    padding: 20px 30px 0px 30px;
-  }
-  .info-left{
-    display: flex;
-    flex-direction: column;
-    width:50%;
-    padding: 0px 20px 0px 0px;
-  }
-  .info-right{
-    width:50%;
-    padding: 10px 20px 10px 20px;
-  }
-  .event-img {
-    width: 100%; /* 设置图片宽度填满容器 */
-    height: 100%; /* 设置图片高度填满容器 */
-    object-fit: cover; /* 让图片完全覆盖容器，同时保持图片的宽高比 */
-  }
-  .little-title{
-    color:#bdc2bf;
-    padding: 20px 0px 20px 0px;
-    font-size: 20px;
-    font-family: "Microsoft YaHei";
-  }
-  .big-title{
-    color:#333;
-    padding: 10px 0px 10px 10px;
-    font-size: 32px;
-    font-family: "SimSun";
-    font-weight: bold;
-  }
-  .text{
-    color:#333;
-    padding: 10px 25px 10px 10px;
-    font-size: 20px;
-    font-family: "SimSun";
-    font-weight: bold;
-    line-height: 1.5; /* 行距设置为字体大小的1.5倍 */
-  }
-  .combination{
-    padding: 0px 15px 20px 0px;
-  }
-  .cover-text{
-    display: flex;
-    flex-direction: row;
-    color:#333;
-    padding: 7px 0px 7px 0px;
-    border-radius: 20px;
-    width:100%;
-    background-color: #e0f2e0;
-    font-size: 16px;
-    font-weight: bold;
-    font-family: "SimSun";
-    line-height: 1.5; 
-  }
-  .info-little-title{
-    padding: 2px 2px 2px 18px;
-  }
-  .info-text{
-    padding: 2px 2px 2px 2px;
-  }
-  .group2{
-    width:50%;
-  }
-  .group1{
-    display:flex;
-    flex-direction: row;
-  }
-  
-  .event-process{
-    display: flex;
-    flex-direction: column;
-  }
-  .timeline {
-      padding: 30px 0px 0px 0px;
-      /* position: relative; */
-      width: 1200px; /* 根据需要调整宽度 */
-      /* margin: 20px auto; 居中容器，增加上下边距 */
-      background-color: #f9fefb; /* 容器背景颜色 */
-      display: flex; /* 使用 flex 布局 */
-      justify-content: center; /* 水平居中 */
-      align-items: center; /* 垂直居中 */
+    <el-footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</el-footer>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+import NavigationBar from "../components/navbar.vue";
+import { ArrowLeft } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
+
+export default {
+  components: {
+    NavigationBar,
+  },
+  data() {
+    return {
+      activity: null, // 活动数据
+      isApprover: false, // 是否是审批人
+      dismissReason: "", // 驳回理由
+    };
+  },
+  setup() {
+    const router = useRouter();
+
+    // 返回方法
+    const handleBack = () => {
+      router.push("/activities");
+    };
+
+    return { handleBack };
+  },
+  mounted() {
+    this.fetchActivityDetails();
+  },
+  methods: {
+    async fetchActivityDetails() {
+      const activityId = this.$route.params.activityId;
+      const user_id = sessionStorage.getItem("user_id");
+      try {
+        const params = new URLSearchParams();
+        params.append("user_id", user_id);
+        const response = await axios.post(
+          `http://127.0.0.1:5000/activity_detail/${activityId}`,
+          params
+        );
+        const { activity, isApprover } = response.data;
+        this.activity = activity;
+        this.isApprover = isApprover;
+      } catch (error) {
+        console.error("活动数据获取失败", error);
+      }
+    },
+    async deleteActivity() {
+      const activityId = this.activity.a_id;
+      try {
+        await axios.post(`http://127.0.0.1:5000/delete_activity/${activityId}`);
+        this.$router.push("/activities");
+      } catch (error) {
+        console.error("删除活动失败", error);
+      }
+    },
+    async approveActivity() {
+      console.log('你好吗你好吗在同意');
+      const activityId = this.activity.a_id;
+      try {
+        await axios.post(`http://127.0.0.1:5000/approve_activity/${activityId}`);
+        this.activity.a_state = "approved";
+      } catch (error) {
+        console.error("同意活动失败", error);
+      }
+    },
+    async dismissActivity() {
+      const activityId = this.activity.a_id;
+      try {
+        await axios.post(
+          `http://127.0.0.1:5000/dismiss_activity/${activityId}`,
+          { dismiss_reason: this.dismissReason }
+        );
+        this.activity.a_state = "dismissed";
+      } catch (error) {
+        console.error("驳回活动失败", error);
+      }
+    },
+    getApprovalStep() {
+      const state = this.activity.a_state;
+      switch (state) {
+        case "submitted":
+          return 1;
+        case "approving":
+          return 2;
+        case "approved":
+          return 3;
+        case "completed":
+          return 4;
+        default:
+          return 1;
+      }
+    },
+    getStateColor(state) {
+    switch (state) {
+      case 'approving':
+        return '#db9d41'; // 审批中的颜色，例如：浅珊瑚色
+      case 'approved':
+        return '#60a130'; // 已通过的颜色，例如：亮绿色
+      default:
+        return '#8d2c2c'; // 已驳回的颜色，例如：红色
     }
-  
-    .vertical-line {
-      position: absolute;
-      left: 50%; /* 居中 */
-      top: 0; /* 从顶部开始 */
-      bottom: 0; /* 到达底部 */
-      width: 2px; /* 直线的宽度 */
-      background-color: #c8c7c7; /* 直线的颜色 */
-      transform: translateX(-50%); /* 使直线完全居中 */
-      height: 1000px; /* 确保直线充满整个容器高度 */
-    }
-  
-    .circle {
-      position: flex;
-      width: 14px; /* 圆的直径 */
-      height: 14px; /* 圆的直径 */
-      border-radius: 50%; /* 使其成为圆形 */
-      margin:7px 7px; 
-    }
-  
-    .yellow-circle{
-    background-color: #eadc88;
-    }
-    .red-circle{
-     background-color: #e35656;
-    }
-    .green-circle{
-     background-color: #96e296;
-    }
-  
-  .group3{
-    display: flex;
-    flex-direction: row;
-  }
-  </style>
+    },
+    getStateText(state) {
+      switch (state) {
+        case 'approving':
+          return '审批中';
+        case 'approved':
+          return '已通过';
+        default:
+          return '已驳回';
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+.container {
+  display: flex;       /* 使用Flexbox布局 */
+  flex-direction: column; /* 设置主轴方向为垂直 */
+  background-color: #f8f8f8;
+}
+
+.page-header {
+  z-index: 10;
+  position: sticky;
+  top: 0;
+  background-color: white;
+}
+
+.activity-details-container {
+  margin: 20px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.approval-steps {
+  margin-bottom: 20px;
+}
+
+.activity-info,
+.approval-info {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #8d2c2c;
+  margin-bottom: 10px;
+}
+
+.info-grid {
+  margin-left:150px;
+  margin-right:80px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 20px;
+}
+
+.images img {
+  width: 300px;
+  height: auto;
+  border-radius: 4px;
+}
+
+.action-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.dismiss-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+.el-page-header {
+  margin-top: 20px; /* 或者其他适当的值 */
+  margin-left: 20px; /* 左边距 */
+}
+.all-contents{
+  background-color: #ffffff;
+  margin-left: 20px; /* 左边距 */
+  margin-right: 20px; /* 右边距 */
+  margin-top: 80px;
+  display: flex;
+  flex-direction: column; /* 设置子元素纵向排列 */
+}
+.h1{
+  margin-left: 50px;
+  margin-top:10px;
+  margin-bottom:30px;
+  font-size:20px;
+  font-weight: lighter;
+  color:grey;
+}
+.h2 {
+  font-size: 20px;
+  /* font-family: 'Source Han Serif', 'Noto Serif CJK SC', serif; */
+  /* font-weight: bold;  */
+  color:rgb(164, 162, 162);
+  width:160px;
+}
+.h3{
+  font-size: 20px;
+  /* font-family: 'Source Han Serif', 'Noto Serif CJK SC', serif; */
+  width:500px;
+  /* font-weight:bolder; */
+}
+.info-unit{
+  display: flex;
+}
+.status-dot {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+.buttons {
+  display: flex;          /* 启用 Flexbox 布局 */
+  justify-content: center; /* 水平居中对齐子组件 */
+  align-items: center;     /* 垂直居中对齐子组件（如果需要的话） */
+  flex-wrap: wrap;        /* 允许子组件换行 */
+  gap: 30px;              /* 设置子组件之间的间隔为 30px */
+  margin-bottom: 30px;
+}
+.el-footer{
+  background-color: transparent;
+  color: #ababab;
+  text-align: center;
+  bottom: 0;
+  font-size:xx-small;
+  margin-top: 50px;
+}
+</style>

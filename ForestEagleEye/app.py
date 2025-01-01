@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String, JSON
 from sqlalchemy import insert
 from werkzeug.utils import secure_filename
 from sqlalchemy import text
-from sqlalchemy import create_engine, Column, Enum, Integer, Table, String, ForeignKey, DateTime, Text, Boolean, Float,inspect
+from sqlalchemy import create_engine, Column, Enum, Integer, Table, String, ForeignKey, DateTime, Text, Boolean, Float,inspect,MetaData, select
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from datetime import datetime
 from flask import render_template  # 引入模板插件
@@ -20,7 +20,8 @@ from sqlalchemy.exc import SQLAlchemyError,OperationalError
 import re
 import pandas as pd
 import requests
-
+from http import HTTPStatus
+import dashscope
 
 app = Flask(
     __name__,
@@ -30,8 +31,7 @@ app = Flask(
 app.secret_key = "123456789"
 
 # 配置上传文件夹路径
-UPLOAD_FOLDER = os.path.join(app.static_folder, "uploads")
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = os.path.join(os.getcwd(),'public/uploads')
 
 # 确保上传目录存在
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
@@ -39,7 +39,7 @@ os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-
+metadata = MetaData()
 
 app.config["MAIL_SERVER"] = "smtp.qq.com"  # 邮件服务器
 app.config["MAIL_PORT"] = 587
@@ -51,6 +51,7 @@ app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=60)
 
 mail = Mail(app)
 verification_codes = {}  # 存储邮箱和验证码的字典
+dashscope.api_key = 'sk-16d20b70778043379f8afa4b6a940a8b'
 
 # MySQL 数据库连接配置
 db_config={
@@ -58,7 +59,7 @@ db_config={
     'password':'20040616',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
-    'database': 'forest',#这里改成自己的数据库名字
+    'database': 'forest2025',#这里改成自己的数据库名字
     'charset':'utf8mb4'}
 # 创建数据库连接
 engine = create_engine("mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset={charset}".format(**db_config))
@@ -73,6 +74,10 @@ current_dir = os.path.dirname(current_file_path)
 Amap=pd.read_excel(os.path.join(current_dir, 'src/assets/data/AMap_adcode_citycode.xlsx'))
 CityCodeMap=pd.Series(Amap['adcode'].values,index=Amap['name']).to_dict()
 API_KEY = "a4ff6e3b16fa5bc76d719f465c90e6da"# 申请的高德地图API密钥，不要改
+
+
+
+
 
 class user_participate_activity(Base):
     __tablename__ = "user_participate_activity"
@@ -225,7 +230,8 @@ class ForestVariableBase(Base):
 ### 森林灾害变量表
 class ForestDisasterBase(Base):
     __abstract__ = True
-    d_date = Column(DateTime, nullable=False, default=datetime.now,primary_key=True)  # 日期，默认当前时间
+    d_id = Column(Integer, primary_key=True, nullable=False, unique=True)# 编号
+    d_date = Column(DateTime, nullable=False, default=datetime.now)  # 日期，默认当前时间
     d_type = Column(Enum("火灾", "极端天气", "干旱", "土壤侵蚀", "酸雨","地质灾害","生物灾害","人为灾害"), nullable=False)  # 灾害类型
     d_loss = Column(Float)  # 受损面积
     d_desc = Column(String(1000))
@@ -279,7 +285,7 @@ class ForestResourceBase(Base):
 # 如果之前创建过同名数据库且不明白如何数据库迁移，可以把下面一句注释去掉，运行清除之前的表并创建新表，然后记得加上注释
 # with engine.connect() as connection: 
 #     connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
-#     # inspector = inspect(engine)
+#     inspector = inspect(engine)
 #     # foreign_keys = inspector.get_foreign_keys('institutions')
 #     # foreign_key_names = [fk['name'] for fk in foreign_keys]
     
@@ -481,10 +487,28 @@ def getRelativeInstitutions():
         return jsonify({'error': f'An error occurred while querying the database: {str(e)}'}), 500
 
 # 森林百科-编辑详情-上传森林相册图片
-@app.route("/uploadForestImage")
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
+
+@app.route("/uploadForestImage",methods=["POST"])
 def uploadForestImage():
-    print('上传森林相册图片...')
-    return jsonify(),200
+    if 'files' not in request.files:
+        return jsonify({'message': '没有文件上传','status':'error'}),400
+    files = request.files.getlist('files')
+    f_name = request.form.get('f_name')  
+
+    for file in files:
+        if file.filename == '':
+            return jsonify({'message': '未选择文件', 'status': 'error'})
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            # 给文件名加上前缀 f_name
+            new_filename = f"{f_name}_{filename}"
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
+            file.save(file_path)
+            # 这里可以添加代码将文件信息存储到数据库中
+            return jsonify({'message': '文件上传成功', 'path': file_path})
+    return jsonify({"message": "文件类型不支持", "status": "error"}), 400
 
 
 ### 动态创建并获取动植物资源详情的表格
@@ -574,7 +598,7 @@ def uploadDisasterFile():
                 d_desc=row['灾情概述']
             )
             db_session.add(new_disaster)
-            db_session.commit()
+        db_session.commit()
     except SQLAlchemyError as e:
         db_session.rollback()
     return jsonify({'message': '文件上传成功'}),200
@@ -1173,8 +1197,103 @@ def setForestInfo():
         return jsonify({'status':'success','message':'edited f_intro successfully'}),200
     return jsonify({'status':'fail','message':'failed to edit f_intro'}),404
 
+## 单林区查询
+@app.route('/searchOneForest',methods=['POST'])
+def searchOneForest():
+    f_id = request.form['f_id']
+    forest = db_session.query(Forest).filter_by(f_id=f_id).first()
+    institutions = {inst.i_id: inst.i_name for inst in db_session.query(Institution).filter_by(i_type='管理机构').all()}
+    
+    # 待返回的动态表
+    weather_formatted_data = {}
+    resource_formatted_data = {}
+    disaster_formatted_data = {}
+
+    # 加载数据库中的所有表结构
+    metadata.reflect(bind=engine)
+
+    # 天气数据
+    weatherTableName = 'forest_variable_' + forest.f_name
+    if weatherTableName in metadata.tables:
+        weatherTable = metadata.tables[weatherTableName]
+        query = select(weatherTable)
+        result = db_session.execute(query)
+        rows = result.fetchall()
+        weather = [row._asdict() for row in rows]  
+
+        # 格式化数据
+        weather_formatted_data = {
+            'dates': [item['f_date'].strftime('%Y-%m-%d %H:%M:%S') for item in weather],
+            'temperatures': [item['f_temperature'] for item in weather],
+            'humidities': [item['f_humidity'] for item in weather],
+            'winddirections': [item['f_winddirection'] for item in weather],
+            'windpowers': [item['f_windpower'] for item in weather]
+        }
+
+    
+    # 资源数据
+    resourceTableName = 'forest_resource_' + forest.f_name
+    if resourceTableName in metadata.tables:
+        resourceTable = metadata.tables[resourceTableName]
+        query = select(resourceTable)
+        result = db_session.execute(query)
+        rows = result.fetchall()
+        resource = [row._asdict() for row in rows]  
+
+        # 格式化数据
+        resource_formatted_data = {
+            'id': [item['r_id'] for item in resource],
+            'name': [item['r_name'] for item in resource],
+            'type': [item['r_type'] for item in resource],
+            'latitude': [item['r_latitude'] for item in resource],
+            'longitude': [item['r_longitude'] for item in resource],
+            'radius': [item['r_radius'] for item in resource],
+        }
+
+    # 灾害数据
+    disasterTableName = 'forest_disaster_' + forest.f_name
+    if disasterTableName in metadata.tables:
+        disasterTable = metadata.tables[disasterTableName]
+        query = select(disasterTable)
+        result = db_session.execute(query)
+        rows = result.fetchall()
+        disaster = [row._asdict() for row in rows]  
+
+        # 格式化数据
+        disaster_formatted_data = {
+            'dates': [item['d_date'].strftime('%Y-%m-%d %H:%M:%S') for item in disaster],
+            'type': [item['d_type'] for item in disaster],
+            'loss': [item['d_loss'] for item in disaster],
+            'desc': [item['d_desc'] for item in disaster],
+        }
 
 
+    # 基本静态表
+    baseInfo = [{
+        'sf_name': forest.f_name,
+        'sf_area': forest.f_area,
+        'sf_location': forest.f_location,
+        'sf_manager': institutions.get(forest.f_manager),
+        'sf_intro': forest.f_intro,
+        'sf_id': forest.f_id
+    }]
+
+    # 森林相册图片
+    image_paths = []
+    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+        if filename.startswith(forest.f_name) and filename.endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            # file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file_path = '/public/uploads/'+filename
+            image_paths.append(file_path)
+
+    # 返回全部表信息
+    return jsonify({
+        'baseInfo': baseInfo,
+        'sf_images': image_paths,
+        'weather': weather_formatted_data,
+        'resource': resource_formatted_data,
+        'disaster': disaster_formatted_data
+    })
 
 
 # 这里是论坛首页，现在的session我写死了等于一个字符串，到时候只需登录的时候把session动态填写一下就好
@@ -1437,7 +1556,34 @@ def user_profile(username):
     return render_template('user_profile.html', user=user, posts=post_data, current_tab=tab)
 
 
+@app.route('/chat')
+def large_model():
+    return render_template('chat.html')
 
+
+@app.route('/ask_model', methods=['POST'])
+def ask_model():
+    question = request.form.get('question', '')
+    try:
+        response = dashscope.Generation.call(
+            model='qwen-turbo',
+            prompt=question
+        )
+
+        if response.status_code == HTTPStatus.OK:
+
+            if isinstance(response.output, dict) and 'text' in response.output:
+                answer = response.output['text']
+            else:
+
+                answer = response.output
+            print(answer)
+        else:
+            answer = f"Error: {response.code}, {response.message}"
+    except Exception as e:
+        answer = f'调用API时出错: {str(e)}'
+
+    return jsonify({"text": answer})
 
 
 

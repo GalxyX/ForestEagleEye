@@ -171,27 +171,34 @@
                 style="font-size: small;">
               </el-alert>
             </h2>
+            
+            
             <el-upload
+              ref="upload"
               v-model:file-list="fileList"
-              action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+              :action="'http://127.0.0.1:5000/uploadForestImage'"
               list-type="picture-card"
               :on-preview="handlePictureCardPreview"
               :on-remove="handleRemove"
+              :limit="9"
+              :on-exceed="handleExceed"
+              :on-success="handleSuccess"
+              :on-error="handleError"
+              :before-upload="beforeUpload"
+              :auto-upload="false"
             >
               <el-icon><Plus /></el-icon>
             </el-upload>
-
-            <el-dialog v-model="dialogVisible">
-              <img w-full :src="dialogImageUrl" alt="Preview Image" />
-            </el-dialog>
-            <el-button class="ml-3" type="success" style="margin-top: 10px;" @click="submitUploadImage">
-                上传至林上鹰眼
-            </el-button>
-          </div>
-        </div>
-
-      
         
+            <el-button class="ml-3" type="success" @click="submitUploadForestImage" :loading="uploading" style="margin-top: 10px;">上传至林上鹰眼</el-button>
+        
+            <el-dialog v-model="dialogVisible">
+              <img :src="dialogImageUrl" alt="Preview Image" />
+            </el-dialog>
+          
+          </div>
+      
+        </div>
      
     </div>
 
@@ -203,7 +210,7 @@
   import { normalize } from 'echarts/types/src/scale/helper.js';
   import axios from 'axios';
   import { genFileId } from 'element-plus'
-  import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
+  import type { UploadInstance, UploadProps, UploadRawFile, UploadUserFile } from 'element-plus';
   import { Plus } from '@element-plus/icons-vue';
 
   // 定义森林属性的接口
@@ -370,24 +377,96 @@
     });
   }
 
-
-
-  // 上传森林相册图片
-  const fileList = ref<UploadUserFile[]>([]);
-  const dialogImageUrl = ref('')
-  const dialogVisible = ref(false)
-  const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
-    console.log(uploadFile, uploadFiles)
-  }
-  const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
-    dialogImageUrl.value = uploadFile.url!
-    dialogVisible.value = true
-  }
-  const submitUploadImage = () => {
-    uploadDisaster.value!.submit()
-  }
-
+  //上传森林相册图片
+  const fileList = ref<UploadFile[]>([]);
+  const dialogImageUrl = ref('');
+  const dialogVisible = ref(false);
+  const uploading = ref(false);
   
+  const handleRemove = (file: UploadFile, files: UploadFile[]) => {
+    console.log(file, files);
+  };
+  
+  // 使用 window.URL.createObjectURL 生成预览URL
+  const handlePictureCardPreview = (file: UploadFile) => {
+    if (!file.url && file.raw) {
+      file.url = URL.createObjectURL(file.raw);
+    }
+    dialogImageUrl.value = file.url;
+    dialogVisible.value = true;
+  };
+  
+  const handleExceed = (files: UploadFile[], filesList: UploadFile[]) => {
+    ElNotification({
+      title: '超出限制',
+      message: `限制选择 9 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + filesList.length} 个文件`,
+      type: 'warning',
+    });
+  };
+  
+  const handleSuccess = (response: any, file: UploadFile) => {
+    alert('文件上传成功');
+    ElNotification({
+      title: '上传成功',
+      message: '图片成功添加到林上鹰眼数据库~',
+      type: 'success',
+    });
+  };
+  
+  const handleError = (err: any, file: UploadFile) => {
+    ElNotification({
+      title: '上传失败',
+      message: '图片添加失败，请稍后重试',
+      type: 'error',
+    });
+  };
+  
+  const beforeUpload = (file: File) => {
+    return true; 
+  };
+  
+  const submitUploadForestImage = async () => {
+    if (fileList.value.length === 0) {
+      ElNotification({
+      title: '上传失败',
+      message: '请先选择图片',
+      type: 'warning',
+    });
+      return;
+    }
+  
+    uploading.value = true;
+    try {
+      for (let file of fileList.value) {
+        const formData = new FormData();
+        formData.append('files', file.raw);
+        //添加森林名称
+        formData.append('f_name', f_name);
+  
+        await axios.post('http://127.0.0.1:5000/uploadForestImage', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      }
+      ElNotification({
+      title: '上传成功',
+      message: '图片成功添加到林上鹰眼数据库~',
+      type: 'success',
+    });
+    } catch (error) {
+      ElNotification({
+      title: '上传失败',
+      message: '上传失败，请稍后重试',
+      type: 'error',
+    });
+      console.error(error);
+    } finally {
+      uploading.value = false;
+      // 无论成功或失败，都清空文件列表
+        fileList.value = [];
+    }
+  };
 </script>
 
 <style scoped>

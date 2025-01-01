@@ -20,6 +20,7 @@
     "axios": "^1.7.7",
     "echarts": "^5.5.1",
     "echarts-map": "^3.0.1",
+    "echarts-wordcloud": "^2.1.0",
     "element-china-area-data": "^6.1.0",
     "element-plus": "^2.8.7",
     "elements-ui": "^0.4.3",
