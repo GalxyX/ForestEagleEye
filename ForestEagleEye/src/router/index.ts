@@ -41,9 +41,14 @@ const router = createRouter({
       component: () => import('../views/postDetailView.vue')
     },
     {
-      path: '/post/:id/share',
+      path: '/postshare/:id',
       name: 'sharepost',
-      component: () => import('../views/postShareView.vue')
+      component: () => import('../views/postWriteView.vue')
+    },
+    {
+      path: '/postwrite',
+      name: 'writepost',
+      component: () => import('../views/postWriteView.vue')
     },
     {
       path: '/profile',

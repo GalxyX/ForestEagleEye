@@ -1351,6 +1351,10 @@ def post_comment(post_id):
 
 @app.route('/post/<int:post_id>/share', methods=['POST'])
 def share_post(post_id):
+    title = request.form['title']
+    content = request.form['content']
+    images = request.files.getlist('images')
+
     session['username'] = 'galaxy'
     if 'username' not in session:
         return jsonify({"error": "User not logged in"}), 403
@@ -1366,7 +1370,7 @@ def share_post(post_id):
     share_content = request.json.get('content', '')
 
     new_post = Post(
-        p_title=f"{user.u_name} 转发了帖子: {original_post.p_title}",
+        p_title=title,
         p_content=share_content,
         author=user,
         original_post_id=original_post.p_id

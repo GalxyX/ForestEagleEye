@@ -37,7 +37,6 @@
               <input type="file" accept="image/*" multiple @change="handleFileUpload" ref="fileInput" />
               <!--上传图片的预览-->
               <ul>
-
               </ul>
             </section>
             <p id="wrongWarning" v-if="warningSentence">{{ warningSentence }}</p>
@@ -224,7 +223,7 @@ const toOriPost = () => {
 };
 //分享
 const sharePost = () => {
-  router.push(`/post/${post.value?.id}/share`).then(() => {
+  router.push(`/postshare/${post.value?.id}`).then(() => {
     window.location.reload();
   });
 };

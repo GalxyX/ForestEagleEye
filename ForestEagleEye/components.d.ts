@@ -45,6 +45,7 @@ declare module 'vue' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElUpload: typeof import('element-plus/es')['ElUpload']
+    ElUploadDragger: typeof import('element-plus/es')['ElUploadDragger']
     Enroll: typeof import('./src/components/enroll.vue')['default']
     Enroll_activity: typeof import('./src/components/enroll_activity.vue')['default']
     ForestAddView: typeof import('./src/components/ForestAddView.vue')['default']
