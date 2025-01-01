@@ -65,7 +65,8 @@ onMounted(async () => {
       <div class="posts-block">
         <h1>实时热帖</h1>
         <postPreview v-for="post in posts" :key="post.id" :id="post.id" :title="post.title" :time="post.time"
-          :content="post.content_preview" :image="post.images.length ? post.images[0] : ''" />
+          :content="post.content_preview" :image="post.images.length ? post.images[0] : ''"
+          :likeNum="post.like_count" />
       </div>
       <!--右侧信息-->
       <aside class="info-block">

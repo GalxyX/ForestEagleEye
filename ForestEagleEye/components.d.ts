@@ -7,7 +7,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Activities: typeof import('./src/components/activities.vue')['default']
     Activity: typeof import('./src/components/activity.vue')['default']
     Activity_detail: typeof import('./src/components/activity_detail.vue')['default']
     Activity_signup: typeof import('./src/components/activity_signup.vue')['default']
@@ -33,7 +32,6 @@ declare module 'vue' {
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
-    ElLabel: typeof import('element-plus/es')['ElLabel']
     ElMain: typeof import('element-plus/es')['ElMain']
     ElMenu: typeof import('element-plus/es')['ElMenu']
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
@@ -43,13 +41,11 @@ declare module 'vue' {
     ElScrollbar: typeof import('element-plus/es')['ElScrollbar']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElSkeleton: typeof import('element-plus/es')['ElSkeleton']
-    ElSpinner: typeof import('element-plus/es')['ElSpinner']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElUpload: typeof import('element-plus/es')['ElUpload']
-    ElUploadDragger: typeof import('element-plus/es')['ElUploadDragger']
     Enroll: typeof import('./src/components/enroll.vue')['default']
     Enroll_activity: typeof import('./src/components/enroll_activity.vue')['default']
     ForestAddView: typeof import('./src/components/ForestAddView.vue')['default']
