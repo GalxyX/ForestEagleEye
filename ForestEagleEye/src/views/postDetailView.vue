@@ -53,7 +53,7 @@
                   <!-- <img v-for="image in comment.images" :key="image" :src="image ? `/public/static/${image}` : '#'"
                     alt="image" @click="previewImage(image)" /> -->
                   <ImageViewer v-for="image in comment.images" :key="image" :alt="image"
-                    :src="image ? `/public/static/${image}` : '#'" height="100px" width="100px" />
+                    :src="image ? `/public/${image}` : '#'" height="100px" width="100px" />
                 </div>
               </div>
             </section>
