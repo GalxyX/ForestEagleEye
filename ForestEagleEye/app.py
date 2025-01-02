@@ -56,7 +56,7 @@ dashscope.api_key = 'sk-16d20b70778043379f8afa4b6a940a8b'
 # MySQL 数据库连接配置
 db_config={
     'user':'root',
-    'password':'20040616',#这里改成自己的数据库密码
+    'password':'Jwy040103-',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
     'database': 'forest2025',#这里改成自己的数据库名字
@@ -295,7 +295,7 @@ class ForestResourceBase(Base):
 #     Base.metadata.drop_all(engine)
 #     connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
 
-# Base.metadata.create_all(engine)
+#Base.metadata.create_all(engine)
 
 db_session_class = sessionmaker(bind=engine)
 db_session = db_session_class()
@@ -640,9 +640,9 @@ def apply():
     dismissed_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id, Activity.a_state == "dismissed").all()
 
     # 将活动转换为字典格式返回
-    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in approving_activities]
-    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in approved_activities]
-    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in dismissed_activities]
+    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"a_forest": activity.a_forest,"a_approver_id":activity.a_approver_id,"a_approveTime":activity.a_approveTime} for activity in approving_activities]
+    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"a_forest": activity.a_forest,"a_approver_id":activity.a_approver_id,"a_approveTime":activity.a_approveTime} for activity in approved_activities]
+    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"a_forest": activity.a_forest,"a_approver_id":activity.a_approver_id,"a_approveTime":activity.a_approveTime} for activity in dismissed_activities]
 
     # 返回 JSON 数据
     return jsonify({
@@ -668,16 +668,11 @@ def create_activity():
         a_ableParticipate = request.form.get("a_ableParticipate") is not None
         # 打印出所有接收到的字段
         print(f"接收到的表单字段: {a_name}, {a_location}, {a_beginTime}, {a_endTime}, {a_participantNumber}, {a_introduction}, {a_forest}, {a_type}, {a_ableParticipate}")
-        '''
+        a_picPath = request.form.get("a_picPath")  # 获取图片路径
         # 处理文件上传
-        a_picPath = request.files["a_picPath"]
-        if a_picPath:
-            print(f"接收到文件: {a_picPath.filename}")
-            filename = secure_filename(a_picPath.filename)
-            a_picPath.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-        else:
-            print("没有接收到文件")
-        '''
+        if not a_picPath:
+            return jsonify({"message": "缺少活动封面图片", "status": "error"}), 400
+
         # 将前端传来的字符串转为 datetime 对象
         a_beginTime = datetime.strptime(a_beginTime, "%Y-%m-%dT%H:%M")
         a_endTime = datetime.strptime(a_endTime, "%Y-%m-%dT%H:%M")
@@ -695,7 +690,7 @@ def create_activity():
             a_endTime=a_endTime,
             a_participantNumber=int(a_participantNumber),
             a_introduction=a_introduction,
-            #a_picPath=filename,
+            a_picPath=a_picPath,
             a_ableParticipate=a_ableParticipate,
             a_type=a_type,
             a_forest=a_forest,
@@ -718,6 +713,36 @@ def create_activity():
     return jsonify({"message": "GET请求不支持", "status": "error"}), 405
 
 
+
+@app.route("/upload_activity_image", methods=["POST"])
+def upload_activity_image():
+    if 'file' not in request.files:
+        return jsonify({"message": "没有文件上传", "status": "error"}), 400
+
+    file = request.files['file']
+
+    # 检查文件是否符合要求
+    if file and allowed_file(file.filename):  # `allowed_file` 验证文件类型
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        # 保存文件
+        try:
+            file.save(filepath)
+        except Exception as e:
+            print(f"文件保存失败: {e}")
+            return jsonify({"message": "文件保存失败", "status": "error"}), 500
+
+        # 返回成功消息
+        file_url = f"/public/uploads/{filename}"
+        return jsonify({"filePath": file_url, "status": "success"}), 200
+
+    return jsonify({"message": "文件类型不支持", "status": "error"}), 400
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
+
+
 # 活动详情页，申请人和审批人公用界面，但是会传递一个is_approver参数决定前端是否显示“同意”“驳回”
 @app.route("/activity_detail/<int:activity_id>", methods=["POST"])
 def activity_detail(activity_id):
@@ -728,7 +753,7 @@ def activity_detail(activity_id):
     user = db_session.query(User).filter_by(u_id=u_id).first()
     current_user_role = user.u_role
     # 判断当前用户是否为审批人
-    is_approver = current_user_role == "林业管理人员"
+    is_approver = (current_user_role == "林业管理人员" or current_user_role == "林业监管人员")
     #print("执行到了")
     #print(is_approver)
 
@@ -760,18 +785,27 @@ def activity_detail(activity_id):
     })
 
 
-
-# 申请人删除所申请的活动
 @app.route("/delete_activity/<int:activity_id>", methods=["POST"])
 def delete_activity(activity_id):
+    # 查找活动
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
+
     if activity:
+        # 删除活动
         db_session.delete(activity)
         db_session.commit()
-        flash("活动删除成功", "success")
-    else:
-        flash("活动不存在或已被删除", "error")
 
+        # 返回成功响应
+        return jsonify({
+            "status": "success",
+            "message": "活动已成功删除~"
+        })
+    else:
+        # 如果活动不存在或已被删除，返回失败响应
+        return jsonify({
+            "status": "error",
+            "message": "活动不存在或已被删除"
+        })
 
 # 我的审批界面
 @app.route("/approve", methods=["POST"])
@@ -787,7 +821,7 @@ def approve():
         return jsonify({"error": "用户不存在"}), 404
 
     forest = db_session.query(Forest).filter_by(f_id=user.u_forest).first()
-    current_forest = forest.f_name
+    current_forest = forest.f_id
 
 
 
@@ -801,9 +835,9 @@ def approve():
     dismissed_activities = db_session.query(Activity).filter(Activity.a_forest == current_forest, Activity.a_state == "dismissed").all()
 
     # 将活动转换为字典格式返回
-    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in approving_activities]
-    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in approved_activities]
-    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name} for activity in dismissed_activities]
+    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"startTime": activity.a_beginTime,"applicant":activity.a_applicantId} for activity in approving_activities]
+    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"startTime": activity.a_beginTime,"applicant":activity.a_applicantId} for activity in approved_activities]
+    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"startTime": activity.a_beginTime,"applicant":activity.a_applicantId} for activity in dismissed_activities]
 
     # 返回 JSON 数据
     return jsonify({
@@ -872,7 +906,7 @@ def activities():
         activities_data.append({
             'id': activity.a_id,
             'name': activity.a_name,
-            #'picPath': activity.a_picPath,
+            'picPath': activity.a_picPath,
             'location': activity.a_location,
             'type': activity.a_type,
             'introduction': activity.a_introduction,
