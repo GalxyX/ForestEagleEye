@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash, send_from_directory, abort, jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, flash, send_from_directory, abort, \
+    jsonify
 import pymysql
 import hashlib
 import sqlalchemy
@@ -6,7 +7,8 @@ from sqlalchemy import Column, Integer, String, JSON
 from sqlalchemy import insert
 from werkzeug.utils import secure_filename
 from sqlalchemy import text
-from sqlalchemy import create_engine, Column, Enum, Integer, Table, String, ForeignKey, DateTime, Text, Boolean, Float,inspect,MetaData, select
+from sqlalchemy import create_engine, Column, Enum, Integer, Table, String, ForeignKey, DateTime, Text, Boolean, Float, \
+    inspect, MetaData, select
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from datetime import datetime
 from flask import render_template  # 引入模板插件
@@ -16,7 +18,7 @@ import random
 from datetime import timedelta
 import os
 from flask_cors import CORS
-from sqlalchemy.exc import SQLAlchemyError,OperationalError
+from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import re
 import pandas as pd
 import requests
@@ -31,11 +33,10 @@ app = Flask(
 app.secret_key = "123456789"
 
 # 配置上传文件夹路径
-app.config["UPLOAD_FOLDER"] = os.path.join(os.getcwd(),'public/uploads')
+app.config["UPLOAD_FOLDER"] = os.path.join(os.getcwd(), 'public/uploads')
 
 # 确保上传目录存在
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-
 
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
@@ -54,29 +55,26 @@ verification_codes = {}  # 存储邮箱和验证码的字典
 dashscope.api_key = 'sk-16d20b70778043379f8afa4b6a940a8b'
 
 # MySQL 数据库连接配置
-db_config={
-    'user':'root',
-    'password':'Jwy040103-',#这里改成自己的数据库密码
-    'host':'localhost',
-    'port':3306,
-    'database': 'forest2025',#这里改成自己的数据库名字
-    'charset':'utf8mb4'}
+db_config = {
+    'user': 'root',
+    'password': 'Jwy040103-',  # 这里改成自己的数据库密码
+    'host': 'localhost',
+    'port': 3306,
+    'database': 'forest2025',  # 这里改成自己的数据库名字
+    'charset': 'utf8mb4'}
 # 创建数据库连接
-engine = create_engine("mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset={charset}".format(**db_config))
+engine = create_engine(
+    "mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset={charset}".format(**db_config))
 
 Base = declarative_base()
-
 
 # 森林百科-获取当前文件目录
 current_file_path = os.path.abspath(__file__)
 current_dir = os.path.dirname(current_file_path)
 # 森林百科-获取天气数据-城市编号字典
-Amap=pd.read_excel(os.path.join(current_dir, 'src/assets/data/AMap_adcode_citycode.xlsx'))
-CityCodeMap=pd.Series(Amap['adcode'].values,index=Amap['name']).to_dict()
-API_KEY = "a4ff6e3b16fa5bc76d719f465c90e6da"# 申请的高德地图API密钥，不要改
-
-
-
+Amap = pd.read_excel(os.path.join(current_dir, 'src/assets/data/AMap_adcode_citycode.xlsx'))
+CityCodeMap = pd.Series(Amap['adcode'].values, index=Amap['name']).to_dict()
+API_KEY = "a4ff6e3b16fa5bc76d719f465c90e6da"  # 申请的高德地图API密钥，不要改
 
 
 class user_participate_activity(Base):
@@ -96,13 +94,14 @@ class User(Base):
     u_telphone = Column(String(15), unique=True)  # 联系电话
     u_password = Column(String(100), nullable=False)  # 用户密码
     u_email = Column(String(50), nullable=False, unique=True)  # 邮箱
-    u_role = Column(Enum("普通用户", "林业从业人员", "林业管理人员", "林业监管人员"), nullable=False, default="普通用户")  # 用户所属角色（普通用户、林业从业人员、林业管理人员、环境管理人员、林业局监管人员）
+    u_role = Column(Enum("普通用户", "林业从业人员", "林业管理人员", "林业监管人员"), nullable=False,
+                    default="普通用户")  # 用户所属角色（普通用户、林业从业人员、林业管理人员、环境管理人员、林业局监管人员）
     u_forest = Column(String(100))  # 所属森林（林业管理人员、环境管理人员、林业局监管人员需要选择）
     u_avatarPath = Column(String(100), nullable=False, default="src/assets/default-avatar.png")  # 头像图片路径
     u_signature = Column(String(100), default="这个人很懒，什么都没有留下...")  # 个性签名
     u_signupTime = Column(DateTime, nullable=False, default=datetime.now)  # 注册时间
     u_newestTime = Column(DateTime, nullable=False, onupdate=datetime.now, default=datetime.now)  # 最近登录时间
-    u_institution = Column(Integer,ForeignKey("institutions.i_id"),nullable=True)    # 用户所属机构（除普通用户外需选择）
+    u_institution = Column(Integer, ForeignKey("institutions.i_id"), nullable=True)  # 用户所属机构（除普通用户外需选择）
 
     # u_submitTips = relationship()  # 提交的建议与举报
     # u_approveTips = relationship()  # 审批的建议与举报
@@ -131,6 +130,7 @@ class Post(Base):
 
     # 建立 original_post 关系，引用被转发的帖子
     original_post = relationship("Post", remote_side=[p_id], backref="shared_posts")  # 引用原始帖子
+
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -171,7 +171,7 @@ class Activity(Base):
     a_submitTime = Column(DateTime, nullable=False, default=datetime.now)  # 申请提交时间
     a_attachment = Column(String(100), default="")  # 申请附件
     a_name = Column(String(100), nullable=False)  # 活动名称
-    a_type = Column(Enum("伐木", "采摘", "旅游参观", "野营", "捕猎","冥想","徒步"), nullable=False)  # 活动类型
+    a_type = Column(Enum("伐木", "采摘", "旅游参观", "野营", "捕猎", "冥想", "徒步"), nullable=False)  # 活动类型
     a_forest = Column(String(100), nullable=False)  # 审批单位（森林名称）
     a_location = Column(String(100), nullable=False)  # 活动地点（具体地点）
     a_beginTime = Column(DateTime, nullable=False)  # 活动开始时间
@@ -181,18 +181,20 @@ class Activity(Base):
     a_ableParticipate = Column(Boolean, nullable=False)  # 活动是否面向大众（大众可以报名参加）
     a_participantNumber = Column(Integer, nullable=False)  # 活动人数
     a_enrolledNumber = Column(Integer, nullable=False, default=0)  # 已报名人数
-    a_state = Column(Enum("approving", "approved", "dismissed", "ongoing", "ended"), nullable=False, default="approving")  # 状态（待审批、通过、驳回、活动开始、活动完成）
+    a_state = Column(Enum("approving", "approved", "dismissed", "ongoing", "ended"), nullable=False,
+                     default="approving")  # 状态（待审批、通过、驳回、活动开始、活动完成）
     a_approver_id = Column(Integer, ForeignKey("users.u_id"), nullable=True)  # 审批人id
     a_approveTime = Column(DateTime, nullable=True)  # 活动审批时间
     a_dismissreason = Column(String(100), nullable=True)  # 驳回理由
+
 
 ### 机构相关表
 # 管理机构
 class Institution(Base):
     __tablename__ = "institutions"
-    i_id = Column(Integer,primary_key=True,nullable=False,unique=True)  # 机构编号
-    i_name = Column(String(20),nullable=False,unique=True)   # 机构名称
-    i_type = Column(Enum('从业机构','管理机构'),nullable=False)   # 机构类别
+    i_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 机构编号
+    i_name = Column(String(20), nullable=False, unique=True)  # 机构名称
+    i_type = Column(Enum('从业机构', '管理机构'), nullable=False)  # 机构类别
 
 
 ### 森林相关表
@@ -201,18 +203,18 @@ class Forest(Base):
     __tablename__ = "forests"
     f_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 森林编号
     f_name = Column(String(100), nullable=False, unique=True)  # 森林名称
-    f_location = Column(String(100), nullable=False,default='中国/中国大陆/中华人民共和国')  # 森林地理位置
-    f_area = Column(Integer, nullable=False,default=100)  # 森林占地面积
-    f_soilType = Column(String(100), nullable=False,default='暂无')  # 土壤类型
-    f_intro = Column(String(1000),default="森林管理员尚未添加简介...")  # 森林简介
-    f_manager = Column(Integer,ForeignKey('institutions.i_id')) # 森林管理机构id
+    f_location = Column(String(100), nullable=False, default='中国/中国大陆/中华人民共和国')  # 森林地理位置
+    f_area = Column(Integer, nullable=False, default=100)  # 森林占地面积
+    f_soilType = Column(String(100), nullable=False, default='暂无')  # 土壤类型
+    f_intro = Column(String(1000), default="森林管理员尚未添加简介...")  # 森林简介
+    f_manager = Column(Integer, ForeignKey('institutions.i_id'))  # 森林管理机构id
 
-    f_resourceDistribution = Column(String(1000),nullable=True)  # 资源分布
-    f_vegetationCoverage = Column(String(1000),nullable=True)  # 植被覆盖
-    f_historicalCulture = Column(String(1000),nullable=True)  # 历史文化
-    f_disasterSituation = Column(String(1000),nullable=True)  # 灾害情况
-    f_wildlife = Column(String(1000),nullable=True)  # 野生动物
-    f_economicValue = Column(String(1000),nullable=True)  # 经济价值
+    f_resourceDistribution = Column(String(1000), nullable=True)  # 资源分布
+    f_vegetationCoverage = Column(String(1000), nullable=True)  # 植被覆盖
+    f_historicalCulture = Column(String(1000), nullable=True)  # 历史文化
+    f_disasterSituation = Column(String(1000), nullable=True)  # 灾害情况
+    f_wildlife = Column(String(1000), nullable=True)  # 野生动物
+    f_economicValue = Column(String(1000), nullable=True)  # 经济价值
 
 
 # 森林变量表
@@ -221,30 +223,34 @@ class Forest(Base):
 ### 森林气象变量表
 class ForestVariableBase(Base):
     __abstract__ = True  # 抽象基类
-    f_date = Column(DateTime, nullable=False, default=datetime.now,primary_key=True)  # 日期，默认当前时间
+    f_date = Column(DateTime, nullable=False, default=datetime.now, primary_key=True)  # 日期，默认当前时间
     f_temperature = Column(Float)  # 温度
     f_humidity = Column(Float)  # 湿度
     f_winddirection = Column(String(20))  # 风向
     f_windpower = Column(String(20))  # 风力
 
+
 ### 森林灾害变量表
 class ForestDisasterBase(Base):
     __abstract__ = True
-    d_id = Column(Integer, primary_key=True, nullable=False, unique=True)# 编号
+    d_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 编号
     d_date = Column(DateTime, nullable=False, default=datetime.now)  # 日期，默认当前时间
-    d_type = Column(Enum("火灾", "极端天气", "干旱", "土壤侵蚀", "酸雨","地质灾害","生物灾害","人为灾害"), nullable=False)  # 灾害类型
+    d_type = Column(Enum("火灾", "极端天气", "干旱", "土壤侵蚀", "酸雨", "地质灾害", "生物灾害", "人为灾害"),
+                    nullable=False)  # 灾害类型
     d_loss = Column(Float)  # 受损面积
     d_desc = Column(String(1000))
+
 
 ### 森林动植物资源变量表
 class ForestResourceBase(Base):
     __abstract__ = True
     r_id = Column(Integer, primary_key=True, nullable=False, unique=True)  # 编号
     r_name = Column(String(100))
-    r_type = Column(Enum("动物", "植物","微生物"), nullable=False)  # 资源类型
+    r_type = Column(Enum("动物", "植物", "微生物"), nullable=False)  # 资源类型
     r_latitude = Column(Float)  # 分布中心纬度
     r_longitude = Column(Float)  # 分布中心经度
     r_radius = Column(Float)  # 分布中心半径
+
 
 """
     思想：以上创建了每个森林变量表的基类，每个森林所有时刻的变量存在一张表内，不同森林的变量存在不同表内，使用以下方法创建、访问、插入。
@@ -252,7 +258,7 @@ class ForestResourceBase(Base):
     def create_forest_variable_table(forest_name):
         class ForestVariable(ForestVariableBase):
             __tablename__ = f'forest_variable_{forest_name}'
-        
+
         ForestVariable.__table__.create(bind=engine)
         return ForestVariable
 
@@ -260,7 +266,7 @@ class ForestResourceBase(Base):
     def get_forest_variable_table(forest_name):
         class ForestVariable(ForestVariableBase):
             __tablename__ = f'forest_variable_{forest_name}'
-        
+
         return ForestVariable
 
     # 创建一个新的森林变量表
@@ -283,22 +289,23 @@ class ForestResourceBase(Base):
 
 # 这是删除所有数据的操作，不到万不得已千万不要做
 # 如果之前创建过同名数据库且不明白如何数据库迁移，可以把下面一句注释去掉，运行清除之前的表并创建新表，然后记得加上注释
-# with engine.connect() as connection: 
+# with engine.connect() as connection:
 #     connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
 #     inspector = inspect(engine)
 #     # foreign_keys = inspector.get_foreign_keys('institutions')
 #     # foreign_key_names = [fk['name'] for fk in foreign_keys]
-    
+
 #     # if 'institutions_ibfk_1' in foreign_key_names:
 #     #     # 删除外键约束
 #     #     connection.execute(text("ALTER TABLE institutions DROP FOREIGN KEY institutions_ibfk_1;"))
 #     Base.metadata.drop_all(engine)
 #     connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
 
-#Base.metadata.create_all(engine)
+# Base.metadata.create_all(engine)
 
 db_session_class = sessionmaker(bind=engine)
 db_session = db_session_class()
+
 
 # 以下是为了测试临时添加的森林、管理机构和从业机构
 # 完整功能上线后，需删除！
@@ -334,9 +341,9 @@ def send_verification_code():
     msg.body = f"您的验证码为 {code}"
     try:
         mail.send(msg)
-        return jsonify({"status": "success", "message": "验证码已发送到您的邮箱"}),100
+        return jsonify({"status": "success", "message": "验证码已发送到您的邮箱"}), 100
     except Exception as e:
-        return jsonify({"status": "fail", "message": "发送邮件失败，请检查邮箱输入是否有误"}),250
+        return jsonify({"status": "fail", "message": "发送邮件失败，请检查邮箱输入是否有误"}), 250
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -360,18 +367,18 @@ def register():
 
         # 错误排除后创建新用户
         user = User(u_name=username, u_password=password, u_email=email)
-        user.u_role=request.form['role']
-        if user.u_role!='普通用户':
-            user.u_forest=request.form['forest']
-            user.u_institution=request.form['inst']
+        user.u_role = request.form['role']
+        if user.u_role != '普通用户':
+            user.u_forest = request.form['forest']
+            user.u_institution = request.form['inst']
         db_session.add(user)
         db_session.commit()
 
         success = "注册成功，请登录"
         return jsonify({
-                'status': 'success', 
-                'message': success,
-            })
+            'status': 'success',
+            'message': success,
+        })
     else:
         error = "请求错误"
         return jsonify({"status": "fail", "message": error})
@@ -388,28 +395,28 @@ def login():
             user.u_newestTime = datetime.now()  # 最新登录时间设置为当前时间
             days = (user.u_newestTime - user.u_signupTime).days + 1
             db_session.commit()  # 提交更改到数据库
-            
-            # 在森林表和机构表中查询forest和inst的名称+编号
-            forest=db_session.query(Forest).filter_by(f_id=user.u_forest).first()
-            inst=db_session.query(Institution).filter_by(i_id=user.u_institution).first()
-            
-            success = "欢迎来到林上鹰眼！"
-            data={                'status': 'success', 
-                'message': success,
 
-                'days': days,
-                'avatar':user.u_avatarPath,
-                'user_id':user.u_id,
-                'newestTime':user.u_newestTime.strftime('%Y-%m-%d %H:%M:%S'),
-                'signupTime':user.u_signupTime.strftime('%Y-%m-%d'),
-                'role':user.u_role,
-                'username':user.u_name,
-                'email':user.u_email,
-                'signature':user.u_signature
-                }
-            if user.u_role!='普通用户':
-                data['forest']=f"{forest.f_name}(FO{forest.f_id})"
-                data['inst']=f"{inst.i_name}(INST{inst.i_id})"
+            # 在森林表和机构表中查询forest和inst的名称+编号
+            forest = db_session.query(Forest).filter_by(f_id=user.u_forest).first()
+            inst = db_session.query(Institution).filter_by(i_id=user.u_institution).first()
+
+            success = "欢迎来到林上鹰眼！"
+            data = {'status': 'success',
+                    'message': success,
+
+                    'days': days,
+                    'avatar': user.u_avatarPath,
+                    'user_id': user.u_id,
+                    'newestTime': user.u_newestTime.strftime('%Y-%m-%d %H:%M:%S'),
+                    'signupTime': user.u_signupTime.strftime('%Y-%m-%d'),
+                    'role': user.u_role,
+                    'username': user.u_name,
+                    'email': user.u_email,
+                    'signature': user.u_signature
+                    }
+            if user.u_role != '普通用户':
+                data['forest'] = f"{forest.f_name}(FO{forest.f_id})"
+                data['inst'] = f"{inst.i_name}(INST{inst.i_id})"
             return jsonify(data)
         else:
             error = "登录失败，邮箱或密码错误"
@@ -450,34 +457,37 @@ def setUserInfo():
         return jsonify({"status": "success", "message": "用户昵称修改成功！"})
     return jsonify({"status": "fail", "message": "修改失败！"}), 401
 
+
 # 获取全部森林
-@app.route("/get_all_forests",methods=["GET"])
+@app.route("/get_all_forests", methods=["GET"])
 def getAllForests():
     # 获取所有管理机构的名称和 ID
     institutions = {inst.i_id: inst.i_name for inst in db_session.query(Institution).filter_by(i_type='管理机构').all()}
 
-    forests=[{
-        'value': forest.f_id, 
-        "label": forest.f_name, 
-        "location": forest.f_location, 
-        "area": forest.f_area, 
-        "manager" : institutions.get(forest.f_manager),  # 使用森林的管理机构 ID 从字典中获取名称
-        "intro" : forest.f_intro,
+    forests = [{
+        'value': forest.f_id,
+        "label": forest.f_name,
+        "location": forest.f_location,
+        "area": forest.f_area,
+        "manager": institutions.get(forest.f_manager),  # 使用森林的管理机构 ID 从字典中获取名称
+        "intro": forest.f_intro,
     } for forest in db_session.query(Forest).all()]
 
     if forests:
-        return jsonify({'forests':forests})
+        return jsonify({'forests': forests})
     return 401
 
+
 # 获取对应森林的机构（用于非普通用户角色的注册）
-@app.route("/get_relative_inst",methods=['POST'])
+@app.route("/get_relative_inst", methods=['POST'])
 def getRelativeInstitutions():
     if request.form['role'] == '林业从业人员':
-        inst_type='从业机构'
+        inst_type = '从业机构'
     else:
-        inst_type='管理机构'
+        inst_type = '管理机构'
     try:
-        insts = [{'value': inst.i_id, 'label': inst.i_name} for inst in db_session.query(Institution).filter_by(i_type=inst_type)]
+        insts = [{'value': inst.i_id, 'label': inst.i_name} for inst in
+                 db_session.query(Institution).filter_by(i_type=inst_type)]
         db_session.commit()
         if insts:
             return jsonify({'insts': insts})
@@ -486,16 +496,18 @@ def getRelativeInstitutions():
     except Exception as e:
         return jsonify({'error': f'An error occurred while querying the database: {str(e)}'}), 500
 
+
 # 森林百科-编辑详情-上传森林相册图片
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
-@app.route("/uploadForestImage",methods=["POST"])
+
+@app.route("/uploadForestImage", methods=["POST"])
 def uploadForestImage():
     if 'files' not in request.files:
-        return jsonify({'message': '没有文件上传','status':'error'}),400
+        return jsonify({'message': '没有文件上传', 'status': 'error'}), 400
     files = request.files.getlist('files')
-    f_name = request.form.get('f_name')  
+    f_name = request.form.get('f_name')
 
     for file in files:
         if file.filename == '':
@@ -515,7 +527,8 @@ def uploadForestImage():
 def create_resource_variable_table(f_name):
     class ForestResource(ForestResourceBase):
         __tablename__ = f'forest_resource_{f_name}'
-        __table_args__ = {'extend_existing':True}
+        __table_args__ = {'extend_existing': True}
+
     inspector = inspect(engine)
     table_name = f'forest_resource_{f_name}'
     if not inspector.has_table(table_name):
@@ -525,11 +538,13 @@ def create_resource_variable_table(f_name):
         print(f'Table {table_name} already exists.')
     return ForestResource
 
+
 def get_forest_resource_table(f_name):
     return create_resource_variable_table(f_name)
 
+
 # 森林百科-编辑相册-上传动植物资源文件
-@app.route("/uploadResourceFile",methods=["POST"])
+@app.route("/uploadResourceFile", methods=["POST"])
 def uploadResourceFile():
     if 'file' not in request.files:
         return jsonify({'error': '未上传文件'})
@@ -555,14 +570,15 @@ def uploadResourceFile():
         db_session.commit()
     except SQLAlchemyError as e:
         db_session.rollback()
-    return jsonify({'message': '文件上传成功'}),200
+    return jsonify({'message': '文件上传成功'}), 200
 
 
 ### 动态创建并获取灾害详情的表格
 def create_disaster_variable_table(f_name):
     class ForestDisaster(ForestDisasterBase):
         __tablename__ = f'forest_disaster_{f_name}'
-        __table_args__ = {'extend_existing':True}
+        __table_args__ = {'extend_existing': True}
+
     inspector = inspect(engine)
     table_name = f'forest_disaster_{f_name}'
     if not inspector.has_table(table_name):
@@ -572,10 +588,13 @@ def create_disaster_variable_table(f_name):
         print(f'Table {table_name} already exists.')
     return ForestDisaster
 
+
 def get_forest_disaster_table(f_name):
     return create_disaster_variable_table(f_name)
+
+
 # 森林百科-编辑相册-上传灾害文件
-@app.route("/uploadDisasterFile",methods=["POST"])
+@app.route("/uploadDisasterFile", methods=["POST"])
 def uploadDisasterFile():
     if 'file' not in request.files:
         return jsonify({'error': '未上传文件'})
@@ -601,7 +620,8 @@ def uploadDisasterFile():
         db_session.commit()
     except SQLAlchemyError as e:
         db_session.rollback()
-    return jsonify({'message': '文件上传成功'}),200
+    return jsonify({'message': '文件上传成功'}), 200
+
 
 # 林业活动界面
 @app.route("/activity")
@@ -623,10 +643,10 @@ def activity():
 
 
 # 我的申请界面，显示当前用户已申请的活动
-@app.route("/apply",methods=["POST"])
+@app.route("/apply", methods=["POST"])
 def apply():
     u_id = request.form.get("user_id")
-    #print(u_id)
+    # print(u_id)
     if not u_id:
         flash("未提供有效的user_id", "error")
         return jsonify({"error": "未提供有效的user_id"}), 400
@@ -635,14 +655,23 @@ def apply():
         flash("用户不存在", "error")
         return jsonify({"error": "用户不存在"}), 404
         # 根据当前管理员的森林名称和状态查询活动
-    approving_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id, Activity.a_state == "approving").all()
-    approved_activities = db_session.query(Activity).filter(Activity.a_applicantId== u_id, Activity.a_state == "approved").all()
-    dismissed_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id, Activity.a_state == "dismissed").all()
+    approving_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id,
+                                                             Activity.a_state == "approving").all()
+    approved_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id,
+                                                            Activity.a_state == "approved").all()
+    dismissed_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id,
+                                                             Activity.a_state == "dismissed").all()
 
     # 将活动转换为字典格式返回
-    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"a_forest": activity.a_forest,"a_approver_id":activity.a_approver_id,"a_approveTime":activity.a_approveTime} for activity in approving_activities]
-    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"a_forest": activity.a_forest,"a_approver_id":activity.a_approver_id,"a_approveTime":activity.a_approveTime} for activity in approved_activities]
-    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"a_forest": activity.a_forest,"a_approver_id":activity.a_approver_id,"a_approveTime":activity.a_approveTime} for activity in dismissed_activities]
+    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "a_forest": activity.a_forest,
+                                  "a_approver_id": activity.a_approver_id, "a_approveTime": activity.a_approveTime} for
+                                 activity in approving_activities]
+    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "a_forest": activity.a_forest,
+                                 "a_approver_id": activity.a_approver_id, "a_approveTime": activity.a_approveTime} for
+                                activity in approved_activities]
+    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "a_forest": activity.a_forest,
+                                  "a_approver_id": activity.a_approver_id, "a_approveTime": activity.a_approveTime} for
+                                 activity in dismissed_activities]
 
     # 返回 JSON 数据
     return jsonify({
@@ -667,7 +696,8 @@ def create_activity():
         a_type = request.form["a_type"]
         a_ableParticipate = request.form.get("a_ableParticipate") is not None
         # 打印出所有接收到的字段
-        print(f"接收到的表单字段: {a_name}, {a_location}, {a_beginTime}, {a_endTime}, {a_participantNumber}, {a_introduction}, {a_forest}, {a_type}, {a_ableParticipate}")
+        print(
+            f"接收到的表单字段: {a_name}, {a_location}, {a_beginTime}, {a_endTime}, {a_participantNumber}, {a_introduction}, {a_forest}, {a_type}, {a_ableParticipate}")
         a_picPath = request.form.get("a_picPath")  # 获取图片路径
         # 处理文件上传
         if not a_picPath:
@@ -713,7 +743,6 @@ def create_activity():
     return jsonify({"message": "GET请求不支持", "status": "error"}), 405
 
 
-
 @app.route("/upload_activity_image", methods=["POST"])
 def upload_activity_image():
     if 'file' not in request.files:
@@ -739,6 +768,7 @@ def upload_activity_image():
 
     return jsonify({"message": "文件类型不支持", "status": "error"}), 400
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -749,13 +779,13 @@ def activity_detail(activity_id):
     u_id = request.form.get("user_id")
     if not u_id:
         return jsonify({"message": "用户ID缺失", "status": "error"}), 400
-    #print(u_id)
+    # print(u_id)
     user = db_session.query(User).filter_by(u_id=u_id).first()
     current_user_role = user.u_role
     # 判断当前用户是否为审批人
     is_approver = (current_user_role == "林业管理人员" or current_user_role == "林业监管人员")
-    #print("执行到了")
-    #print(is_approver)
+    # print("执行到了")
+    # print(is_approver)
 
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
     if not activity:
@@ -807,11 +837,12 @@ def delete_activity(activity_id):
             "message": "活动不存在或已被删除"
         })
 
+
 # 我的审批界面
 @app.route("/approve", methods=["POST"])
 def approve():
     u_id = request.form.get("user_id")
-    #print(u_id)
+    # print(u_id)
     if not u_id:
         flash("未提供有效的user_id", "error")
         return jsonify({"error": "未提供有效的user_id"}), 400
@@ -823,21 +854,25 @@ def approve():
     forest = db_session.query(Forest).filter_by(f_id=user.u_forest).first()
     current_forest = forest.f_id
 
-
-
     if not current_forest:
         flash("您尚未登录或没有权限访问此页面", "error")
         return redirect(url_for("login"))
 
     # 根据当前管理员的森林名称和状态查询活动
-    approving_activities = db_session.query(Activity).filter(Activity.a_forest == current_forest, Activity.a_state == "approving").all()
-    approved_activities = db_session.query(Activity).filter(Activity.a_forest == current_forest, Activity.a_state == "approved").all()
-    dismissed_activities = db_session.query(Activity).filter(Activity.a_forest == current_forest, Activity.a_state == "dismissed").all()
+    approving_activities = db_session.query(Activity).filter(Activity.a_forest == current_forest,
+                                                             Activity.a_state == "approving").all()
+    approved_activities = db_session.query(Activity).filter(Activity.a_forest == current_forest,
+                                                            Activity.a_state == "approved").all()
+    dismissed_activities = db_session.query(Activity).filter(Activity.a_forest == current_forest,
+                                                             Activity.a_state == "dismissed").all()
 
     # 将活动转换为字典格式返回
-    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"startTime": activity.a_beginTime,"applicant":activity.a_applicantId} for activity in approving_activities]
-    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"startTime": activity.a_beginTime,"applicant":activity.a_applicantId} for activity in approved_activities]
-    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name,"startTime": activity.a_beginTime,"applicant":activity.a_applicantId} for activity in dismissed_activities]
+    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "startTime": activity.a_beginTime,
+                                  "applicant": activity.a_applicantId} for activity in approving_activities]
+    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "startTime": activity.a_beginTime,
+                                 "applicant": activity.a_applicantId} for activity in approved_activities]
+    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "startTime": activity.a_beginTime,
+                                  "applicant": activity.a_applicantId} for activity in dismissed_activities]
 
     # 返回 JSON 数据
     return jsonify({
@@ -845,7 +880,6 @@ def approve():
         "approved_activities": approved_activities_data,
         "dismissed_activities": dismissed_activities_data
     })
-
 
 
 # 审批通过
@@ -880,7 +914,7 @@ def dismiss_activity(activity_id):
     user = db_session.query(User).filter_by(u_id=user_id).first()
     # 修改状态
     activity.a_state = "dismissed"
-    #print("执行到了驳回")
+    # print("执行到了驳回")
     # 存储审批人的id
     activity.a_approver_id = user.u_id
     # 存储审批时间
@@ -892,18 +926,29 @@ def dismiss_activity(activity_id):
 
 
 # 活动风采界面
-@app.route("/activities",methods=["POST"])
+@app.route("/activities", methods=["GET"])
 def activities():
-    #print("zhix1")
     # 获取当前时间
     now = datetime.now()
-    activities = db_session.query(Activity).filter(Activity.a_ableParticipate == True, Activity.a_endTime > now,
-                                                   Activity.a_state == "approved").all()
 
-    # 返回 JSON 数据而不是渲染 HTML 模板
-    activities_data = []
-    for activity in activities:
-        activities_data.append({
+    # 获取所有活动，包括：未截止且通过的活动，以及已截止且通过的活动
+    activities = db_session.query(Activity).filter(
+        Activity.a_ableParticipate == True,
+        Activity.a_state == "approved"
+    ).all()
+
+    # 分类活动：按活动的状态分组
+    due_activities = [activity for activity in activities if activity.a_endTime > now]
+    overdue_activities = [activity for activity in activities if activity.a_endTime <= now]
+
+    # 返回活动数据
+    activities_data = {
+        'due_activities': [],
+        'overdue_activities': []
+    }
+
+    for activity in due_activities:
+        activities_data['due_activities'].append({
             'id': activity.a_id,
             'name': activity.a_name,
             'picPath': activity.a_picPath,
@@ -913,18 +958,31 @@ def activities():
             'participantNumber': activity.a_participantNumber,
             'enrolledNumber': activity.a_enrolledNumber
         })
-    #print("zhix2")
-    #print(activities_data)
-    return jsonify(activities=activities_data)
+
+
+
+    for activity in overdue_activities:
+        activities_data['overdue_activities'].append({
+            'id': activity.a_id,
+            'name': activity.a_name,
+            'picPath': activity.a_picPath,
+            'location': activity.a_location,
+            'type': activity.a_type,
+            'introduction': activity.a_introduction,
+            'participantNumber': activity.a_participantNumber,
+            'enrolledNumber': activity.a_enrolledNumber
+        })
+
+    return jsonify(activities_data)
 
 
 # 报名活动界面
 @app.route("/activity_enroll/<int:activity_id>", methods=["GET"])
 def activity_enroll(activity_id):
-    #print(activity_id)
+    # print(activity_id)
     # 查询数据库，获取指定活动的详情
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
-    #print("执行到了1")
+    # print("执行到了1")
     if not activity:
         return jsonify({"success": False, "message": "活动未找到"}), 404
 
@@ -955,7 +1013,6 @@ def enroll(activity_id):
     if not activity or not activity.a_ableParticipate or activity.a_endTime <= datetime.now():
         return jsonify({"success": False, "message": "活动不可报名或已结束"})
 
-
     participant_number = request.form.get("participantNumber")
     remark = request.form.get("remark", "")  # 获取备注信息，默认为空字符串
 
@@ -976,7 +1033,6 @@ def enroll(activity_id):
     db_session.add(new_participant)
     db_session.commit()
     return jsonify({"success": True})
-
 
 
 # 我的报名界面
@@ -1009,7 +1065,6 @@ def myenrolled():
     return jsonify({"success": True, "participations": activities})
 
 
-
 # 普通用户取消报名
 @app.route("/cancel_enrollment/<int:activity_id>", methods=["POST"])
 def cancel_enrollment(activity_id):
@@ -1032,7 +1087,6 @@ def cancel_enrollment(activity_id):
         return jsonify({"success": False, "message": "取消报名失败，可能您已取消报名或不存在此活动"}), 400
 
 
-
 @app.route("/user", methods=["GET"])
 def get_userinfo():
     if "username" in session:
@@ -1041,10 +1095,12 @@ def get_userinfo():
         return jsonify({"username": username, "avatar": avatar})
     return "User not logged in", 401
 
+
 def create_forest_variable_table(forest_name):
     class ForestVariable(ForestVariableBase):
         __tablename__ = f'forest_variable_{forest_name}'
         __table_args__ = {'extend_existing': True}
+
     inspector = inspect(engine)
     table_name = f'forest_variable_{forest_name}'
     if not inspector.has_table(table_name):
@@ -1054,11 +1110,14 @@ def create_forest_variable_table(forest_name):
         print(f"Table {table_name} already exists.")
     return ForestVariable
 
+
 def get_forest_variable_table(forest_name):
     return create_forest_variable_table(forest_name)
 
+
 def get_all_forests():
     return db_session.query(Forest).all()
+
 
 @app.route("/add_forest", methods=["POST"])
 def add_forest():
@@ -1081,28 +1140,29 @@ def add_forest():
             )
             db_session.add(new_forest)
             db_session.commit()
-            return jsonify({'message':'success to add forest','status':'success'})
-        
+            return jsonify({'message': 'success to add forest', 'status': 'success'})
+
         except SQLAlchemyError as e:
             db_session.rollback()
-            return jsonify({'message':'fail to add forest','status':'error'})
+            return jsonify({'message': 'fail to add forest', 'status': 'error'})
+
 
 @app.route("/delete_forest", methods=["POST"])
 def delete_forest():
-    if request.method=='POST':
+    if request.method == 'POST':
         print(request)
         try:
-            f_id=request.form['f_id']
+            f_id = request.form['f_id']
             forest_to_delete = db_session.query(Forest).filter_by(f_id=f_id).first()
             if forest_to_delete:
                 db_session.delete(forest_to_delete)
                 db_session.commit()
-                return jsonify({'message':'该记录已成功在林上鹰眼数据库删除~'})
+                return jsonify({'message': '该记录已成功在林上鹰眼数据库删除~'})
             else:
                 raise Exception("Forest not found")
         except SQLAlchemyError as e:
             db_session.rollback()
-            return jsonify({'message':'操作失败，请重新尝试'})
+            return jsonify({'message': '操作失败，请重新尝试'})
 
 
 @app.route("/forest_variable", methods=["GET", "POST"])
@@ -1147,50 +1207,53 @@ def forest_info():
 
     return render_template("forest_info.html", forests=forests)
 
-@app.route("/get_world_tree_cover_json",methods=["GET"])
-def get_world_tree_cover_json(): 
+
+@app.route("/get_world_tree_cover_json", methods=["GET"])
+def get_world_tree_cover_json():
     # 获取当前文件的绝对路径
     iso_data_fp = os.path.join(current_dir, 'src/assets/data/treecover_extent_2010_by_region__ha.csv')
     iso_meta_fp = os.path.join(current_dir, 'src/assets/data/iso_metadata.csv')
     print(iso_meta_fp)
     # 数据预处理
-    iso_data=pd.read_csv(iso_data_fp).fillna(0)
-    iso_meta=pd.read_csv(iso_meta_fp).fillna(0)
-    if(iso_data.empty or iso_meta.empty):
+    iso_data = pd.read_csv(iso_data_fp).fillna(0)
+    iso_meta = pd.read_csv(iso_meta_fp).fillna(0)
+    if (iso_data.empty or iso_meta.empty):
         return jsonify({
-            'status':'fail',
+            'status': 'fail',
             'datalist': None
-        }),404
+        }), 404
     else:
-        mergedata=pd.merge(iso_data,iso_meta,on='iso')
+        mergedata = pd.merge(iso_data, iso_meta, on='iso')
         # 整理为列表字典格式
-        datalist = [{'name': row['name'], 'value': row['umd_tree_cover_extent_2010__ha']} for index, row in mergedata.iterrows()]
+        datalist = [{'name': row['name'], 'value': row['umd_tree_cover_extent_2010__ha']} for index, row in
+                    mergedata.iterrows()]
         return jsonify({
-            'status':'success',
+            'status': 'success',
             'datalist': datalist
-        }),200
+        }), 200
+
 
 # 此处获取到weather记录后，会同步添加到数据库
-@app.route('/get_weather',methods=['POST'])
+@app.route('/get_weather', methods=['POST'])
 def get_weather():
-    city=request.form['city']
-    altcity=request.form['altcity']
+    city = request.form['city']
+    altcity = request.form['altcity']
     forest_name = request.form["f_name"]
-    adcode=CityCodeMap.get(city,'no data')
-    if adcode=='no data':
-        adcode=CityCodeMap.get(altcity,'no data')
-    if adcode!='no data':
+    adcode = CityCodeMap.get(city, 'no data')
+    if adcode == 'no data':
+        adcode = CityCodeMap.get(altcity, 'no data')
+    if adcode != 'no data':
         # 向高德API发送请求
         url = f"https://restapi.amap.com/v3/weather/weatherInfo?key={API_KEY}&city={adcode}&extensions=base&output=JSON"
         response = requests.get(url)
         data = response.json()
-        
+
         if data['status']:
-            w_temperature=data['lives'][0]['temperature']
-            w_winddirection=data['lives'][0]['winddirection']
-            w_windpower=data['lives'][0]['windpower']
-            w_humidity=data['lives'][0]['humidity']
-            w_time=datetime.strptime(data['lives'][0]['reporttime'], '%Y-%m-%d %H:%M:%S')
+            w_temperature = data['lives'][0]['temperature']
+            w_winddirection = data['lives'][0]['winddirection']
+            w_windpower = data['lives'][0]['windpower']
+            w_humidity = data['lives'][0]['humidity']
+            w_time = datetime.strptime(data['lives'][0]['reporttime'], '%Y-%m-%d %H:%M:%S')
 
             # 添加到数据库
             ForestVariable = get_forest_variable_table(forest_name)
@@ -1199,45 +1262,47 @@ def get_weather():
                     f_temperature=float(w_temperature),
                     f_humidity=float(w_humidity),
                     f_winddirection=w_winddirection,
-                    f_windpower=w_windpower,        
+                    f_windpower=w_windpower,
                     f_date=w_time
                 )
                 db_session.add(new_variable)
                 db_session.commit()
-            
+
             except SQLAlchemyError as e:
                 db_session.rollback()
-            
+
             # 返回前端展示数据
-            weather=[{
+            weather = [{
                 'temperature': w_temperature,
                 'winddirection': w_winddirection,
                 'windpower': w_windpower,
                 'humidity': w_humidity,
                 'time': w_time.strftime('%Y-%m-%d %H:%M:%S')  # 将 datetime 对象转换为 ISO 格式的字符串
             }]
-            return jsonify({'status':'success','weather':weather}),200
-    return jsonify({'status':'fail'}),404
+            return jsonify({'status': 'success', 'weather': weather}), 200
+    return jsonify({'status': 'fail'}), 404
 
-@app.route('/setForestInfo',methods=['POST'])
+
+@app.route('/setForestInfo', methods=['POST'])
 def setForestInfo():
     if request.method == 'POST':
-        intro=request.form['intro']
+        intro = request.form['intro']
         print(intro)
         forest = db_session.query(Forest).filter_by(f_id=request.form["id"]).first()
         # 更新记录
-        forest.f_intro=intro
+        forest.f_intro = intro
         db_session.commit()
-        return jsonify({'status':'success','message':'edited f_intro successfully'}),200
-    return jsonify({'status':'fail','message':'failed to edit f_intro'}),404
+        return jsonify({'status': 'success', 'message': 'edited f_intro successfully'}), 200
+    return jsonify({'status': 'fail', 'message': 'failed to edit f_intro'}), 404
+
 
 ## 单林区查询
-@app.route('/searchOneForest',methods=['POST'])
+@app.route('/searchOneForest', methods=['POST'])
 def searchOneForest():
     f_id = request.form['f_id']
     forest = db_session.query(Forest).filter_by(f_id=f_id).first()
     institutions = {inst.i_id: inst.i_name for inst in db_session.query(Institution).filter_by(i_type='管理机构').all()}
-    
+
     # 待返回的动态表
     weather_formatted_data = {}
     resource_formatted_data = {}
@@ -1253,7 +1318,7 @@ def searchOneForest():
         query = select(weatherTable)
         result = db_session.execute(query)
         rows = result.fetchall()
-        weather = [row._asdict() for row in rows]  
+        weather = [row._asdict() for row in rows]
 
         # 格式化数据
         weather_formatted_data = {
@@ -1264,7 +1329,6 @@ def searchOneForest():
             'windpowers': [item['f_windpower'] for item in weather]
         }
 
-    
     # 资源数据
     resourceTableName = 'forest_resource_' + forest.f_name
     if resourceTableName in metadata.tables:
@@ -1272,7 +1336,7 @@ def searchOneForest():
         query = select(resourceTable)
         result = db_session.execute(query)
         rows = result.fetchall()
-        resource = [row._asdict() for row in rows]  
+        resource = [row._asdict() for row in rows]
 
         # 格式化数据
         resource_formatted_data = {
@@ -1291,7 +1355,7 @@ def searchOneForest():
         query = select(disasterTable)
         result = db_session.execute(query)
         rows = result.fetchall()
-        disaster = [row._asdict() for row in rows]  
+        disaster = [row._asdict() for row in rows]
 
         # 格式化数据
         disaster_formatted_data = {
@@ -1300,7 +1364,6 @@ def searchOneForest():
             'loss': [item['d_loss'] for item in disaster],
             'desc': [item['d_desc'] for item in disaster],
         }
-
 
     # 基本静态表
     baseInfo = [{
@@ -1317,7 +1380,7 @@ def searchOneForest():
     for filename in os.listdir(app.config['UPLOAD_FOLDER']):
         if filename.startswith(forest.f_name) and filename.endswith(('.png', '.jpg', '.jpeg', '.gif')):
             # file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file_path = '/public/uploads/'+filename
+            file_path = '/public/uploads/' + filename
             image_paths.append(file_path)
 
     # 返回全部表信息
@@ -1373,6 +1436,7 @@ def forum_home():
     return jsonify(post_data)
     return render_template('forum_home.html', posts=post_data, user=user_data)
 
+
 # 发表帖子
 @app.route('/forum/post', methods=['GET', 'POST'])
 def forum_post():
@@ -1400,12 +1464,11 @@ def forum_post():
                 new_image = Image(file_path=relative_path, post=new_post)
                 db_session.add(new_image)
         db_session.commit()
-        
+
         return redirect(url_for('forum_home'))
 
     return render_template('forum_post.html')
 
-        
 
 @app.route('/post/<int:post_id>/like', methods=['POST'])
 def like_post(post_id):
@@ -1436,6 +1499,7 @@ def like_post(post_id):
         "post_id": post_id,
         "is_liked": action == "liked"
     })
+
 
 @app.route('/post/<int:post_id>', methods=['GET'])
 def post_detail(post_id):
@@ -1470,8 +1534,9 @@ def post_detail(post_id):
             },
             "images": comment_images
         })
-    return jsonify({"posts":post_data, "comments":comments_data})
+    return jsonify({"posts": post_data, "comments": comments_data})
     return render_template('post_detail.html', post=post_data, comments=comments_data)
+
 
 @app.route('/post/<int:post_id>/comment', methods=['POST'])
 def post_comment(post_id):
@@ -1499,7 +1564,6 @@ def post_comment(post_id):
     db_session.commit()
 
     return redirect(url_for('post_detail', post_id=post_id))
-
 
 
 @app.route('/post/<int:post_id>/share', methods=['POST'])
@@ -1548,13 +1612,16 @@ def user_profile(username):
 
     if tab == 'my_posts':
         # 仅查询原创发布的帖子，排除转发的帖子
-        posts = db_session.query(Post).filter(Post.p_user_id == user.u_id, Post.original_post_id == None).order_by(Post.p_timestamp.desc()).all()
+        posts = db_session.query(Post).filter(Post.p_user_id == user.u_id, Post.original_post_id == None).order_by(
+            Post.p_timestamp.desc()).all()
     elif tab == 'my_likes':
         # 查询用户点赞的帖子
-        posts = db_session.query(Post).join(Like).filter(Like.l_user_id == user.u_id).order_by(Post.p_timestamp.desc()).all()
+        posts = db_session.query(Post).join(Like).filter(Like.l_user_id == user.u_id).order_by(
+            Post.p_timestamp.desc()).all()
     elif tab == 'my_favorites':  # “我的转发”
         # 查询用户转发的帖子（即 original_post_id 不为空的帖子）
-        posts = db_session.query(Post).filter(Post.p_user_id == user.u_id, Post.original_post_id != None).order_by(Post.p_timestamp.desc()).all()
+        posts = db_session.query(Post).filter(Post.p_user_id == user.u_id, Post.original_post_id != None).order_by(
+            Post.p_timestamp.desc()).all()
     else:
         posts = []
 
@@ -1624,10 +1691,8 @@ def ask_model():
     return jsonify({"text": answer})
 
 
-
 if __name__ == "__main__":
     app.run(debug=True)
 
 
- 
 
