@@ -81,7 +81,7 @@ const submitPost = async () => {
   }
   // 获取上传图片
   imageList.value.forEach((file, index) => {
-    formData.append(`images`, file);
+    formData.append(`images`, file.raw);
   });
   // 提交帖子（区分纯发和分享）
   if (id) { // 分享

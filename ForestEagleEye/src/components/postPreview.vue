@@ -6,7 +6,7 @@
         <p>{{ time }}</p>
       </div>
       <div>
-        <img v-if="image" :src="image ? `public/static/${image}` : '#'" alt="Post Image">
+        <img v-if="image" :src="image ? `public/${image}` : '#'" alt="Post Image">
         <p>{{ content }}</p>
       </div>
     </div>
