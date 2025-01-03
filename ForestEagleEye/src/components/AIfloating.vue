@@ -125,8 +125,7 @@ const fetchNewMessage = async () => {
 const x = ref(window.innerWidth - 100);
 const y = ref(window.innerHeight - 100);
 const isActive = ref(false);
-const isDragging = ref(false);
-const isDraggingShadow = ref(false);//影子变量，略滞后于isDragging的更新
+const isDragging = ref(true);
 const isChatWindowOpen = ref(false);
 const isShowIcon = ref(true);
 
@@ -139,23 +138,24 @@ const handleMouseLeave = () => {
 };
 
 const handleMouseDown = () => {
-  isDragging.value = true;
-  isDraggingShadow.value = false;
+  isDragging.value = false;
   document.addEventListener('mousemove', handleMouseMove);
+  document.body.style.userSelect = 'none'; // 禁用选择
 };
 
 const handleMouseUp = () => {
-  isDragging.value = false;
   // 如果正在拖拽，则关闭拖拽状态，否则执行点击逻辑
-  if (!isDraggingShadow.value) {
+  if (!isDragging.value) {
+    isDragging.value = false;
     showChatWindow(true);
     console.log('Icon clicked');
   }
   document.removeEventListener('mousemove', handleMouseMove);
+  document.body.style.userSelect = ''; // 重新启用选择
 };
 
 const handleMouseMove = (event: MouseEvent) => {
-  isDraggingShadow.value = isDragging.value;
+  isDragging.value = true;
   if (isDragging.value) {
     x.value = event.clientX - 25;
     y.value = event.clientY - 25;
