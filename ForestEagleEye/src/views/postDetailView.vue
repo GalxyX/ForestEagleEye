@@ -15,7 +15,7 @@
               <p>{{ post?.content }}</p>
               <div class="postimage-container">
                 <ImageViewer v-for="image in post?.images" :key="image" :alt="image"
-                  :src="image ? `/public/static/${image}` : '#'" height="200px" width="200px" />
+                  :src="image ? `/public/${image}` : '#'" height="200px" width="200px" />
               </div>
               <div v-if="post?.original_post" class="oriPost-container" @click="toOriPost">
                 <h2>{{ post?.original_post?.title }}</h2>
