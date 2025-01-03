@@ -59,7 +59,9 @@
                 <p class="h2">活动主办单位</p>
                 <p class="h3">{{ activity.a_forest }}</p>
               </div>
-              <div class="info-unit">
+            </div>
+
+            <div class="info-unit">
                 <p class="h2">活动简介</p>
                 <p class="h3">{{ activity.a_introduction }}</p>
               </div>
@@ -71,8 +73,6 @@
                   <img :src="activity.a_picPath" alt="活动封面" />
                 </div>
               </div>
-
-            </div>
         </div>
 
         <el-divider></el-divider>
@@ -143,7 +143,8 @@ import axios from "axios";
 import NavigationBar from "../components/navbar.vue";
 import { ArrowLeft } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
-
+import { ElMessage } from "element-plus";
+const user_id = sessionStorage.getItem("user_id");
 export default {
   components: {
     NavigationBar,
@@ -171,7 +172,7 @@ export default {
   methods: {
     async fetchActivityDetails() {
       const activityId = this.$route.params.activityId;
-      const user_id = sessionStorage.getItem("user_id");
+
       try {
         const params = new URLSearchParams();
         params.append("user_id", user_id);
@@ -186,20 +187,41 @@ export default {
         console.error("活动数据获取失败", error);
       }
     },
-    async deleteActivity() {
-      const activityId = this.activity.a_id;
-      try {
-        await axios.post(`http://127.0.0.1:5000/delete_activity/${activityId}`);
+  async deleteActivity() {
+    const activityId = this.activity.a_id;
+    try {
+      const response = await axios.post(`http://127.0.0.1:5000/delete_activity/${activityId}`);
+
+      if (response.data.status === "success") {
+        // 删除成功的提示
+        ElNotification({
+          title: '删除成功',
+          message: '活动已成功删除~',
+          type: 'success',
+        });
+        // 跳转到活动列表页面
         this.$router.push("/activities");
-      } catch (error) {
-        console.error("删除活动失败", error);
+      } else {
+        throw new Error(response.data.message || "删除失败");
       }
-    },
+    } catch (error) {
+      console.error("删除活动失败", error);
+      // 删除失败的提示
+      ElNotification({
+        title: '删除失败',
+        message: error.message || "请稍后再试",
+        type: 'error',
+      });
+    }
+  },
     async approveActivity() {
       console.log('你好吗你好吗在同意');
+
       const activityId = this.activity.a_id;
       try {
-        await axios.post(`http://127.0.0.1:5000/approve_activity/${activityId}`);
+        const params = new URLSearchParams();
+        params.append("user_id", user_id);
+        await axios.post(`http://127.0.0.1:5000/approve_activity/${activityId}`,params);
         this.activity.a_state = "approved";
       } catch (error) {
         console.error("同意活动失败", error);
@@ -207,10 +229,13 @@ export default {
     },
     async dismissActivity() {
       const activityId = this.activity.a_id;
+
       try {
+         const params = new URLSearchParams();
+         params.append("user_id", user_id);
+         params.append("udismiss_reason", this.dismissReason);
         await axios.post(
-          `http://127.0.0.1:5000/dismiss_activity/${activityId}`,
-          { dismiss_reason: this.dismissReason }
+          `http://127.0.0.1:5000/dismiss_activity/${activityId}`,params
         );
         this.activity.a_state = "dismissed";
       } catch (error) {
@@ -298,8 +323,8 @@ export default {
   margin-left:150px;
   margin-right:80px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px 10px;
 }
 
 .images img {
@@ -340,16 +365,16 @@ export default {
   color:grey;
 }
 .h2 {
-  font-size: 20px;
+  font-size: 15px;
   /* font-family: 'Source Han Serif', 'Noto Serif CJK SC', serif; */
   /* font-weight: bold;  */
   color:rgb(164, 162, 162);
   width:160px;
 }
 .h3{
-  font-size: 20px;
+  font-size: 15px;
   /* font-family: 'Source Han Serif', 'Noto Serif CJK SC', serif; */
-  width:500px;
+  width:300px;
   /* font-weight:bolder; */
 }
 .info-unit{

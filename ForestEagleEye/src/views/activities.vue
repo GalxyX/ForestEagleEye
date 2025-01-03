@@ -30,30 +30,13 @@
           </el-menu>
         </el-scrollbar>
       </el-aside>
+
       <el-container>
         <el-main>
           <div v-if="activeIndex === '1'">
-            <!-- 右侧内容 -->
-            <!-- <div class="container">
-              <h1>可报名活动</h1>
-              <div v-if="activities.length" class="activity-list">
-                <div v-for="activity in activities" :key="activity.id" class="activity-card">
-                  <img :src="activity.picPath" alt="活动封面" class="activity-image">
-                  <div class="activity-details">
-                    <h2>{{ activity.name }}</h2>
-                    <p><strong>活动地点:</strong> {{ activity.location }}</p>
-                    <p><strong>活动类型:</strong> {{ activity.type }}</p>
-                    <p><strong>活动简介:</strong> {{ activity.introduction }}</p>
-                    <p><strong>剩余名额:</strong> {{ activity.participantNumber - activity.enrolledNumber }}</p>
-                  </div>
-                  <div class="activity-actions">
-                    <router-link :to="`/enroll_activity/${activity.id}`" class="enroll-button">报名</router-link>
-                  </div>
-                </div>
-              </div>
-            </div> -->
             <ActivityBox />
           </div>
+
           <div v-if="activeIndex === '2'">
             <EnrollBox />
           </div>
@@ -76,7 +59,7 @@ import NavigationBar from '../components/navbar.vue';
 import ApproveBox from '../components/approve.vue';
 import ApplyBox from '../components/apply.vue';
 import EnrollBox from '../components/enroll.vue';
-import ActivityBox from '../components/activity.vue'
+import ActivityBox from '../components/activity.vue';
 
 export default {
   components: {
@@ -128,6 +111,7 @@ export default {
 .el-menu-item.is-active {
   color: #60a103;
 }
+
 .container {
   background-color: white;
   width: 95%;
@@ -136,17 +120,49 @@ export default {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 h1 {
   font-size: 24px;
   color: #333;
   text-align: center;
   margin-bottom: 20px;
 }
-.activity-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+
+.carousel-section {
+  margin-bottom: 30px;
 }
+
+.el-carousel {
+  height: 400px;
+}
+
+.el-carousel__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+}
+
+.el-carousel__item h3 {
+  color: #475669;
+  font-size: 18px;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.carousel-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.activity-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* 自动调整列数 */
+  gap: 20px; /* 卡片之间的间距 */
+}
+
 .activity-card {
   background-color: #fff;
   border: 1px solid #eee;
@@ -154,33 +170,38 @@ h1 {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  width: calc(33.333% - 20px); /* 三列布局 */
   padding: 15px;
 }
+
 .activity-image {
   width: 100%;
   height: auto;
   border-radius: 4px;
   margin-bottom: 10px;
 }
+
 .activity-details {
   flex: 1;
   margin-bottom: 10px;
 }
+
 .activity-details h2 {
   font-size: 18px;
   font-weight: bold;
   color: #333;
   margin-bottom: 10px;
 }
+
 .activity-details p {
   font-size: 14px;
   margin: 5px 0;
   color: #666;
 }
+
 .activity-actions {
   text-align: center;
 }
+
 .enroll-button {
   display: inline-block;
   padding: 10px 20px;
@@ -192,6 +213,7 @@ h1 {
   font-weight: bold;
   transition: background-color 0.3s;
 }
+
 .enroll-button:hover {
   background-color: #4cae4c;
 }

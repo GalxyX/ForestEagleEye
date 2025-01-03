@@ -110,7 +110,11 @@ const router = createRouter({
             title: '活动详情'
         }
     },
-
+    {
+      path: '/activity',
+      name: 'activity',
+      component: () => import('../components/activity.vue'),
+    },
   ]
 })
 
