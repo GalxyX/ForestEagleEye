@@ -67,6 +67,9 @@ const imageList = ref<File[]>([]);
 const submitPost = async () => {
   const formData = new FormData();
   // 获取标题和内容
+  const username = sessionStorage.getItem('username');
+  if (username)
+    formData.append('username', username);
   formData.append('title', title.value);
   formData.append('content', comment.value);
   // 检测标题和内容是否为空

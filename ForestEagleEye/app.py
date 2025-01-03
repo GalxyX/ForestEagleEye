@@ -1440,16 +1440,16 @@ def forum_home():
 # 发表帖子
 @app.route('/forum/post', methods=['GET', 'POST'])
 def forum_post():
-    session['username'] = 'galaxy'
     if request.method == 'POST':
-        if 'username' not in session:
+        username = request.form['username']
+        user = db_session.query(User).filter_by(u_name=username).first()
+        if not user:
             return jsonify({"error": "User not logged in"}), 403
 
         title = request.form['title']
         content = request.form['content']
         images = request.files.getlist('images')
 
-        user = db_session.query(User).filter_by(u_name=session['username']).first()
         new_post = Post(p_title=title, p_content=content, author=user)
         db_session.add(new_post)
         db_session.commit()
@@ -1465,10 +1465,8 @@ def forum_post():
                 db_session.add(new_image)
         db_session.commit()
 
-        return redirect(url_for('forum_home'))
-
-    return render_template('forum_post.html')
-
+        return jsonify({"message": "Post created successfully", "post_id": new_post.p_id}), 200
+    
 
 @app.route('/post/<int:post_id>/like', methods=['POST'])
 def like_post(post_id):
@@ -1568,37 +1566,46 @@ def post_comment(post_id):
 
 @app.route('/post/<int:post_id>/share', methods=['POST'])
 def share_post(post_id):
+    username = request.form['username']
+    user = db_session.query(User).filter_by(u_name=username).first()
+    if not user:
+        return jsonify({"error": "User not logged in"}), 403
+
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
     title = request.form['title']
     content = request.form['content']
     images = request.files.getlist('images')
-
-    session['username'] = 'galaxy'
-    if 'username' not in session:
-        return jsonify({"error": "User not logged in"}), 403
-
-    user = db_session.query(User).filter_by(u_name=session['username']).first()
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
 
     original_post = db_session.query(Post).filter_by(p_id=post_id).first()
     if original_post is None:
         return jsonify({"error": "Original post not found"}), 404
 
-    share_content = request.json.get('content', '')
-
     new_post = Post(
-        p_title=title,
-        p_content=share_content,
+        p_title=title+"(转发)",
+        p_content=content,
         author=user,
         original_post_id=original_post.p_id
     )
     db_session.add(new_post)
     db_session.commit()
 
+    for index, image in enumerate(images[:9]):
+        if image.filename != '':
+            filename = secure_filename(f"{new_post.p_id}_{index + 1}_{image.filename}")
+            filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            image.save(filepath)
+
+            relative_path = f"uploads/{filename}"
+            new_image = Image(file_path=relative_path, post=new_post)
+            db_session.add(new_image)
+    db_session.commit()
+
     return jsonify({
         "message": "Post shared successfully",
         "shared_post_id": new_post.p_id
-    })
+    }), 200
 
 
 @app.route('/user/<string:username>', methods=['GET'])
