@@ -9,7 +9,7 @@
         <Close />
       </el-icon>
     </div>
-    <div>
+    <div class="messages-container">
       <AImessage v-for="(msg, index) in messages" :key="index"
         :avatar_img="AI_NAME === msg.name ? 'src/assets/leaf1.svg' : user_avatar" :name="msg.name"
         :time="formatMessageTime(msg.time)" :message="msg.message" />
@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
 import { Close } from '@element-plus/icons-vue';
 import AImessage from './AImessage.vue';
@@ -93,6 +93,13 @@ const fetchNewMessage = async () => {
     message: inputAttrs.value
   };
   messages.value.push(newMessage);
+  // 滚动条滚动到底部
+  nextTick(() => {
+    const container = document.querySelector('.messages-container') as HTMLElement;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  });
 
   const formData = new FormData();
   formData.append('question', inputAttrs.value);
@@ -120,6 +127,13 @@ const fetchNewMessage = async () => {
     };
     messages.value.push(responseMessage);
   }
+  // 滚动条滚动到底部
+  nextTick(() => {
+    const container = document.querySelector('.messages-container') as HTMLElement;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  });
 };
 //////////////////////////////////////////////////图标的点击与拖动//////////////////////////////////////////////////
 const x = ref(window.innerWidth - 100);
