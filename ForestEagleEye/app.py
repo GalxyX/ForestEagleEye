@@ -1056,6 +1056,33 @@ def uploadDisasterFile():
         db_session.rollback()
     return jsonify({'message': '文件上传成功'}), 200
 
+@app.route("/get_top5_participation", methods=["GET"])
+def get_top5_participation():
+    try:
+        results = (
+            db_session.query(user_participate_activity, Activity)
+            .join(Activity, user_participate_activity.activity_id == Activity.a_id)
+            .order_by(user_participate_activity.participateNumber.desc())
+            .limit(5)
+            .all()
+        )
+        print(results)
+        data_list = []
+        for upa, act in results:
+            data_list.append({
+                "upa_id": upa.upa_id,
+                "activity_id": upa.activity_id,
+                "participateNumber": upa.participateNumber,
+                "activityName": act.a_name
+            })
+
+        return jsonify({
+            "status": "success",
+            "data": data_list
+        }), 200
+    except Exception as e:
+        print("发生错误:", e)
+        return jsonify({"status": "fail", "message": "数据库查询失败"}), 500
 
 # 林业活动界面
 @app.route("/activity")
