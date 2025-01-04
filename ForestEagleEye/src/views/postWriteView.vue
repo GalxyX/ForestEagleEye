@@ -8,12 +8,12 @@ import router from '@/router';
 //////////////////////////////////////////////////区别写帖与分享的不同跳转//////////////////////////////////////////////////
 const route = useRoute();
 const id = route.params.id;
+const username = sessionStorage.getItem('username');
 
 onMounted(() => {
   if (id) {
     console.log(`通过分享链接跳转，ID: ${id}`);
-    fetchPostDetails(); // 正确调用 fetchPostDetails 函数
-    // 根据 ID 执行相应的逻辑，例如加载已有的帖子内容
+    fetchPostDetails();
   }
   else {
     console.log('通过写帖子链接跳转');
@@ -40,7 +40,11 @@ const ori_post = ref<Post>();
 const fetchPostDetails = async () => {
   try {
     console.log('Fetching post details...');
-    const response = await axios.get(`http://127.0.0.1:5000/post/${route.params.id}`);
+    const response = await axios.get(`http://127.0.0.1:5000/post/${route.params.id}`, {
+      params: {
+        username: username
+      }
+    });
     if (response.status === 200) {
       ori_post.value = response.data.posts;
       console.log('Post details:', ori_post.value);
@@ -67,7 +71,6 @@ const imageList = ref<File[]>([]);
 const submitPost = async () => {
   const formData = new FormData();
   // 获取标题和内容
-  const username = sessionStorage.getItem('username');
   if (username)
     formData.append('username', username);
   formData.append('title', title.value);
@@ -176,7 +179,10 @@ const handleUpload = (file: File, fileList: File[]) => {
     <!-- 转发显示 -->
     <section v-if="ori_post" class="oriPost-container" @click="toOriPost">
       <h2>{{ ori_post?.title }}</h2>
-      <p>{{ ori_post?.author }}</p>
+      <span>
+        <img :src="ori_post?.author.avatar" alt="avatar" />
+        <p>{{ ori_post?.author.username }}</p>
+      </span>
     </section>
 
     <textarea placeholder="创建你的内容" v-model="comment" rows="1" style="resize: none;"></textarea>
@@ -251,5 +257,18 @@ button {
 
 .oriPost-container p {
   color: grey;
+}
+
+.oriPost-container span {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.oriPost-container span img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
 }
 </style>

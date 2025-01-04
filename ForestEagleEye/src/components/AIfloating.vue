@@ -160,7 +160,7 @@ const handleMouseDown = () => {
 const handleMouseUp = () => {
   // 如果正在拖拽，则关闭拖拽状态，否则执行点击逻辑
   if (!isDragging.value) {
-    isDragging.value = false;
+    isDragging.value = true;
     showChatWindow(true);
     console.log('Icon clicked');
   }
@@ -178,13 +178,10 @@ const handleMouseMove = (event: MouseEvent) => {
 
 const showChatWindow = (isShow: boolean) => {
   isChatWindowOpen.value = isShow;
+  fetchHistory();
   console.log('Chat window opened');
 };
 
-onMounted(() => {
-  document.addEventListener('mouseup', handleMouseUp);
-  fetchHistory();
-});
 </script>
 <style scoped>
 .floating-icon {

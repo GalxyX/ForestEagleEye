@@ -21,16 +21,16 @@
 <script setup lang="ts">
 import router from '@/router';
 import axios from 'axios';
-import { defineProps, reactive, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { defineProps, reactive, ref, onMounted } from 'vue';
 
 const props = defineProps<{
   id: number;
   title: string;
-  time: string;
+  time?: string;
   content: string;
   image: string;
   likeNum: number;
+  liked: boolean;
 }>();
 
 //点赞
@@ -39,7 +39,9 @@ const likedButton = reactive({
   backgroundColor: 'azure'
 });
 const likePost = async () => {
-  const response = await axios.post(`http://127.0.0.1:5000/post/${props.id}/like`);
+  const formData = new FormData();
+  formData.append('username', sessionStorage.getItem('username') as string);
+  const response = await axios.post(`http://127.0.0.1:5000/post/${props.id}/like`, formData);
   if (response.status === 200) {
     console.log('SUCCESS: Post liked successfully');
     if (response.data.is_liked) {
@@ -61,6 +63,14 @@ const sharePost = () => {
     window.location.reload();
   });
 };
+onMounted(() => {
+  if (props.liked) {
+    likedButton.backgroundColor = 'green';
+  }
+  else {
+    likedButton.backgroundColor = 'azure';
+  }
+});
 </script>
 
 <style scoped>

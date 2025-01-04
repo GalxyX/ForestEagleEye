@@ -55,13 +55,13 @@ verification_codes = {}  # 存储邮箱和验证码的字典
 dashscope.api_key = 'sk-16d20b70778043379f8afa4b6a940a8b'
 
 # MySQL 数据库连接配置
-db_config = {
-    'user': 'root',
-    'password': 'Jwy040103-',  # 这里改成自己的数据库密码
-    'host': 'localhost',
-    'port': 3306,
-    'database': 'forest2025',  # 这里改成自己的数据库名字
-    'charset': 'utf8mb4'}
+db_config={
+    'user':'root',
+    'password':'a!oe3q4r',#这里改成自己的数据库密码
+    'host':'localhost',
+    'port':3306,
+    'database': 'forest',#这里改成自己的数据库名字
+    'charset':'utf8mb4'}
 # 创建数据库连接
 engine = create_engine(
     "mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset={charset}".format(**db_config))
@@ -1397,12 +1397,10 @@ def searchOneForest():
 # 返回字典 post代表帖子信息，user代表用户信息
 @app.route('/forum', methods=['GET'])
 def forum_home():
-    session['username'] = 'galaxy'
-    user = db_session.query(User).filter_by(u_name=session['username']).first()
-
-    if user is None:
-        print("error")
-        return redirect(url_for('login'))
+    username = request.args.get('username')
+    user = db_session.query(User).filter_by(u_name=username).first()
+    if not user:
+        return jsonify({"error": "User not logged in"}), 403
 
     posts = db_session.query(Post).order_by(Post.p_timestamp.desc()).all()
 
@@ -1429,12 +1427,7 @@ def forum_home():
             } if post.original_post else None
         })
 
-    user_data = {
-        "username": user.u_name,
-        "avatar": f"/{user.u_avatarPath}" if user.u_avatarPath else "forum/default-avatar.png"
-    }
     return jsonify(post_data)
-    return render_template('forum_home.html', posts=post_data, user=user_data)
 
 
 # 发表帖子
@@ -1470,13 +1463,10 @@ def forum_post():
 
 @app.route('/post/<int:post_id>/like', methods=['POST'])
 def like_post(post_id):
-    session['username'] = 'galaxy'
-    if 'username' not in session:
+    username = request.form['username']
+    user = db_session.query(User).filter_by(u_name=username).first()
+    if not user:
         return jsonify({"error": "User not logged in"}), 403
-
-    user = db_session.query(User).filter_by(u_name=session['username']).first()
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
 
     existing_like = db_session.query(Like).filter_by(l_user_id=user.u_id, l_post_id=post_id).first()
 
@@ -1501,7 +1491,8 @@ def like_post(post_id):
 
 @app.route('/post/<int:post_id>', methods=['GET'])
 def post_detail(post_id):
-    session['username'] = 'galaxy'
+    username = request.args.get('username')
+
     post = db_session.query(Post).get(post_id)
     comments = db_session.query(Comment).filter_by(c_post_id=post_id).all()
 
@@ -1517,10 +1508,11 @@ def post_detail(post_id):
         "original_post": {
             "id": post.original_post.p_id,
             "title": post.original_post.p_title,
-            "author": post.original_post.author.u_name
+            "author": post.original_post.author.u_name,
+            "avatar": f"/{post.original_post.author.u_avatarPath}"
         } if post.original_post else None
     }
-
+    print(post.original_post.author.u_avatarPath)
     comments_data = []
     for comment in comments:
         comment_images = [image.file_path for image in comment.images[:3]]
@@ -1532,20 +1524,27 @@ def post_detail(post_id):
             },
             "images": comment_images
         })
-    return jsonify({"posts": post_data, "comments": comments_data})
-    return render_template('post_detail.html', post=post_data, comments=comments_data)
+
+    like_count = db_session.query(Like).filter_by(l_post_id=post_id).count()
+    user = db_session.query(User).filter_by(u_name=username).first()
+    existing_like = db_session.query(Like).filter_by(l_user_id=user.u_id, l_post_id=post_id).first()
+
+    if existing_like:
+        action = "liked"
+    else:
+        action = "unliked"
+
+    return jsonify({"posts": post_data, "comments": comments_data, "like_count": like_count, "is_liked": action == "liked"})
 
 
 @app.route('/post/<int:post_id>/comment', methods=['POST'])
 def post_comment(post_id):
-    session['username'] = 'galaxy'
-    if 'username' not in session:
-        return jsonify({"error": "User not logged in"}), 403
+    username = request.form['username']
 
     content = request.form['content']
     images = request.files.getlist('images')
 
-    user = db_session.query(User).filter_by(u_name=session['username']).first()
+    user = db_session.query(User).filter_by(u_name=username).first()
     new_comment = Comment(c_content=content, c_post_id=post_id, author=user)
     db_session.add(new_comment)
     db_session.commit()

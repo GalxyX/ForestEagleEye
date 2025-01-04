@@ -19,7 +19,10 @@
               </div>
               <div v-if="post?.original_post" class="oriPost-container" @click="toOriPost">
                 <h2>{{ post?.original_post?.title }}</h2>
-                <p>{{ post?.original_post?.author }}</p>
+                <span>
+                  <img :src="post?.original_post?.avatar ? `${post?.original_post?.avatar}` : '#'" alt="avatar" />
+                  <p>{{ post?.original_post?.author }}</p>
+                </span>
               </div>
             </section>
 
@@ -84,6 +87,7 @@ interface Post {
     id: number;
     title: string;
     author: string;
+    avatar: string;
   } | null;
 }
 
@@ -98,16 +102,28 @@ interface Comment {
 
 const post = ref<Post>();
 const comments = ref<Comment[]>([]);
+const likeNum = ref(999);
+const username = sessionStorage.getItem('username');
 
 //获取post信息
 const route = useRoute();
+const likedButton = reactive({
+  backgroundColor: 'azure'
+});
 const fetchPostDetails = async () => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/post/${route.params.id}`);
+    const response = await axios.get(`http://127.0.0.1:5000/post/${route.params.id}`, { params: { username: username } });
     if (response.status === 200) {
       post.value = response.data.posts;
       comments.value = response.data.comments;
       comments.value.reverse();
+      likeNum.value = response.data.like_count;
+      if (response.data.is_liked) {
+        likedButton.backgroundColor = 'green';
+      }
+      else {
+        likedButton.backgroundColor = 'azure';
+      }
     }
     else {
       console.error('Failed to fetch post details');
@@ -119,12 +135,14 @@ const fetchPostDetails = async () => {
 };
 onMounted(fetchPostDetails);
 //点赞
-const likedButton = reactive({
-  backgroundColor: 'azure'
-});
-const likeNum = ref("本部分后端还未给出返回数据功能，后端完成后可参考添加");
 const likePost = async () => {
-  const response = await axios.post(`http://127.0.0.1:5000/post/${route.params.id}/like`);
+  const params = new FormData();
+  params.append('username', username as string);
+  const response = await axios.post(`http://127.0.0.1:5000/post/${route.params.id}/like`, params, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
   if (response.status === 200) {
     console.log('SUCCESS: Post liked successfully');
     if (response.data.is_liked) {
@@ -136,7 +154,8 @@ const likePost = async () => {
       likedButton.backgroundColor = 'azure';
     }
     likeNum.value = response.data.like_count;
-  } else {
+  }
+  else {
     console.error(`ERROR: ${response.data.error}`);
   }
 };
@@ -153,6 +172,7 @@ const submitComment = async () => {
     images.value.forEach((image, index) => {
       params.append('images', image);
     });
+    params.append('username', username as string);
     const response = await axios.post(`http://127.0.0.1:5000/post/${route.params.id}/comment`, params, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -307,6 +327,19 @@ article {
 
 .oriPost-container p {
   color: grey;
+}
+
+.oriPost-container span {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.oriPost-container span img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
 }
 
 /* 互动按钮 */

@@ -18,9 +18,6 @@ const inst = ref(sessionStorage.getItem('inst'));
 const forest = ref(sessionStorage.getItem('forest'));
 
 const router = useRouter();
-if (!username.value || !user_id.value || !email.value) {
-  router.push('/login');
-}
 
 interface Post {
   id: number;
@@ -43,12 +40,17 @@ interface Post {
 const posts = ref<Post[]>([]);
 onMounted(async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:5000/forum');
-    if (response.status === 200) {
-      posts.value = response.data;
+    if (!username.value || !user_id.value || !email.value) {
+      router.push('/login');
     }
     else {
-      console.error('Failed to fetch posts');
+      const response = await axios.get('http://127.0.0.1:5000/forum', { params: { username: username.value } });
+      if (response.status === 200) {
+        posts.value = response.data;
+      }
+      else {
+        console.error('Failed to fetch posts');
+      }
     }
   }
   catch (error) {
@@ -65,8 +67,8 @@ onMounted(async () => {
       <div class="posts-block">
         <h1>实时热帖</h1>
         <postPreview v-for="post in posts" :key="post.id" :id="post.id" :title="post.title" :time="post.time"
-          :content="post.content_preview" :image="post.images.length ? post.images[0] : ''"
-          :likeNum="post.like_count" />
+          :content="post.content_preview" :image="post.images.length ? post.images[0] : ''" :likeNum="post.like_count"
+          :liked="post.is_liked" />
       </div>
       <!--右侧信息-->
       <aside class="info-block">
