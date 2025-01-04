@@ -64,35 +64,69 @@ onMounted(async () => {
 </script>
 <template>
   <Nav />
-  <main>
+  <main style="background-color:#f0f2f5;">
     <!-- 网页主体内容 -->
-    <div>
+    <div class="all-contents">
       <!--左侧帖子-->
       <div class="posts-block">
         <h1>实时热帖</h1>
         <postPreview v-for="post in posts" :key="post.id" :id="post.id" :title="post.title"
           :time="formatDateTime(post.time)" :content="post.content_preview"
           :image="post.images.length ? post.images[0] : ''" :likeNum="post.like_count" :liked="post.is_liked" />
+        <!-- <div v-for="post in posts" :key="post.id" class="post">
+          <el-divider border-style="dashed" />
+          <h1>{{ post.title }}</h1>
+          <p class="time">{{ post.time }}</p>
+          <p class="content">{{ post.content_preview }}</p>
+          <img v-if="post.images.length" :src="post.images[0]" alt="Post Image" class="post-image">
+          <p class="like-num">点赞数: {{ post.like_count }}</p>
+        </div> -->
       </div>
       <!--右侧信息-->
-      <aside class="info-block">
-        <img :src="avatar ?? '#'" alt="avatar" width="100" height="100" />
-        <p>{{ username }}</p>
-        <p>{{ signature }}</p>
-        <div>
-          <div>
-            <p>今日阅读（播放）数</p>
-            <p style="font-weight: bold; font-size: larger;">这里后端还没给出相应功能，等待后端以后写完了再添加</p>
-            <p>昨日数据4</p>
+      <div class="right">
+        <aside class="info-block">
+          <img :src="avatar ?? '#'" alt="avatar" width="100" height="100" />
+          <p style="font-size: 20px;margin-top: 20px;margin-bottom: 10px;font-weight:bold;">{{ username }}</p>
+          <div class="signature" >
+            <el-icon-location style="width:20px;height: 20px;color:#60a130;font-weight: bolder;"></el-icon-location>
+            <p>{{ signature }}</p>
           </div>
-          <div>
-            <p>今日新增赞同数</p>
-            <p style="font-weight: bold; font-size: larger;">这里后端还没给出相应功能，等待后端以后写完了再添加</p>
-            <p>昨日数据0</p>
+          <div class="unit3">
+            <div class="unit2">
+              <div class="unit">
+                <p class="h2">今日阅读数</p>
+                <p class="text">###</p>
+              </div>
+              <el-divider style="width: 100px;"></el-divider>
+              <div class="unit">
+                <p class="h2">昨日数据</p>
+                <p class="text">###</p>
+              </div>
+            </div>
+            <el-divider direction="vertical" style="height: 150px;"></el-divider>
+            <div class="unit2">
+              <div class="unit">
+                <p class="h2">今日赞同数</p>
+                <p class="text">###</p>
+              </div>
+              <el-divider style="width: 100px;"></el-divider>
+              <div class="unit">
+                <p class="h2">昨日数据</p>
+                <p class="text">###</p>
+              </div>
+            </div>
           </div>
-        </div>
-        <RouterLink to="/postwrite">发点什么 ></RouterLink>
-      </aside>
+
+
+          <RouterLink to="/postwrite" class="sendbottom">
+            <el-icon-edit style="width: 30px;height: 30px;margin-right: 10px;"></el-icon-edit>
+            发点什么
+            <el-icon-d-arrow-right style="width: 30px;height: 30px;margin-left: 10px;"></el-icon-d-arrow-right>
+          </RouterLink>
+        </aside>
+        <el-footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</el-footer>
+      </div>
+      
     </div>
   </main>
   <!--底部版权信息-->
@@ -123,6 +157,7 @@ main>div {
 .info-block {
   flex: 2;
   background-color: white;
+  padding-top: 30px;
 }
 
 /*个人信息*/
@@ -139,27 +174,35 @@ aside>div {
   gap: 20px;
   margin: 20px 30px;
   text-align: center;
-  background-color: #E7E6E6;
-
+  background-color: rgba(149, 242, 4, 0.1); 
+  border-radius: 40px;
 }
 
 aside a {
-  color: greenyellow;
+  color:  #60a130;
   text-decoration: none;
   border-style: solid;
-  border-radius: 10px;
-  border-color: greenyellow;
+  border-radius: 40px;
+  border-color: #60a130;
   width: 80%;
   text-align: center;
+  font-size:20px;
+  width:200px;
+  height:60px;
+  display: flex;
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中（如果需要） */
+  font-weight: bold;
+  margin-top: 10px;
 }
 
 aside a:hover {
-  background-color: greenyellow;
+  background-color: #60a130;
   color: white;
 }
 
 aside a:active {
-  background-color: greenyellow;
+  background-color: #60a130;
   color: white;
 }
 
@@ -174,4 +217,63 @@ footer {
   font-size: xx-small;
   margin-top: 50px;
 }
+.all-contents{
+  background-color: #f0f2f5;
+  margin-left: 20px; /* 左边距 */
+  margin-right: 20px; /* 右边距 */
+  margin-top: 60px;
+  display: flex;
+}
+.posts-block h1 {
+  color: #60a130;
+  font-size: 20px;
+  margin-top: 20px;
+  text-align: right; /* 移除了单引号 */
+}
+.signature{
+  display: flex;
+  background-color: white;
+  align-items: center;
+  margin-top:0px;
+  margin-bottom:0px;
+  gap:10px;
+}
+.signature p{
+  color:#858383;
+}
+
+.unit{
+  display: flex;
+  flex-direction: column; /* 设置子元素垂直排列 */
+}
+.h2{
+  font-size:20px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-size:16px;
+}
+.text{
+  font-weight: bold; 
+  font-size: larger;
+  margin-top: 10px;
+  margin-bottom: 0px;
+}
+.unit2{
+  display: flex;
+  flex-direction: column;
+}
+.unit3{
+  padding-left: 40px;
+  padding-right: 40px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+/* .right{
+  position: fixed;
+  top: 40px; 
+  left: 1300px; 
+} */
+
 </style>
