@@ -6,7 +6,7 @@
     <div>
       <div style="display: flex; align-items: center;">
         <img src="../assets/icon-AI.svg" alt="AI图标" style="width: 30px; height: 30px; margin-right: 10px;" />
-         <h1 style="font-size: 18px; margin: 0;">小林问答</h1>
+        <h1 style="font-size: 18px; margin: 0;">小林问答</h1>
       </div>
       <span>
         <el-icon @click="deleteChatHistory" style="cursor: pointer;">
@@ -20,23 +20,15 @@
     <div class="messages-container">
       <AImessage v-for="(msg, index) in messages" :key="index"
         :avatar_img="AI_NAME === msg.name ? 'src/assets/leaf1.svg' : user_avatar" :name="msg.name"
-        :time="formatDateTime(msg.time)" :message="msg.message" />
+        :time="formatDateTime(msg.time, false)" :message="msg.message" />
       <AImessage v-if="messages.length === 0" :avatar_img="'src/assets/leaf1.svg'" :name="AI_NAME"
-        :time="formatDateTime(new Date())" message="你好，我是小林，有什么问题可以问我哦~" />
+        :time="formatDateTime(new Date(), false)" message="你好，我是小林，有什么问题可以问我哦~" />
     </div>
     <div class="input-container">
-      <input
-        v-model="inputAttrs"
-        type="text"
-        placeholder="请输入问题"
-        @keyup.enter="fetchNewMessage"
-        class="input-box"
-      />
-      <button
-        @click="fetchNewMessage"
+      <input v-model="inputAttrs" type="text" placeholder="请输入问题" @keyup.enter="fetchNewMessage" class="input-box" />
+      <button @click="fetchNewMessage"
         :class="{ 'send-button': true, 'active': inputAttrs.length > 0, 'inactive': inputAttrs.length === 0 }"
-        :disabled="inputAttrs.length === 0"
-      >
+        :disabled="inputAttrs.length === 0">
         <i class="arrow-icon"></i>
       </button>
     </div>
@@ -60,10 +52,6 @@ interface Message {
   time: Date;
   message: string;
 }
-const props = defineProps<{
-  inputAttrs: string;
-  fetchNewMessage: () => void;
-}>();
 const messages = ref<Message[]>([]);
 const fetchHistory = async () => {
   messages.value = [];
@@ -238,14 +226,18 @@ const showChatWindow = (isShow: boolean) => {
   bottom: 20px;
   right: 20px;
   width: 39%;
-  height: 70%; /* 调整高度 */
+  height: 70%;
+  /* 调整高度 */
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 3%;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  display: flex; /* 使用 flex 布局 */
-  flex-direction: column; /* 子元素从上到下排列 */
-  overflow: hidden; /* 确保多余内容不会溢出 */
+  display: flex;
+  /* 使用 flex 布局 */
+  flex-direction: column;
+  /* 子元素从上到下排列 */
+  overflow: hidden;
+  /* 确保多余内容不会溢出 */
 }
 
 .chat-window div {
@@ -284,6 +276,7 @@ const showChatWindow = (isShow: boolean) => {
 el-icon {
   cursor: pointer;
 }
+
 .input-container {
   display: flex;
   align-items: center;
@@ -292,9 +285,12 @@ el-icon {
   border-radius: 20px;
   padding: 5px 10px;
   background-color: #f9f9f9;
-  width: 75%; /* 设置容器宽度为父容器的 75% */
-  max-width: 600px; /* 限制最大宽度，防止过宽 */
-  margin: 0 auto 20px auto; /* 增加与底部的间距，保持顶部间距不变 */
+  width: 75%;
+  /* 设置容器宽度为父容器的 75% */
+  max-width: 600px;
+  /* 限制最大宽度，防止过宽 */
+  margin: 0 auto 20px auto;
+  /* 增加与底部的间距，保持顶部间距不变 */
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
