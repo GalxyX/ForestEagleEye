@@ -1,7 +1,7 @@
 <template>
   <RouterLink :to="`/post/${id}`">
-    <div >
-      <div class="title-time" >
+    <div>
+      <div class="title-time">
         <h2>{{ title }}</h2>
         <p>{{ time }}</p>
       </div>
@@ -11,7 +11,7 @@
       </div>
     </div>
   </RouterLink>
-  <div  style="display:flex; justify-content: space-between;  align-items: center;">
+  <div style="display:flex; justify-content: space-between;  align-items: center;">
     <div class="interact-buttons" style="margin-left:20px;">
       <p @click="likePost">点赞👍<span>{{ _likeNum }}</span></p>
       <p @click="sharePost">分享🏑</p>
@@ -110,6 +110,10 @@ a>div>div:nth-of-type(2)>img {
 
 a>div>div:nth-of-type(2)>p {
   flex: 3;
+  word-wrap: break-word;
+  /* 使长单词换行 */
+  word-break: break-all;
+  /* 强制长单词换行 */
 }
 
 a>div>div:nth-of-type(1) {
@@ -132,35 +136,38 @@ a>div>div>p {
 
 .interact-buttons>p:hover {
   background-color: #60a130;
-  color:white;
+  color: white;
 }
 
 .interact-buttons>p {
   margin-top: 10px;
   border-radius: 15px;
-  background-color: rgba(149, 242, 4, 0.1); 
+  background-color: rgba(149, 242, 4, 0.1);
   width: 110px;
   height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color:#3c5c26;
+  color: #3c5c26;
   font-weight: bold;
 }
 
 
-.title-time{
-  margin-top:10px;
-  margin-left:20px;
-  align-items: center; /* 垂直居中 */
-}
-.read{
-  display:flex;
+.title-time {
+  margin-top: 10px;
+  margin-left: 20px;
   align-items: center;
-  margin-right:20px;
-  color:#8e918d;
+  /* 垂直居中 */
 }
-.read:hover{
-  color:#60a130;
+
+.read {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  color: #8e918d;
+}
+
+.read:hover {
+  color: #60a130;
 }
 </style>
