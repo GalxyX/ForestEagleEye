@@ -5,9 +5,14 @@
   <div class="chat-window" v-if="isChatWindowOpen">
     <div>
       <h1>小林问答</h1>
-      <el-icon @click="showChatWindow(false)" style="cursor: pointer;">
-        <Close />
-      </el-icon>
+      <span>
+        <el-icon @click="deleteChatHistory" style="cursor: pointer;">
+          <DeleteFilled />
+        </el-icon>
+        <el-icon @click="showChatWindow(false)" style="cursor: pointer;">
+          <Close />
+        </el-icon>
+      </span>
     </div>
     <div class="messages-container">
       <AImessage v-for="(msg, index) in messages" :key="index"
@@ -26,11 +31,12 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
-import { Close } from '@element-plus/icons-vue';
+import { Close, DeleteFilled } from '@element-plus/icons-vue';
 import AImessage from './AImessage.vue';
 import { formatDateTime } from '@/components/fotmatTime';
 //////////////////////////////////////////////////获取历史聊天信息//////////////////////////////////////////////////
 const AI_NAME = '小林';
+const username = sessionStorage.getItem('username') || '';
 const user_avatar = sessionStorage.getItem('avatar') || '../assets/default-avatar.svg';
 interface Message {
   // id: number;
@@ -40,10 +46,26 @@ interface Message {
 }
 const messages = ref<Message[]>([]);
 const fetchHistory = async () => {
-  const response = await axios.post(`http://127.0.0.1:5000/???????????WAITING_FOR_YOUR_CODE???????????`);
+  messages.value = [];
+  const response = await axios.get(`http://127.0.0.1:5000/fetchChatHistory`, {
+    params: {
+      username: username
+    }
+  });
   if (response.status === 200) {
     console.log('SUCCESS: Post liked successfully');
-    messages.value = response.data.messages;
+    response.data.forEach((msg: any) => {
+      messages.value.push({
+        name: username,
+        time: new Date(msg.q_time),
+        message: msg.question
+      });
+      messages.value.push({
+        name: AI_NAME,
+        time: new Date(msg.a_time),
+        message: msg.answer
+      });
+    });
   }
   else {
     console.error(`ERROR: ${response.data.error}`);
@@ -72,10 +94,11 @@ const fetchNewMessage = async () => {
 
   const formData = new FormData();
   formData.append('question', inputAttrs.value);
+  formData.append('username', sessionStorage.getItem('username') || '');
   inputAttrs.value = '';
 
   const response = await axios.post(
-    'http://127.0.0.1:5000/ask_model',
+    `http://127.0.0.1:5000/ask_model`,
     formData,
     { headers: { 'Content-Type': 'multipart/form-data' } }
   );
@@ -104,6 +127,24 @@ const fetchNewMessage = async () => {
     }
   });
 };
+//////////////////////////////////////////////////删除AI聊天记录//////////////////////////////////////////////////
+const deleteChatHistory = async () => {
+  const formData = new FormData();
+  formData.append('username', username);
+
+  const response = await axios.post(
+    `http://127.0.0.1:5000/deleteChatHistory`,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  );
+  if (response.status === 200) {
+    messages.value = [];
+    console.log('SUCCESS: Chat history deleted successfully');
+  }
+  else {
+    console.error(`ERROR: ${response.data.error}`);
+  }
+};
 //////////////////////////////////////////////////图标的点击与拖动//////////////////////////////////////////////////
 const x = ref(window.innerWidth - 100);
 const y = ref(window.innerHeight - 100);
@@ -130,7 +171,7 @@ const handleMouseUp = () => {
   // 如果正在拖拽，则关闭拖拽状态，否则执行点击逻辑
   if (!isDragging.value) {
     isDragging.value = true;
-    showChatWindow(true);
+    showChatWindow(!isChatWindowOpen.value);
     console.log('Icon clicked');
   }
   document.removeEventListener('mousemove', handleMouseMove);
@@ -199,6 +240,13 @@ const showChatWindow = (isShow: boolean) => {
 .chat-window>div:nth-of-type(1) {
   padding-right: 20px;
   padding-left: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-window>div:nth-of-type(1) span {
+  gap: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;

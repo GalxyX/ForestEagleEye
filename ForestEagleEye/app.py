@@ -252,6 +252,16 @@ class ForestResourceBase(Base):
     r_radius = Column(Float)  # 分布中心半径
 
 
+### AI消息表
+class AIMessage(Base):
+    __tablename__ = 'AImessages'
+    a_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)  # 消息编号
+    a_user_id = Column(Integer, ForeignKey('users.u_id'), nullable=False)  # 本消息发起用户的id
+    a_qtime = Column(DateTime, nullable=False, default=datetime.now)  # 消息发送时间
+    a_question = Column(String(1000), nullable=False)  # 消息内容
+    a_atime = Column(DateTime, nullable=False, default=datetime.now)  # 消息回答时间
+    a_answer = Column(String(1000), nullable=False)  # 消息回答
+
 """
     思想：以上创建了每个森林变量表的基类，每个森林所有时刻的变量存在一张表内，不同森林的变量存在不同表内，使用以下方法创建、访问、插入。
     # 动态创建表函数
@@ -1514,7 +1524,7 @@ def post_detail(post_id):
             "avatar": f"/{post.original_post.author.u_avatarPath}"
         } if post.original_post else None
     }
-    print(post.original_post.author.u_avatarPath)
+
     comments_data = []
     for comment in comments:
         comment_images = [image.file_path for image in comment.images[:3]]
@@ -1676,6 +1686,7 @@ def large_model():
 
 @app.route('/ask_model', methods=['POST'])
 def ask_model():
+    qtime=datetime.now()
     question = request.form.get('question', '')
     try:
         response = dashscope.Generation.call(
@@ -1691,12 +1702,71 @@ def ask_model():
 
                 answer = response.output
             print(answer)
+
+
+
+
+
+            atime=datetime.now()
+            username=request.form['username']
+            if username:
+                user = db_session.query(User).filter_by(u_name=username).first()
+                db_session.add(AIMessage(
+                    a_user_id=user.u_id,
+                    a_qtime=qtime,
+                    a_atime=atime,
+                    a_question=question,
+                    a_answer=answer))
+                db_session.commit()
+
+
+
+
+
+
         else:
             answer = f"Error: {response.code}, {response.message}"
     except Exception as e:
         answer = f'调用API时出错: {str(e)}'
 
     return jsonify({"text": answer})
+
+
+@app.route('/fetchChatHistory', methods=['GET'])
+def fetch_chat_history():
+    username = request.args.get('username')
+    user = db_session.query(User).filter_by(u_name=username).first()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    messages = db_session.query(AIMessage).filter_by(a_user_id=user.u_id).order_by(AIMessage.a_qtime.desc()).all()
+
+    message_data = []
+    for message in messages:
+        message_data.append({
+            "question": message.a_question,
+            "answer": message.a_answer,
+            "q_time": message.a_qtime,
+            "a_time": message.a_atime
+        })
+
+    return jsonify(message_data)
+
+
+@app.route('/deleteChatHistory', methods=['POST'])
+def delete_chat_history():
+    username = request.form.get('username')
+    user = db_session.query(User).filter_by(u_name=username).first()
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    db_session.query(AIMessage).filter_by(a_user_id=user.u_id).delete()
+    db_session.commit()
+
+    return jsonify({"message": "Chat history deleted successfully"})
+
+
+
 
 
 if __name__ == "__main__":
