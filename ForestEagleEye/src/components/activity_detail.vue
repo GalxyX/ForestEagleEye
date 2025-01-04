@@ -61,15 +61,14 @@
               </div>
             </div>
 
-            <div class="info-unit">
-                <p class="h2">活动简介</p>
-                <p class="h3">{{ activity.a_introduction }}</p>
-              </div>
+            <div class="h1">活动简介</div>
+              <p class="h3" style="margin-left:120px;margin-top:20px;">{{ activity.a_introduction }}</p>
+              
 
               <!-- 图片显示 -->
               <div v-if="activity.a_picPath">
-                <h2 class="h2">活动封面</h2>
-                <div class="images">
+                <h2 class="h1">活动封面</h2>
+                <div class="images" style="margin-left:120px;margin-top:20px;">
                   <img :src="activity.a_picPath" alt="活动封面" />
                 </div>
               </div>
