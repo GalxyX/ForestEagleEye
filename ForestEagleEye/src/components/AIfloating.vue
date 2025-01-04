@@ -166,8 +166,8 @@ const deleteChatHistory = async () => {
   }
 };
 //////////////////////////////////////////////////图标的点击与拖动//////////////////////////////////////////////////
-const x = ref(window.innerWidth - 100);
-const y = ref(window.innerHeight - 100);
+const x = ref(window.innerWidth - 250);
+const y = ref(window.innerHeight - 250);
 const isActive = ref(false);
 const isDragging = ref(true);
 const isChatWindowOpen = ref(false);
@@ -217,9 +217,9 @@ const showChatWindow = (isShow: boolean) => {
 .floating-icon {
   position: fixed;
   /* 绝对定位 */
-  width: 50px;
+  width: 150px;
   /* 宽度50px */
-  height: 50px;
+  height: 150px;
   /* 高度50px */
   border-radius: 50%;
   /* 边框圆角50% */
