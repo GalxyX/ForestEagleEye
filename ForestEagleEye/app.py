@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash, send_from_directory, abort, \
-    jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, flash, send_from_directory, abort, jsonify
 import pymysql
 import hashlib
 import sqlalchemy
@@ -7,8 +6,7 @@ from sqlalchemy import Column, Integer, String, JSON
 from sqlalchemy import insert
 from werkzeug.utils import secure_filename
 from sqlalchemy import text
-from sqlalchemy import create_engine, Column, Enum, Integer, Table, String, ForeignKey, DateTime, Text, Boolean, Float, \
-    inspect, MetaData, select
+from sqlalchemy import create_engine, Column, Enum, Integer, Table, String, ForeignKey, DateTime, Text, Boolean, Float,inspect,MetaData, select, func
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from datetime import datetime
 from flask import render_template  # 引入模板插件
@@ -18,7 +16,7 @@ import random
 from datetime import timedelta
 import os
 from flask_cors import CORS
-from sqlalchemy.exc import SQLAlchemyError, OperationalError
+from sqlalchemy.exc import SQLAlchemyError,OperationalError
 import re
 import pandas as pd
 import requests
@@ -57,10 +55,10 @@ dashscope.api_key = 'sk-16d20b70778043379f8afa4b6a940a8b'
 # MySQL 数据库连接配置
 db_config={
     'user':'root',
-    'password':'a!oe3q4r',#这里改成自己的数据库密码
+    'password':'20040616',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
-    'database': 'forest',#这里改成自己的数据库名字
+    'database': 'forest2025',#这里改成自己的数据库名字
     'charset':'utf8mb4'}
 # 创建数据库连接
 engine = create_engine(
@@ -196,6 +194,75 @@ class Institution(Base):
     i_name = Column(String(20), nullable=False, unique=True)  # 机构名称
     i_type = Column(Enum('从业机构', '管理机构'), nullable=False)  # 机构类别
 
+# 不同国家的森林数据表
+### 森林覆盖率数据表
+class CountryForestCover(Base):
+    __tablename__ = 'country_tree_cover_gain'
+    c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True)   # 记录唯一标识
+    c_name = Column(String(100), nullable=False)  # 国家名称
+    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    c_tree_cover_gain = Column(Float)    # 2000~2020森林覆盖率增长
+
+### 森林覆盖损失数据表
+class CountryForestCoverYearLoss(Base):
+    __tablename__ = "country_tree_cover_year_loss"
+    c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
+    c_name = Column(String(100), nullable=False)  # 国家名称
+    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    year = Column(Integer, primary_key=True)  # 记录年份
+    c_tree_cover_loss = Column(Float)   # 对应年份的森林覆盖率损失
+
+### 森林原生林覆盖数据表
+class CountryPrimevalTreeCover(Base):
+    __tablename__ = "country_primeval_tree_cover"
+    c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True)   # 国家编号
+    c_name = Column(String(100), nullable=False)  # 国家名称
+    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    c_primeval_tree_cover = Column(Float)    # 原生林覆盖
+
+### 森林原生林覆盖损失数据表
+class CountryPrimevalTreeLoss(Base):
+    __tablename__ = "country_primeval_tree_loss"
+    c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
+    c_name = Column(String(100), nullable=False)  # 国家名称
+    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    c_primeval_tree_loss = Column(Float)   # 原生林损失
+
+### 森林土壤有机碳数据表
+class CountryForestSoilOrganicCarbon(Base):
+    __tablename__ = "country_soil_organic_carbon"
+    c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
+    c_name = Column(String(100), nullable=False)  # 国家名称
+    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    c_soil_organic_carbon = Column(Float)   # 土壤有机碳总量
+    c_soil_organic_carbon_density = Column(Float)   # 土壤有机碳密度
+
+### 森林火灾数据表
+class CountryForestFireCount(Base):
+    __tablename__ = "country_forest_fire_count"
+    c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
+    c_name = Column(String(100), nullable=False)  # 国家名称
+    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    year = Column(Integer, primary_key=True)  # 记录年份
+    fire_count = Column(Integer)    # 对应年份发生的火灾数
+
+### 森林火灾造成损失数据表
+class CountryForestFireLoss(Base):
+    __tablename__ = "country_forest_fire_loss"
+    c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
+    c_name = Column(String(100), nullable=False)  # 国家名称
+    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    year = Column(Integer, primary_key=True)  # 记录年份
+    fire_loss = Column(Float)   # 对应年份因森林火灾造成的森林面积损失
+
+### 森林存活林木生物量
+class CountryForestBioMass(Base):
+    __tablename__ = "country_forest_biomass_co2"
+    c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
+    c_name = Column(String(100), nullable=False)  # 国家名称
+    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    above_ground_biomass = Column(Float)    # 林木生物量
+    above_ground_co2 = Column(Float)    # 二氧化碳含量
 
 ### 森林相关表
 # 所有森林常量表
@@ -333,6 +400,210 @@ db_session = db_session_class()
 # db_session.commit()
 
 # 完整功能上线后，以上需删除！
+def saveWorldForestInfo():
+    # 获取ISO和国家名称的映射
+    iso_meta_fp = os.path.join(current_dir, 'src/assets/data/iso_metadata.csv')
+    iso_meta=pd.read_csv(iso_meta_fp).fillna(0)
+    iso_country_map = dict(zip(iso_meta['iso'], iso_meta['name']))
+
+
+    # 森林覆盖增加
+    if not db_session.query(func.count(CountryForestCover.c_iso)).scalar():
+        print('添加森林覆盖表...')
+        fp = os.path.join(current_dir, 'src/assets/data/treecover_gain.csv')
+        df = pd.read_csv(fp)
+        records = []
+        for index , row in df.iterrows():
+            iso = row['iso']
+            tree_cover_gain = row['umd_tree_cover_gain__ha']
+            country = iso_country_map.get(iso, None)
+
+            if country:
+                records.append(
+                    CountryForestCover(
+                        c_name = country,
+                        c_iso = iso,
+                        c_tree_cover_gain = tree_cover_gain
+                    )
+                )
+        # 批量插入            
+        db_session.bulk_save_objects(records) 
+        db_session.commit()
+    
+    # # 森林覆盖损失
+    if not db_session.query(func.count(CountryForestCoverYearLoss.c_iso)).scalar():
+        print('添加森林覆盖损失表...')
+        fp = os.path.join(current_dir, 'src/assets/data/treecover_loss_year.csv')
+        df = pd.read_csv(fp)
+        for index , row in df.iterrows():
+            iso = row['iso']
+            year = row['umd_tree_cover_loss__year']
+            tree_cover_loss = row['umd_tree_cover_loss__ha']
+            country = iso_country_map.get(iso, None)
+            records = []
+            if country:
+                records.append(
+                    CountryForestCoverYearLoss(
+                        c_name = country,
+                        c_iso = iso,
+                        c_tree_cover_loss = tree_cover_loss,
+                        year = year,
+                    )
+                )
+        # 批量插入            
+        db_session.bulk_save_objects(records) 
+        db_session.commit()
+
+    # 原生林覆盖
+    if not db_session.query(func.count(CountryPrimevalTreeCover.c_iso)).scalar():
+        print('添加原生林覆盖表...')
+        fp = os.path.join(current_dir, 'src/assets/data/primeval_tree_cover.csv')
+        df = pd.read_csv(fp)
+        records=[]
+        for index, row in df.iterrows():
+            iso = row['iso']
+            country = iso_country_map.get(iso,None)
+            primeval_tree_cover = row['umd_tree_cover_extent_2000__ha']
+            
+            if country:
+                records.append(
+                    CountryPrimevalTreeCover(
+                        c_name = country,
+                        c_iso = iso,
+                        c_primeval_tree_cover = primeval_tree_cover
+                    )
+                )
+        # 批量插入            
+        db_session.bulk_save_objects(records)      
+        db_session.commit()
+
+    # 原生林损失
+    if not db_session.query(func.count(CountryPrimevalTreeLoss.c_iso)).scalar():
+        print('添加原生林损失表...')
+        fp = os.path.join(current_dir, 'src/assets/data/primeval_tree_loss.csv')
+        df = pd.read_csv(fp)
+        records=[]
+        for index, row in df.iterrows():
+            iso = row['iso']
+            country = iso_country_map.get(iso,None)
+            primeval_tree_loss = row['umd_tree_cover_extent_2010__ha']
+
+            if country:
+                records.append(
+                    CountryPrimevalTreeLoss(
+                        c_name = country,
+                        c_iso = iso,
+                        c_primeval_tree_loss = primeval_tree_loss
+                    )
+                )
+
+        # 批量插入            
+        db_session.bulk_save_objects(records)     
+        db_session.commit()
+    
+    # 土壤有机碳
+    if not db_session.query(func.count(CountryForestSoilOrganicCarbon.c_iso)).scalar():
+        print('添加土壤有机碳表...')
+        fp = os.path.join(current_dir, 'src/assets/data/soil_organic_carbon.csv')
+        df = pd.read_csv(fp)
+        records=[]
+        for index,row in df.iterrows():
+            iso = row['iso']
+            country = iso_country_map.get(iso,None)
+            soil_organic_carbon = row['soil_carbon__t']
+            soil_organic_carbon_density = row['soil_carbon_density__t_ha']
+
+            if country:
+                records.append(
+                    CountryForestSoilOrganicCarbon(
+                        c_name = country,
+                        c_iso = iso,
+                        c_soil_organic_carbon = soil_organic_carbon,
+                        c_soil_organic_carbon_density = soil_organic_carbon_density
+                    )
+                )
+        # 批量插入            
+        db_session.bulk_save_objects(records) 
+        db_session.commit()
+
+    # 火灾次数
+    if not db_session.query(func.count(CountryForestFireCount.c_iso)).scalar():
+        print('添加火灾次数表...')
+        fp = os.path.join(current_dir, 'src/assets/data/fire_count.csv')
+        df = pd.read_csv(fp)
+        records=[]
+        for index, row in df.iterrows():
+            iso = row['iso']
+            country = iso_country_map.get(iso,None)
+            year = row['alert__year']
+            fire_count = row['alert__count']
+
+            if country:
+                records.append(
+                    CountryForestFireCount(
+                        c_name = country,
+                        c_iso = iso,
+                        year = year,
+                        fire_count = fire_count
+                    )
+                )
+        
+        # 批量插入            
+        db_session.bulk_save_objects(records) 
+        db_session.commit()
+
+    # 火灾损失
+    if not db_session.query(func.count(CountryForestFireLoss.c_iso)).scalar():
+        print('添加火灾损失表...')
+        fp = os.path.join(current_dir, 'src/assets/data/fire_loss.csv')
+        df = pd.read_csv(fp)
+        records=[]
+        for index, row in df.iterrows():
+            iso = row['iso']
+            country = iso_country_map.get(iso,None)
+            year = row['umd_tree_cover_loss__year']
+            fire_loss = row['umd_tree_cover_loss_from_fires__ha']
+            if country:
+                records.append(
+                    CountryForestFireLoss(
+                        c_name = country,
+                        c_iso = iso,
+                        year = year,
+                        fire_loss = fire_loss
+                    )
+                )
+
+        # 批量插入            
+        db_session.bulk_save_objects(records)    
+        db_session.commit()
+
+    # 林木生物量和二氧化碳量
+    if not db_session.query(func.count(CountryForestBioMass.c_iso)).scalar():
+        print('添加林木生物量和二氧化碳表...')
+        fp = os.path.join(current_dir, 'src/assets/data/biomass.csv')
+        df = pd.read_csv(fp)
+        records=[]
+        for index, row in df.iterrows():
+            iso = row['iso']
+            country = iso_country_map.get(iso,None)
+            biomass = row['whrc_aboveground_biomass_stock_2000__Mg']
+            co2 = row['whrc_aboveground_co2_stock_2000__Mg']
+            if country:
+                records.append(
+                    CountryForestBioMass(
+                        c_name = country,
+                        c_iso = iso,
+                        above_ground_biomass = biomass,
+                        above_ground_co2 = co2
+                    )
+                )
+        # 批量插入            
+        db_session.bulk_save_objects(records) 
+        db_session.commit()
+
+    return
+
+saveWorldForestInfo()
 
 def hash_password(password):
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
@@ -466,6 +737,159 @@ def setUserInfo():
         db_session.commit()
         return jsonify({"status": "success", "message": "用户昵称修改成功！"})
     return jsonify({"status": "fail", "message": "修改失败！"}), 401
+
+
+# 获取世界林木覆盖
+@app.route("/fetchWorldTreeCover",methods=['GET'])
+def fetchWorldTreeCover():
+    results_gain = db_session.query(CountryForestCover.c_name, CountryForestCover.c_tree_cover_gain).all()
+    # 转换为列表
+    gain = [{"name": row[0], "value": row[1]} for row in results_gain]
+
+    results_loss = db_session.query(CountryForestCoverYearLoss.year, CountryForestCoverYearLoss.c_name, CountryForestCoverYearLoss.c_tree_cover_loss).all()
+    # 按年份分组返回数据
+    grouped_data = {}
+    for row in results_loss:
+        year = row[0]
+        if year not in grouped_data:
+            grouped_data[year] = []
+        grouped_data[year].append({
+            "name": row[1],
+            "value": row[2]
+        })
+    # 将分组后的数据转换为列表
+    loss = [{"year": year, "datalist": grouped_data[year]} for year in sorted(grouped_data.keys())]
+
+    return jsonify({'gain':gain,'loss':loss}),200
+
+# 获取世界原生林
+@app.route("/fetchWorldPrimevalTree",methods=['GET'])
+def fetchWorldPrimevalTree():
+    # 原生林覆盖
+    results_cover = db_session.query(CountryPrimevalTreeCover.c_name,CountryPrimevalTreeCover.c_primeval_tree_cover).all()
+    primeval_cover = [{"name": row[0], "value": row[1]} for row in results_cover]
+    
+    # 原生林损失
+    results_loss = db_session.query(CountryPrimevalTreeLoss.c_name, CountryPrimevalTreeLoss.c_primeval_tree_loss).all()
+    primeval_loss = [{"name": row[0], "value": row[1]} for row in results_loss]
+
+    return jsonify({'cover':primeval_cover,'loss':primeval_loss}),200
+
+# 获取世界土壤有机碳
+@app.route("/fetchWorldOrganicCarbon",methods=['GET'])
+def fetchWorldOrganicCarbon():
+    results = db_session.query(CountryForestSoilOrganicCarbon.c_name, CountryForestSoilOrganicCarbon.c_soil_organic_carbon, CountryForestSoilOrganicCarbon.c_soil_organic_carbon_density).all()
+    # 有机碳总数
+    total = [{"name": row[0], "value": row[1]} for row in results]
+
+    # 有机碳密度
+    density = [{"name": row[0], "value": row[2]} for row in results]
+
+    return jsonify({'total':total,'density':density})
+
+# 获取世界森林火灾
+@app.route("/fetchWorldForestFire",methods=['GET'])
+def fetchWorldForestFire():
+    # 火灾发生次数
+    results_count = db_session.query(CountryForestFireCount.year, CountryForestFireCount.c_name, CountryForestFireCount.fire_count).all()
+    # 按年份分组返回数据
+    grouped_data = {}
+    for row in results_count:
+        year = row[0]
+        if year not in grouped_data:
+            grouped_data[year] = []
+        grouped_data[year].append({
+            "name": row[1],
+            "value": row[2]
+        })
+    # 将分组后的数据转换为列表
+    count = [{"year": year, "datalist": grouped_data[year]} for year in sorted(grouped_data.keys())]
+
+    # 火灾导致损失
+    results_loss = db_session.query(CountryForestFireLoss.year, CountryForestFireLoss.c_name, CountryForestFireLoss.fire_loss).all()
+    # 按年份分组返回数据
+    grouped_data = {}
+    for row in results_loss:
+        year = row[0]
+        if year not in grouped_data:
+            grouped_data[year] = []
+        grouped_data[year].append({
+            "name": row[1],
+            "value": row[2]
+        })
+    # 将分组后的数据转换为列表
+    loss = [{"year": year, "datalist": grouped_data[year]} for year in sorted(grouped_data.keys())]
+    
+    return jsonify({'count':count, 'loss':loss})
+
+# 获取世界林木生物量和二氧化碳
+@app.route("/fetchWorldBiomass",methods=['GET'])
+def fetchWorldBiomass():
+    results = db_session.query(CountryForestBioMass.c_name, CountryForestBioMass.above_ground_biomass, CountryForestBioMass.above_ground_co2).all()
+    # 生物量
+    biomass = [{'name': row[0], 'value':row[1]} for row in results]
+    # 二氧化碳
+    co2 = [{'name': row[0], 'value':row[2]} for row in results]
+    
+    return jsonify({'biomass':biomass, 'co2':co2})
+
+# 单一国家获取全部森林数据
+@app.route('/fetchSingleCountryAllForestData',methods=['POST'])
+def fetchSingleCountryAllForestData():
+    iso = request.form['iso']
+    
+    # 林木覆盖率
+    tree_cover_gain = db_session.query(CountryForestCover.c_tree_cover_gain).filter_by(c_iso=iso).first()
+    tree_cover_gain_value = tree_cover_gain.c_tree_cover_gain if tree_cover_gain else None
+    
+    # 林木覆盖年变损失率
+    results = db_session.query(CountryForestCoverYearLoss.year, CountryForestCoverYearLoss.c_tree_cover_loss).filter_by(c_iso=iso).all()
+    tree_cover_year_loss = [{"year": row[0], "loss": row[1]} for row in results]
+    
+    # 原生林覆盖
+    primeval_tree_cover = db_session.query(CountryPrimevalTreeCover.c_primeval_tree_cover).filter_by(c_iso=iso).first()
+    primeval_tree_cover_value = primeval_tree_cover.c_primeval_tree_cover if primeval_tree_cover else None
+    
+    # 原生林损失
+    primeval_tree_loss = db_session.query(CountryPrimevalTreeLoss.c_primeval_tree_loss).filter_by(c_iso=iso).first()
+    primeval_tree_loss_value = primeval_tree_loss.c_primeval_tree_loss if primeval_tree_loss else None
+    
+    # 有机碳总数
+    organic_carbon_total = db_session.query(CountryForestSoilOrganicCarbon.c_soil_organic_carbon).filter_by(c_iso=iso).first()
+    organic_carbon_total_value = organic_carbon_total.c_soil_organic_carbon if organic_carbon_total else None
+    
+    # 有机碳密度
+    organic_carbon_density = db_session.query(CountryForestSoilOrganicCarbon.c_soil_organic_carbon_density).filter_by(c_iso=iso).first()
+    organic_carbon_density_value = organic_carbon_density.c_soil_organic_carbon_density if organic_carbon_density else None
+    
+    # 火灾年变计数
+    results = db_session.query(CountryForestFireCount.year, CountryForestFireCount.fire_count).filter_by(c_iso=iso).all()
+    forest_fire_count = [{"year": row[0], "count": row[1]} for row in results]
+    
+    # 火灾年变损失
+    results = db_session.query(CountryForestFireLoss.year, CountryForestFireLoss.fire_loss).filter_by(c_iso=iso).all()
+    forest_fire_loss = [{"year": row[0], "loss": row[1]} for row in results]
+    
+    # 生物量
+    biomass = db_session.query(CountryForestBioMass.above_ground_biomass).filter_by(c_iso=iso).first()
+    biomass_value = biomass.above_ground_biomass if biomass else None
+    
+    # 二氧化碳
+    co2 = db_session.query(CountryForestBioMass.above_ground_co2).filter_by(c_iso=iso).first()
+    co2_value = co2.above_ground_co2 if co2 else None
+
+    return jsonify({
+        'tree_cover_gain': tree_cover_gain_value,
+        'tree_cover_year_loss': tree_cover_year_loss,
+        'primeval_tree_cover': primeval_tree_cover_value,
+        'primeval_tree_loss': primeval_tree_loss_value,
+        'organic_carbon_total': organic_carbon_total_value,
+        'organic_carbon_density': organic_carbon_density_value,
+        'forest_fire_count': forest_fire_count,
+        'forest_fire_loss': forest_fire_loss,
+        'biomass': biomass_value,
+        'co2': co2_value,
+    })
 
 
 # 获取全部森林

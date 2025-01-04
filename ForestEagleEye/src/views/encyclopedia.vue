@@ -67,27 +67,49 @@
                           </div>
                         </div>
                         <!--森林百科功能详细介绍-->
-                        <div style="margin-left: 50px; margin-top: 50px;">
-                          <h2 style="font-size: large; margin-top: 5px;">全球森林资源数据</h2>
-                          <h2 style="font-size: large; margin-top: 5px;">全球森林火灾详情</h2>
-                          <h2 style="font-size: large; margin-top: 5px;">全球林木生物概况</h2>
-                          <h2 style="font-size: large; margin-top: 5px;">主要林区数据详情</h2>
-                          <h2 style="font-size: large; margin-top: 5px;">进行数据的可视化比较</h2>
+                        <div style="margin-left: 80px; margin-top: 50px;">
+                          <h2 style="font-size: large; margin-top: 5px; color:#60a130;">全球森林资源数据</h2>
+                          <div style="display: flex; gap: 30px; align-items: center;">
+                            <img src="../assets/encyclo1.jpg" style="width: 300px; height: 180px;">
+                            <div style="display: block; width: 700px;">
+                              <h5>林上鹰眼为您提供全球森林资源的详尽数据，涵盖森林覆盖率、森林生物量等多个关键指标，力求全面、准确地反映全球森林资源的现状与变化趋势。通过这些数据，您可以了解不同国家和地区的森林资源分布情况，掌握全球森林资源的总量与结构，为相关研究、决策提供有力的数据支持。</h5>
+                              <h6>Forest Eagle Eye delivers comprehensive global forest data, covering forest cover and biomass, to provide a clear picture of current forest resources and trends. This data aids in understanding forest distribution worldwide and supports informed decision-making and research.</h6>
+                            </div>
+                          </div>
+                          <h2 style="font-size: large; margin-top: 5px;color:#60a130;">主要林区数据详情</h2>
+                          <div style="display: flex; gap: 30px; align-items: center;">
+                            <div style="display: block; width: 700px; ">
+                              <h5>林上鹰眼详细呈现自建数据库中各林区的资源类型、气候资源、生物多样性等关键信息。通过深入了解主要林区的数据详情，您可以更好地认识不同林区的独特性和面临的挑战，为保护和可持续利用森林资源提供科学依据。</h5>
+                              <h6>Our platform offers in-depth insights into various forest areas, detailing resource types, climate, and biodiversity. This helps you recognize the unique characteristics and challenges faced by different forest regions, supporting efforts to protect and sustainably manage these vital ecosystems.</h6>
+                            </div>
+                            <img src="../assets/encyclo2.jpg" style="width: 300px; height: 180px;">
+                          </div>
+                          <h2 style="font-size: large; margin-top: 5px;color:#60a130;">数据的可视化比较</h2>
+                          <div style="display: flex; gap: 30px; align-items: center;">
+                            <img src="../assets/encyclo3.jpg" style="width: 300px; height: 180px;">
+                            <div style="display: block; width: 700px;">
+                              <h5>林上鹰眼提供丰富的数据可视化比较功能。通过图表、地图、动画等多种可视化手段，将复杂的森林资源数据进行直观展示和对比。您可以根据自己的需求选择不同的数据维度和可视化形式，轻松实现数据的对比分析，快速发现数据背后的规律和趋势，为决策和研究提供更直观的参考依据。</h5>
+                              <h6>With our data visualization tools, complex forest data is made accessible through charts, maps, and animations. Easily compare and analyze data across different dimensions, quickly identifying patterns and trends to inform your research and decision-making processes.</h6>
+                            </div>
+                          </div>
                         </div>
 
                         <div id="anchorPoint" style="margin-top: 60px; margin-left: 50px; width:93%">
-                          <el-carousel :interval="4000" type="card" height="200px">
-                            <el-carousel-item v-for="item in 6" :key="item">
-                              <h3 text="2xl" justify="center">{{ item }}</h3>
-                            </el-carousel-item>
-                          </el-carousel>
+                          
                         </div>
                       </div>
 
                     </div>
                     <!--单国家-->
-                    <div v-if="activeIndex === '2-1'">单国家和地区查询页面内容</div>
-
+                    <div v-if="activeIndex === '2-1'">
+                      <div class="container">
+                        <h1>世界森林数据查询</h1>
+                        <EncyclopediaMap />
+                        
+                        <h1>单国家和地区查询</h1>
+                        <EncyclopediaSingleCountry />
+                      </div>
+                    </div>
 
                     <!--单林区-->
                     <div v-if="activeIndex === '2-2'">
@@ -236,17 +258,24 @@ import axios from 'axios';
 import NavigationBar from '../components/navbar.vue';
 import ForestAddBox from '../components/ForestAddView.vue'
 import ForestEditBox from '../components/ForestEditView.vue'
+import EncyclopediaMap from '@/components/encyclopediaMap.vue';
+import CountrySelectbox from '@/components/countrySelectbox.vue';
 import * as echarts from 'echarts';
 import worldJSON from '@/assets/json/world.json';
 import chinaMap from '@/assets/json/china.json';
 import { ElNotification } from 'element-plus';
+import EncyclopediaSingleCountry from '@/components/encyclopediaSingleCountry.vue';
+
+
 
 export default {
   name: 'encyclopedia',
   components: {
     NavigationBar,
     ForestEditBox,
-    ForestAddBox
+    ForestAddBox,
+    EncyclopediaMap,
+    CountrySelectbox,
   },
   data() {
     return {
@@ -900,5 +929,19 @@ h4{
   color:#60a130;
   margin-top: -20px;
   margin-left:20px;
+}
+h5{
+  font-size: 12pt;
+  font-weight: normal;
+  color:#333;
+  line-height: 1.5;
+}
+h6{
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 12pt;
+  font-weight: normal;
+  color: #ababab;
+  margin-top: -15px;
+  line-height: 1.2;
 }
 </style>
