@@ -1,73 +1,122 @@
 <template>
   <Nav />
-  <main>
-    <div>
-      <RouterLink to="/forum">
-        < 返回 </RouterLink>
-          <article>
-            <section class="poster-title">
-              <h1>{{ post?.title }}</h1>
-              <p>{{ post?.time ? formatDateTime(post.time) : '' }}</p>
-            </section>
-            <section class="poster-info">
-              <img class="avatar" :src="post?.author.avatar ? `${post?.author.avatar}` : '#'" alt="avatar" />
-              <p>{{ post?.author.username }}</p>
-            </section>
+  <div class="detail-page">
+    <div class="all-contents">
+      <el-page-header @back="$router.go(-1)" content="帖子详情" title="返回"></el-page-header>
 
-            <section>
-              <p>{{ post?.content }}</p>
-              <div class="postimage-container">
-                <ImageViewer v-for="image in post?.images" :key="image" :alt="image"
-                  :src="image ? `/public/${image}` : '#'" height="200px" width="200px" />
-              </div>
-              <div v-if="post?.original_post" class="oriPost-container" @click="toOriPost">
+      <el-divider></el-divider>
+
+      <article>
+        <div>
+          <section class="poster-title">
+            <div style="display: flex; align-items: center;">
+              <h1 style="font-size: 30px; margin-left: 20px; margin-top: 0px; margin-bottom: 0px;color:#60a130;">{{
+                post?.title }}</h1>
+              <p style="margin-left:30px;">{{ post?.time ? formatDateTime(post.time) : '' }}</p>
+            </div>
+            <section class="poster-info">
+              <p style="font-weight: bold;">{{ post?.author.username }}</p>
+              <img class="avatar" :src="post?.author.avatar ? `${post?.author.avatar}` : '#'" alt="avatar" />
+            </section>
+          </section>
+        </div>
+
+        <el-divider border-style="dashed" />
+        <div style="display: flex;justify-content: space-between;margin-left: 30px;margin-right: 30px;gap:50px;">
+          <section>
+            <h2 style="color:grey;margin-top: 5px; font-size: 20px;">原文</h2>
+            <p style="font-size:16px;color:rgb(93, 95, 94);;">{{ post?.content }}</p>
+            <h2 v-if="post?.original_post" style="color:grey;margin-top: 30px; font-size: 20px;">被引原贴</h2>
+            <div v-if="post?.original_post" class="oriPost-container" @click="toOriPost">
+              <div>
                 <h2>{{ post?.original_post?.title }}</h2>
                 <span>
                   <img :src="post?.original_post?.avatar ? `${post?.original_post?.avatar}` : '#'" alt="avatar" />
                   <p>{{ post?.original_post?.author }}</p>
                 </span>
               </div>
+              <div>
+                <p style="padding-top:50px;margin-right: 20px;text-decoration: underline;">点击查看更多</p>
+              </div>
+            </div>
+          </section>
+          <div class="postimage-container">
+            <ImageViewer v-for="image in post?.images" :key="image" :alt="image" :src="image ? `/public/${image}` : '#'"
+              height="200px" width="200px" />
+          </div>
+        </div>
+
+        <el-divider border-style="dashed" />
+
+        <!-- <div>
+              <section class="postComment-container">
+                <div style="display: flex;justify-content: space-between;align-items: center;margin-left:  30px;">
+                  <div style="display: flex;">
+                    <textarea placeholder="请输入你想说的话~~ 理性发言，友善互动" v-model="comment" rows="99999" style="resize: none;"></textarea>
+                    <input type="file" accept="image/*" multiple @change="handleFileUpload" ref="fileInput" />
+                    <p @click="submitComment">发送评论✍</p>
+                  </div>
+                  <section class="interact-buttons">
+                    <p :style="likedButton" @click="likePost">点赞👍<span>{{ likeNum }}</span></p>
+                    <p @click="sharePost">分享🏑</p>
+                  </section>
+                </div>
+                <ul>
+                </ul>
+              </section>
+            </div> -->
+
+        <div class="upload">
+          <div style="display: flex; justify-content: space-between;margin-right: 20px;margin-left: 20px;">
+            <section class="postComment-container">
+              <div>
+                <textarea placeholder="留下你想说的话~~ 理性发言，友善互动" v-model="comment" rows="99999"
+                  style="resize: none;"></textarea>
+                <!-- @keyup.enter="submitComment" -->
+                <input type="file" accept="image/*" multiple @change="handleFileUpload" ref="fileInput" />
+                <p @click="submitComment">发布评论✍</p>
+              </div>
+
             </section>
 
             <section class="interact-buttons">
               <p :style="likedButton" @click="likePost">点赞👍<span>{{ likeNum }}</span></p>
               <p @click="sharePost">分享🏑</p>
             </section>
+          </div>
 
-            <section class="postComment-container">
-              <div>
-                <textarea placeholder="理性发言，友善互动" v-model="comment" rows="99999" style="resize: none;"></textarea>
-                <!-- @keyup.enter="submitComment" -->
-                <p @click="submitComment">评论✍</p>
-              </div>
-              <input type="file" accept="image/*" multiple @change="handleFileUpload" ref="fileInput" />
-              <!--上传图片的预览-->
-              <ul>
-              </ul>
-            </section>
-            <p id="wrongWarning" v-if="warningSentence">{{ warningSentence }}</p>
+          <!--上传图片的预览-->
+          <ul>
+          </ul>
+        </div>
 
-            <section>
-              <h2>{{ comments.length }}条评论</h2>
-              <div class="comment-container" v-for="comment in comments" :key="comment.content">
-                <span>
-                  <img class="avatar" :src="comment.author.avatar ? `${comment.author.avatar}` : '#'" alt="avatar" />
-                  <p>{{ comment.author.username }}</p>
-                </span>
-                <p>{{ comment.content }}</p>
-                <div class="commentImage-container">
-                  <!-- <img v-for="image in comment.images" :key="image" :src="image ? `/public/static/${image}` : '#'"
+        <p id="wrongWarning" v-if="warningSentence">{{ warningSentence }}</p>
+
+        <el-divider border-style="dashed" />
+
+        <section>
+          <h2 style="font-size: 30px; margin-left: 20px; margin-top: 0px; margin-bottom: 20px;color:#60a130;">{{
+            comments.length }}条评论</h2>
+          <div class="comment-container" v-for="comment in comments" :key="comment.content">
+            <span style="align-items: center;">
+              <img class="avatar" :src="comment.author.avatar ? `${comment.author.avatar}` : '#'" alt="avatar" />
+              <p>{{ comment.author.username }}</p>
+            </span>
+            <p style="margin-left:20px ;">{{ comment.content }}</p>
+            <div class="commentImage-container">
+              <!-- <img v-for="image in comment.images" :key="image" :src="image ? `/public/static/${image}` : '#'"
                     alt="image" @click="previewImage(image)" /> -->
-                  <ImageViewer v-for="image in comment.images" :key="image" :alt="image"
-                    :src="image ? `/public/${image}` : '#'" height="100px" width="100px" />
-                </div>
-              </div>
-            </section>
-          </article>
+              <ImageViewer v-for="image in comment.images" :key="image" :alt="image"
+                :src="image ? `/public/${image}` : '#'" height="100px" width="100px" />
+            </div>
+          </div>
+        </section>
+      </article>
     </div>
-  </main>
+    <footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</footer>
+  </div>
   <!--底部版权信息-->
-  <footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</footer>
+
 </template>
 
 <script setup lang="ts">
@@ -191,7 +240,7 @@ const submitComment = async () => {
       console.log('Comment submitted:', comment.value);
       comment.value = '';
       images.value = [];
-      const imagesList = document.querySelector('.postComment-container ul');
+      const imagesList = document.querySelector('.upload ul');
       if (imagesList) {
         imagesList.innerHTML = '';
       }
@@ -224,7 +273,7 @@ const handleFileUpload = (e: Event) => {
   }
 
   //上传图片的预览
-  const imagesList = document.querySelector('.postComment-container ul');
+  const imagesList = document.querySelector('.upload ul');
   if (images.value.length && imagesList) {
     imagesList.innerHTML = '';
     for (let i = 0; i < images.value.length; i++) {
@@ -296,7 +345,12 @@ article {
 .poster-title {
   display: flex;
   justify-content: space-between;
+  /* 子元素横向排布，两端对齐 */
   align-items: center;
+  /* 子元素在垂直方向上居中对齐 */
+  margin-right: 20px;
+  height: 100%;
+  /* 确保容器的高度占满其父容器的高度 */
 }
 
 .poster-title p {
@@ -306,6 +360,7 @@ article {
 /* 头像 */
 /* 用户名 */
 .poster-info {
+  margin-left: 50px;
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -335,13 +390,26 @@ article {
 /* 转发 */
 .oriPost-container {
   margin-top: 10px;
-  margin-left: 20px;
-  width: 30%;
-  padding-left: 10px;
+  width: 100%;
+  padding-left: 20px;
+  padding-top: 12px;
+  padding-bottom: 12px;
   padding-right: 10px;
-  border-radius: 3px;
-  border-style: solid;
+  border-radius: 14px;
+  border: 2px solid #60a130;
+  /* 设置边框为2px宽的实线，颜色为#60a130 */
   line-height: 0.5;
+  box-shadow: 0 13px 20px rgba(0, 0, 0, 0.1);
+  /* 添加阴影效果 */
+  display: flex;
+  justify-content: space-between;
+}
+
+.oriPost-container:hover {
+  border: 2px solid #60a130;
+  /* 设置边框为2px宽的实线，颜色为#60a130 */
+  background-color: #60a130;
+  color: #ffffff;
 }
 
 .oriPost-container p {
@@ -366,20 +434,27 @@ article {
   display: flex;
   justify-content: flex-start;
   gap: 10px;
-  margin-top: 50px;
   align-items: center;
 }
 
 .interact-buttons>p,
 .postComment-container p {
-  margin-top: 10px;
-  border-radius: 5px;
-  background-color: azure;
+  border-radius: 15px;
+  background-color: rgb(230, 245, 235);
+  border: 2px solid #60a103;
   width: 110px;
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.interact-buttons>p:hover {
+  background-color: #60a103;
+}
+
+.postComment-container p :focus {
+  background-color: #60a103;
 }
 
 /* 评论 */
@@ -392,28 +467,39 @@ article {
 }
 
 .postComment-container textarea {
-  width: 60%;
+  width: 500px;
   height: 80px;
   border-radius: 4px;
   padding-left: 10px;
+  padding-top: 10px;
 }
 
 .postComment-container input {
   width: 160px;
-  border-radius: 4px;
+  border-radius: 5px;
   margin: 20px;
+  color: #60a103;
+  margin-left: 20px;
 }
 
-.postComment-container ul {
+.postComment-container textarea:focus {
+  border-color: green;
+  /*设置选中时的边框颜色为绿色 */
+  outline: none;
+  /*移除默认的选中样式*/
+}
+
+.upload ul {
   display: flex;
-  gap: 10px;
-  margin-top: 0px;
+  gap: 20px;
+  margin-top: 20px;
+  margin-left: 0px;
   flex-wrap: wrap;
   list-style-type: none;
 }
 
 .comment-container {
-  border-top: 2px solid #ababab;
+  border-top: 1px solid #60a130;
   padding-top: 10px;
   padding-left: 40px;
   margin-bottom: 10px;
@@ -456,5 +542,49 @@ footer {
   width: 100%;
   font-size: xx-small;
   margin-top: 50px;
+}
+
+.detail-page {
+  display: flex;
+  /* 使用Flexbox布局 */
+  flex-direction: column;
+  /* 设置主轴方向为垂直 */
+  background-color: #f0f2f5;
+}
+
+.all-contents {
+  background-color: #ffffff;
+  margin-left: 20px;
+  /* 左边距 */
+  margin-right: 20px;
+  /* 右边距 */
+  margin-top: 70px;
+  display: flex;
+  flex-direction: column;
+  /* 设置子元素纵向排列 */
+  padding-bottom: 30px;
+}
+
+.el-page-header {
+  margin-top: 20px;
+  /* 或者其他适当的值 */
+  margin-left: 20px;
+  /* 左边距 */
+}
+
+.try-btn {
+  color: #60a103;
+  border: 1px solid#60a103;
+  border-radius: 10px;
+  margin: 0;
+}
+
+.try-btn:hover {
+  color: #ffffff;
+  border: 1px solid#60a103;
+}
+
+.oriPost-container:hover p {
+  color: white;
 }
 </style>

@@ -1,383 +1,170 @@
-<script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import axios from 'axios';
-import Nav from '../components/navbar.vue'
-import { Plus } from '@element-plus/icons-vue'
-import { useRoute } from 'vue-router';
-import router from '@/router';
-//////////////////////////////////////////////////区别写帖与分享的不同跳转//////////////////////////////////////////////////
-const route = useRoute();
-const id = route.params.id;
-const username = sessionStorage.getItem('username');
-
-onMounted(() => {
-  if (id) {
-    console.log(`通过分享链接跳转，ID: ${id}`);
-    fetchPostDetails();
-  }
-  else {
-    console.log('通过写帖子链接跳转');
-  }
-});
-//////////////////////////////////////////////////分享处理//////////////////////////////////////////////////
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-  images: string[];
-  author: {
-    username: string;
-    avatar: string;
-  };
-  original_post?: {
-    id: number;
-    title: string;
-    author: string;
-  } | null;
-}
-// 原帖内容
-const ori_post = ref<Post>();
-const fetchPostDetails = async () => {
-  try {
-    console.log('Fetching post details...');
-    const response = await axios.get(`http://127.0.0.1:5000/post/${route.params.id}`, {
-      params: {
-        username: username
-      }
-    });
-    if (response.status === 200) {
-      ori_post.value = response.data.posts;
-      console.log('Post details:', ori_post.value);
-    }
-    else {
-      console.error('Failed to fetch post details');
-    }
-  }
-  catch (error) {
-    console.error('Error fetching post details:', error);
-  }
-};
-//跳转原帖
-const toOriPost = () => {
-  router.push(`/post/${ori_post.value?.original_post?.id}`).then(() => {
-    window.location.reload();
-  });
-};
-//////////////////////////////////////////////////提交帖子//////////////////////////////////////////////////
-const title = ref('');
-const warningSentence = ref('');
-const comment = ref('');
-const imageList = ref<File[]>([]);
-const submitPost = async () => {
-  const formData = new FormData();
-  // 获取标题和内容
-  if (username)
-    formData.append('username', username);
-  formData.append('title', title.value);
-  formData.append('content', comment.value);
-  // 检测标题和内容是否为空
-  if (title.value === '' || comment.value === '') {
-    warningSentence.value = '标题或内容不能为空';
-    ElMessage({
-      showClose: true,
-      message: warningSentence.value,
-      type: 'warning'
-    });
-    return;
-  }
-  // 获取上传图片
-  imageList.value.forEach((file, index) => {
-    formData.append(`images`, file.raw);
-  });
-  // 提交帖子（区分纯发和分享）
-  if (id) { // 分享
-    const response = await axios.post(`http://127.0.0.1:5000/post/${id}/share`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    if (response.status === 200) {
-      console.log('Post shared successfully:', response.data);
-      window.location.href = '/forum';
-    }
-    else {
-      console.error('Failed to share post');
-      warningSentence.value = '分享失败';
-      ElMessage({
-        showClose: true,
-        message: warningSentence.value,
-        type: 'warning'
-      });
-    }
-  }
-  else { // 写帖
-    const response = await axios.post(`http://127.0.0.1:5000/forum/post`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    if (response.status === 200) {
-      console.log('Post submitted successfully:', response.data);
-      window.location.href = '/forum';
-    }
-    else {
-      console.error('Failed to submit comment');
-      warningSentence.value = '评论失败';
-      ElMessage({
-        showClose: true,
-        message: warningSentence.value,
-        type: 'warning'
-      });
-    }
-  }
-  return;
-};
-//////////////////////////////////////////////////上传图片//////////////////////////////////////////////////
-const dialogImageUrl = ref('');
-const dialogVisible = ref(false);
-
-const uploadDisabled = ref(false);
-const handleExceed = () => {
-  warningSentence.value = '最多上传9张图片';
-  ElMessage({
-    showClose: true,
-    message: warningSentence.value,
-    type: 'warning'
-  });
-  if (imageList.value.length >= 9) {
-    uploadDisabled.value = true;
-  }
-};
-const handleRemove = (file: File, fileList: File[]) => {
-  imageList.value = fileList;
-  if (imageList.value.length < 9) {
-    uploadDisabled.value = false;
-  }
-};
-const handlePictureCardPreview = (file: File) => {
-  dialogImageUrl.value = URL.createObjectURL(file);
-  dialogVisible.value = true;
-};
-const handleUpload = (file: File, fileList: File[]) => {
-  imageList.value = fileList;
-  console.log('file:', file);
-  console.log('imageList:', imageList.value);
-  if (imageList.value.length >= 9) {
-    uploadDisabled.value = true;
-  }
-  ElMessage({
-    showClose: true,
-    message: `${imageList.value.length} 张图片已上传`,
-    type: 'warning'
-  });
-};
-</script>
 <template>
-  <Nav />
-  <div class="write-page">
-    <div class="all-contents">
-      
-      <el-page-header v-if="ori_post" @back="$router.go(-1)" content="分享帖子" title="返回">
-        </el-page-header>
-      
-      <el-page-header v-else @back="$router.go(-1)" content="发帖子" title="返回">
-        </el-page-header>
-
-      <el-divider></el-divider>
-
-      <!-- 转发显示 -->
-      <h2 v-if="ori_post"style="color:grey;margin-left: 32px; font-size: 20px;">被引原贴</h2>
-      <section v-if="ori_post" class="oriPost-container" @click="toOriPost">
-      <div>
-        <h2>{{ ori_post?.title }}</h2>
-        <span>
-            <img :src="ori_post?.author.avatar" alt="avatar" />
-            <p style="margin-left: 10px;">{{ ori_post?.author.username }}</p>
-        </span>
+  <RouterLink :to="`/post/${id}`">
+    <div >
+      <div class="title-time" >
+        <h2>{{ title }}</h2>
+        <p>{{ time }}</p>
       </div>
-      <div>
-        <p style="padding-top:50px;margin-right: 20px;text-decoration: underline;">点击查看更多</p>
+      <div style="margin-left:20px;">
+        <p>{{ content }}</p>
+        <img v-if="image" :src="image ? `public/${image}` : '#'" alt="Post Image">
       </div>
-      </section>
-
-      <div class="mycontent">
-        <div class="left">
-          <h2>创建你的标题</h2>
-          <input type="text" v-model="title" placeholder="请输入标题" />
-
-          <h2>上传图片</h2>
-          <div style="margin-left: 50px;margin-top: 20px;margin-bottom: 20px;">
-            <el-upload :multiple="true" accept="image/*" :limit="9" list-type="picture-card" :disabled="uploadDisabled"
-              :on-preview="handlePictureCardPreview" :on-remove="handleRemove" :on-exceed="handleExceed" :auto-upload="false"
-              :on-change="handleUpload">
-              <el-icon>
-                <Plus />
-              </el-icon>
-            </el-upload>
-          </div>
-
-        </div>
-        <div class="right">
-          <h2>创建你的内容</h2>
-          <textarea placeholder="请输入内容" v-model="comment" rows="1" style="resize: none;"></textarea>
-        </div>
-      </div>
-      <div style="  display: flex; /* 使用 Flexbox 布局 */
-            justify-content: center; /* 水平居中 */
-            align-items: center; /* 垂直居中 */">
-          <button @click="submitPost">✍ 一键发布
-          </button>
-      </div>
-    
-    <!-- 上传图片 -->
-    <!-- :file-list="imageList" -->
-<!-- 
-    <el-dialog v-model:visible="dialogVisible">
-      <img width="100%" :src="dialogImageUrl" alt="">
-    </el-dialog> -->
-    
     </div>
-    <el-footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</el-footer>
+  </RouterLink>
+  <div  style="display:flex; justify-content: space-between;  align-items: center;">
+    <div class="interact-buttons" style="margin-left:20px;">
+      <p @click="likePost">点赞👍<span>{{ _likeNum }}</span></p>
+      <p @click="sharePost">分享🏑</p>
+    </div>
+
+    <div class="read" @click="routerToPost">
+      <p style="width:70px;">阅读全文</p>
+      <el-icon-d-arrow-right style="width: 30px;height: 30px;"></el-icon-d-arrow-right>
+    </div>
   </div>
 </template>
 
+<script setup lang="ts">
+import router from '@/router';
+import axios from 'axios';
+import { defineProps, reactive, ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const props = defineProps<{
+  id: number;
+  title: string;
+  time: string;
+  content: string;
+  image: string;
+  likeNum: number;
+  liked: boolean;
+}>();
+
+//点赞
+const _likeNum = ref(props.likeNum);
+const likedButton = reactive({
+  backgroundColor: 'azure'
+});
+const likePost = async () => {
+  const formData = new FormData();
+  formData.append('username', sessionStorage.getItem('username') as string);
+  const response = await axios.post(`http://127.0.0.1:5000/post/${props.id}/like`, formData);
+  if (response.status === 200) {
+    console.log('SUCCESS: Post liked successfully');
+    if (response.data.is_liked) {
+      console.log('Post is liked');
+      likedButton.backgroundColor = 'green';
+    }
+    else {
+      console.log('Post is not liked');
+      likedButton.backgroundColor = 'azure';
+    }
+    _likeNum.value = response.data.like_count;
+  } else {
+    console.error(`ERROR: ${response.data.error}`);
+  }
+};
+const router1 = useRouter(); // 使用useRouter钩子获取router对象
+const routerToPost = () => {
+  router1.push(`/post/${props.id}`); // 使用router.push进行路由跳转
+};
+//分享
+const sharePost = () => {
+  router.push(`/postshare/${props.id}`).then(() => {
+    window.location.reload();
+  });
+};
+onMounted(() => {
+  if (props.liked) {
+    likedButton.backgroundColor = 'green';
+  }
+  else {
+    likedButton.backgroundColor = 'azure';
+  }
+});
+</script>
+
 <style scoped>
-main {
+/*单个帖子*/
+a {
+  color: black;
+  text-decoration: none;
+}
+
+a>div {
+  border-top: 1px solid #d6d6d6;
+  padding-bottom: 10px;
+}
+
+a>div>div {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 9vh;
+  gap: 10px;
 }
 
-input {
-  width: 90%;
-  height: 5vh;
-  margin-bottom: 1vh;
-  border: 1.5px solid #cdcfcf;
-  border-radius: 12px;
-  padding-left: 10px;
-  margin-left:40px;
-  margin-top:10px;
+a>div>div:nth-of-type(2)>img {
+  width: 10vw;
+  height: 8vw;
+  flex: 1;
+  object-fit: cover;
 }
 
-textarea {
-  width: 90%;
-  height: 75%;
-  margin-bottom: 1vh;
-  border: 1.5px solid #cdcfcf;
-  border-radius: 12px;
-  padding-left: 10px;
-  padding-top: 10px;
-  margin-left:40px;
-  margin-top:10px;
-}
-input:focus, textarea:focus {
-  border: 1.5px solid #60a130;
-  outline:none;
-}
-el-upload {
-  width: 80%;
-  margin-bottom: 1vh;
+a>div>div:nth-of-type(2)>p {
+  flex: 3;
+  word-wrap: break-word;
+  /* 使长单词换行 */
+  word-break: break-all;
+  /* 强制长单词换行 */
 }
 
-button {
-  width:160px;
-  height: 5vh;
-  background-color: #60a130;
-  color: white;
-  border: none;
-  border-radius: 18px;
-  margin: 1vh;
-  font-size: 15px;
-}
-
-/* 转发 */
-.oriPost-container {
-  margin: 10px;
-  margin-left: 50px;
-  width: 30%;
-  padding-left: 20px;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  padding-right: 10px;
-  border-radius: 14px;
-  border: 2px solid #60a130; /* 设置边框为2px宽的实线，颜色为#60a130 */
-  line-height: 0.5;
-  box-shadow: 0 13px 20px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
-  display: flex;
+a>div>div:nth-of-type(1) {
   justify-content: space-between;
 }
 
-.oriPost-container:hover {
-  border: 2px solid #60a130; /* 设置边框为2px宽的实线，颜色为#60a130 */
-  background-color: #60a130;
-  color:#ffffff;
-}
-
-.oriPost-container p {
+a>div>div>p {
   color: grey;
 }
-.write-page {
-  display: flex;       /* 使用Flexbox布局 */
-  flex-direction: column; /* 设置主轴方向为垂直 */
-  background-color: #f0f2f5;
-}
-.all-contents{
-  background-color: #ffffff;
-  margin-left: 20px; /* 左边距 */
-  margin-right: 20px; /* 右边距 */
-  margin-top: 70px;
-  display: flex;
-  flex-direction: column; /* 设置子元素纵向排列 */
-  padding-bottom: 30px;
-}
 
-.el-page-header {
-  margin-top: 20px; /* 或者其他适当的值 */
-  margin-left: 20px; /* 左边距 */
-}
-.left h2, .right h2 {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #60a130;
-  font-weight: light;
-  margin-left: 30px;
-}
-
-.left, .right {
-  width: 50%;
-}
-.mycontent{
+/* 互动按钮 */
+.interact-buttons {
   display: flex;
-  flex-direction: row;
-  padding-right: 20px;
-}
-.el-upload{
-  margin-left: 89px;
-}
-.el-footer{
-  background-color: transparent;
-  color: #ababab;
-  text-align: center;
-  bottom: 0;
-  font-size:xx-small;
-  margin-top: 20px;
-}
-
-.oriPost-container span {
-  display: flex;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 15px;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
-.oriPost-container span img {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-}
-.oriPost-container:hover p {
-  color: white;
+
+.interact-buttons>p:hover {
+  background-color: #60a130;
+  color:white;
 }
 
+.interact-buttons>p {
+  margin-top: 10px;
+  border-radius: 15px;
+  background-color: rgba(149, 242, 4, 0.1); 
+  width: 110px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color:#3c5c26;
+  font-weight: bold;
+}
+
+
+.title-time{
+  margin-top:10px;
+  margin-left:20px;
+  align-items: center; /* 垂直居中 */
+}
+.read{
+  display:flex;
+  align-items: center;
+  margin-right:20px;
+  color:#8e918d;
+}
+.read:hover{
+  color:#60a130;
+}
 </style>
