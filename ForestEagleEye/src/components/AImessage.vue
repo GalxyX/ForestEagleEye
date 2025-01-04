@@ -1,13 +1,22 @@
 <template>
-  <main>
-    <div>
-      <span>
-        <img :src="avatar_img" alt="对话头像" />
+  <main class="message-container" :class="{ 'left': name === '小林', 'right': name !== '小林' }">
+    <img :src="avatar_img" alt="对话头像" class="avatar" />
+    <div class="message-content">
+      <div class="message-header">
         <p class="name">{{ name }}</p>
-      </span>
-      <p class="time">{{ time }}</p>
+        <p class="time">{{ time }}</p>
+      </div>
+      <div
+        class="message-bubble"
+        :style="{
+          backgroundColor: name === '小林' ? 'white' : '#d4edda', /* 浅绿色背景 */
+          color: '#333', /* 保持文字颜色一致 */
+          border: name !== '小林' ? '1px solid #28a745' : '1px solid #ccc' /* 边框颜色 */
+        }"
+      >
+        <p>{{ message }}</p>
+      </div>
     </div>
-    <p>{{ message }}</p>
   </main>
 </template>
 
@@ -21,30 +30,61 @@ const props = defineProps<{
 </script>
 
 <style scoped>
-main {
-  border: 0px solid grey;
-  border-top: 1px;
-  margin: 5px 10px;
+.message-container {
+  display: flex;
+  align-items: flex-start;
+  margin: 10px 0;
 }
 
-img {
-  width: 30px;
-  height: 30px;
+/* AI 消息靠左 */
+.message-container.left {
+  flex-direction: row;
+}
+
+/* 用户消息靠右 */
+.message-container.right {
+  flex-direction: row-reverse;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+  margin: 0 10px;
 }
 
-div {
+.message-content {
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  padding: 5px 10px;
+  max-width: 70%;
+}
+
+.message-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 12px;
+  color: #888;
 }
 
 .name {
   font-weight: bold;
-  display: inline;
+  color: #333;
+  font-size: 15px; /* 调大字体 */
 }
 
 .time {
-  color: grey;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.message-bubble {
+  border-radius: 10px;
+  padding: 0px 20px; /* 调整上下和左右的文字空隙 */
+  margin-top: 3px; /* 调小消息框与上一部分的间距 */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  word-wrap: break-word;
 }
 </style>
