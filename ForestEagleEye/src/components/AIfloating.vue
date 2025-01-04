@@ -201,8 +201,8 @@ const handleMouseUp = () => {
 const handleMouseMove = (event: MouseEvent) => {
   isDragging.value = true;
   if (isDragging.value) {
-    x.value = event.clientX - 25;
-    y.value = event.clientY - 25;
+    x.value = event.clientX - 75;
+    y.value = event.clientY - 75;
   }
 };
 
