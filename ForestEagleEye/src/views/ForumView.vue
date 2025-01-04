@@ -37,6 +37,8 @@ interface Post {
   } | null;
   time: Date;
 }
+const total_likes = ref<number>(0);
+const total_writes = ref<number>(0);
 
 const posts = ref<Post[]>([]);
 onMounted(async () => {
@@ -47,10 +49,14 @@ onMounted(async () => {
     else {
       const response = await axios.get('http://127.0.0.1:5000/forum', { params: { username: username.value } });
       if (response.status === 200) {
-        posts.value = response.data.map((item: any) => ({
+        posts.value = response.data.posts.map((item: any) => ({
           ...item,
           time: new Date(item.time)
         }));
+        total_likes.value = response.data.total_likes
+        total_writes.value = response.data.total_writes
+        console.log(total_likes.value);
+        console.log(total_writes.value);
       }
       else {
         console.error('Failed to fetch posts');
@@ -87,15 +93,15 @@ onMounted(async () => {
         <aside class="info-block">
           <img :src="avatar ?? '#'" alt="avatar" width="100" height="100" />
           <p style="font-size: 20px;margin-top: 20px;margin-bottom: 10px;font-weight:bold;">{{ username }}</p>
-          <div class="signature" >
+          <div class="signature">
             <el-icon-location style="width:20px;height: 20px;color:#60a130;font-weight: bolder;"></el-icon-location>
             <p>{{ signature }}</p>
           </div>
           <div class="unit3">
             <div class="unit2">
               <div class="unit">
-                <p class="h2">今日阅读数</p>
-                <p class="text">###</p>
+                <p class="h2">发布数</p>
+                <p class="text">{{ total_writes }}</p>
               </div>
               <el-divider style="width: 100px;"></el-divider>
               <div class="unit">
@@ -106,8 +112,8 @@ onMounted(async () => {
             <el-divider direction="vertical" style="height: 150px;"></el-divider>
             <div class="unit2">
               <div class="unit">
-                <p class="h2">今日赞同数</p>
-                <p class="text">###</p>
+                <p class="h2">赞同数</p>
+                <p class="text">{{ total_likes }}</p>
               </div>
               <el-divider style="width: 100px;"></el-divider>
               <div class="unit">
@@ -126,7 +132,7 @@ onMounted(async () => {
         </aside>
         <el-footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</el-footer>
       </div>
-      
+
     </div>
   </main>
   <!--底部版权信息-->
@@ -174,24 +180,26 @@ aside>div {
   gap: 20px;
   margin: 20px 30px;
   text-align: center;
-  background-color: rgba(149, 242, 4, 0.1); 
+  background-color: rgba(149, 242, 4, 0.1);
   border-radius: 40px;
 }
 
 aside a {
-  color:  #60a130;
+  color: #60a130;
   text-decoration: none;
   border-style: solid;
   border-radius: 40px;
   border-color: #60a130;
   width: 80%;
   text-align: center;
-  font-size:20px;
-  width:200px;
-  height:60px;
+  font-size: 20px;
+  width: 200px;
+  height: 60px;
   display: flex;
-  align-items: center; /* 垂直居中 */
-  justify-content: center; /* 水平居中（如果需要） */
+  align-items: center;
+  /* 垂直居中 */
+  justify-content: center;
+  /* 水平居中（如果需要） */
   font-weight: bold;
   margin-top: 10px;
 }
@@ -217,52 +225,64 @@ footer {
   font-size: xx-small;
   margin-top: 50px;
 }
-.all-contents{
+
+.all-contents {
   background-color: #f0f2f5;
-  margin-left: 20px; /* 左边距 */
-  margin-right: 20px; /* 右边距 */
+  margin-left: 20px;
+  /* 左边距 */
+  margin-right: 20px;
+  /* 右边距 */
   margin-top: 60px;
   display: flex;
 }
+
 .posts-block h1 {
   color: #60a130;
   font-size: 20px;
   margin-top: 20px;
-  text-align: right; /* 移除了单引号 */
+  text-align: right;
+  /* 移除了单引号 */
 }
-.signature{
+
+.signature {
   display: flex;
   background-color: white;
   align-items: center;
-  margin-top:0px;
-  margin-bottom:0px;
-  gap:10px;
-}
-.signature p{
-  color:#858383;
-}
-
-.unit{
-  display: flex;
-  flex-direction: column; /* 设置子元素垂直排列 */
-}
-.h2{
-  font-size:20px;
   margin-top: 0px;
   margin-bottom: 0px;
-  font-size:16px;
+  gap: 10px;
 }
-.text{
-  font-weight: bold; 
+
+.signature p {
+  color: #858383;
+}
+
+.unit {
+  display: flex;
+  flex-direction: column;
+  /* 设置子元素垂直排列 */
+}
+
+.h2 {
+  font-size: 20px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-size: 16px;
+}
+
+.text {
+  font-weight: bold;
   font-size: larger;
   margin-top: 10px;
   margin-bottom: 0px;
 }
-.unit2{
+
+.unit2 {
   display: flex;
   flex-direction: column;
 }
-.unit3{
+
+.unit3 {
   padding-left: 40px;
   padding-right: 40px;
   padding-top: 30px;
@@ -270,10 +290,10 @@ footer {
   margin-top: 10px;
   margin-bottom: 30px;
 }
+
 /* .right{
   position: fixed;
   top: 40px; 
   left: 1300px; 
 } */
-
 </style>

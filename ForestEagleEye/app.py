@@ -1420,6 +1420,9 @@ def forum_home():
         like_count = len(post.likes)
         is_liked = any(like.l_user_id == user.u_id for like in post.likes)
 
+        total_likes = db_session.query(Like).filter_by(l_user_id=user.u_id).count()
+        total_posts = db_session.query(Post).filter_by(p_user_id=user.u_id).count()
+
         post_data.append({
             "id": post.p_id,
             "title": post.p_title,
@@ -1435,10 +1438,10 @@ def forum_home():
             "original_post": {
                 "id": post.original_post.p_id,
                 "title": post.original_post.p_title
-            } if post.original_post else None
+            } if post.original_post else None,
         })
 
-    return jsonify(post_data)
+    return jsonify({"posts": post_data, "total_likes": total_likes, "total_writes": total_posts})
 
 
 # 发表帖子
@@ -1552,11 +1555,18 @@ def post_detail(post_id):
 @app.route('/post/<int:post_id>/comment', methods=['POST'])
 def post_comment(post_id):
     username = request.form['username']
+    print()
+    print(username)
+    print()
 
     content = request.form['content']
     images = request.files.getlist('images')
 
     user = db_session.query(User).filter_by(u_name=username).first()
+    print()
+    print(user)
+    print()
+    print(user.u_id)
     new_comment = Comment(c_content=content, c_post_id=post_id, author=user)
     db_session.add(new_comment)
     db_session.commit()
@@ -1572,8 +1582,7 @@ def post_comment(post_id):
             db_session.add(new_image)
     db_session.commit()
 
-    return redirect(url_for('post_detail', post_id=post_id))
-
+    return jsonify({"message": "Comment created successfully", "comment_id": new_comment.c_id}), 200
 
 @app.route('/post/<int:post_id>/share', methods=['POST'])
 def share_post(post_id):
@@ -1679,11 +1688,6 @@ def user_profile(username):
     return render_template('user_profile.html', user=user, posts=post_data, current_tab=tab)
 
 
-@app.route('/chat')
-def large_model():
-    return render_template('chat.html')
-
-
 @app.route('/ask_model', methods=['POST'])
 def ask_model():
     qtime=datetime.now()
@@ -1703,10 +1707,6 @@ def ask_model():
                 answer = response.output
             print(answer)
 
-
-
-
-
             atime=datetime.now()
             username=request.form['username']
             if username:
@@ -1718,11 +1718,6 @@ def ask_model():
                     a_question=question,
                     a_answer=answer))
                 db_session.commit()
-
-
-
-
-
 
         else:
             answer = f"Error: {response.code}, {response.message}"
