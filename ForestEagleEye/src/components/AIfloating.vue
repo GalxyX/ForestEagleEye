@@ -12,9 +12,9 @@
     <div class="messages-container">
       <AImessage v-for="(msg, index) in messages" :key="index"
         :avatar_img="AI_NAME === msg.name ? 'src/assets/leaf1.svg' : user_avatar" :name="msg.name"
-        :time="formatMessageTime(msg.time)" :message="msg.message" />
+        :time="formatDateTime(msg.time)" :message="msg.message" />
       <AImessage v-if="messages.length === 0" :avatar_img="'src/assets/leaf1.svg'" :name="AI_NAME"
-        :time="formatMessageTime(new Date())" message="你好，我是小林，有什么问题可以问我哦~" />
+        :time="formatDateTime(new Date())" message="你好，我是小林，有什么问题可以问我哦~" />
     </div>
     <div>
       <input v-model="inputAttrs" type="text" placeholder="请输入问题" @keyup.enter="fetchNewMessage" />
@@ -28,38 +28,7 @@ import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
 import { Close } from '@element-plus/icons-vue';
 import AImessage from './AImessage.vue';
-function formatMessageTime(date: Date): string {
-  const now = new Date();
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  const day = date.getDate();
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  const seconds = date.getSeconds().toString().padStart(2, "0");
-
-  const nowYear = now.getFullYear();
-  const nowMonth = now.getMonth();
-  const nowDay = now.getDate();
-
-  // 当天
-  if (year === nowYear && month === nowMonth && day === nowDay) {
-    return `${hours}:${minutes}:${seconds}`;
-  }
-  // 本月不同日
-  else if (year === nowYear && month === nowMonth) {
-    return `${day.toString().padStart(2, "0")} ${hours}:${minutes}:${seconds}`;
-  }
-  // 本年不同月
-  else if (year === nowYear) {
-    return `${months[month]} ${day.toString().padStart(2, "0")} ${hours}:${minutes}:${seconds}`;
-  }
-  // 非本年
-  else {
-    return `${months[month]} ${day.toString().padStart(2, "0")} ${year} ${hours}:${minutes}:${seconds}`;
-  }
-}
+import { formatDateTime } from '@/components/fotmatTime';
 //////////////////////////////////////////////////获取历史聊天信息//////////////////////////////////////////////////
 const AI_NAME = '小林';
 const user_avatar = sessionStorage.getItem('avatar') || '../assets/default-avatar.svg';

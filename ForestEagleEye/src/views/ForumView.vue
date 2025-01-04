@@ -4,6 +4,7 @@ import Nav from '../components/navbar.vue'
 import postPreview from '../components/postPreview.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { formatDateTime } from '@/components/fotmatTime';
 
 const username = ref(sessionStorage.getItem('username'));
 const avatar = ref(sessionStorage.getItem('avatar'));
@@ -34,7 +35,7 @@ interface Post {
     id: number;
     title: string;
   } | null;
-  time: string;
+  time: Date;
 }
 
 const posts = ref<Post[]>([]);
@@ -46,7 +47,10 @@ onMounted(async () => {
     else {
       const response = await axios.get('http://127.0.0.1:5000/forum', { params: { username: username.value } });
       if (response.status === 200) {
-        posts.value = response.data;
+        posts.value = response.data.map((item: any) => ({
+          ...item,
+          time: new Date(item.time)
+        }));
       }
       else {
         console.error('Failed to fetch posts');
@@ -66,9 +70,9 @@ onMounted(async () => {
       <!--左侧帖子-->
       <div class="posts-block">
         <h1>实时热帖</h1>
-        <postPreview v-for="post in posts" :key="post.id" :id="post.id" :title="post.title" :time="post.time"
-          :content="post.content_preview" :image="post.images.length ? post.images[0] : ''" :likeNum="post.like_count"
-          :liked="post.is_liked" />
+        <postPreview v-for="post in posts" :key="post.id" :id="post.id" :title="post.title"
+          :time="formatDateTime(post.time)" :content="post.content_preview"
+          :image="post.images.length ? post.images[0] : ''" :likeNum="post.like_count" :liked="post.is_liked" />
       </div>
       <!--右侧信息-->
       <aside class="info-block">

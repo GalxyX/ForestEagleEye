@@ -26,7 +26,7 @@ import { defineProps, reactive, ref, onMounted } from 'vue';
 const props = defineProps<{
   id: number;
   title: string;
-  time?: string;
+  time: string;
   content: string;
   image: string;
   likeNum: number;
@@ -87,6 +87,7 @@ a>div {
 
 a>div>div {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 
@@ -99,6 +100,10 @@ a>div>div:nth-of-type(2)>img {
 
 a>div>div:nth-of-type(2)>p {
   flex: 3;
+  word-wrap: break-word;
+  /* 使长单词换行 */
+  word-break: break-all;
+  /* 强制长单词换行 */
 }
 
 a>div>div:nth-of-type(1) {
@@ -114,7 +119,7 @@ a>div>div>p {
   display: flex;
   justify-content: flex-start;
   gap: 10px;
-  margin-top: 50px;
+  margin-top: 10px;
   align-items: center;
 }
 

@@ -1413,10 +1413,11 @@ def forum_home():
         post_data.append({
             "id": post.p_id,
             "title": post.p_title,
-            "content_preview": post.p_content[:100],
+            "content_preview": post.p_content[:280] + "..." if len(post.p_content) > 280 else post.p_content,
             "images": post_images,
             "like_count": like_count,
             "is_liked": is_liked,
+            "time": post.p_timestamp,
             "author": {
                 "username": post.author.u_name,
                 "avatar": f"/{post.author.u_avatarPath}"
@@ -1501,6 +1502,7 @@ def post_detail(post_id):
         "title": post.p_title,
         "content": post.p_content,
         "images": [image.file_path for image in post.images],
+        "time": post.p_timestamp,
         "author": {
             "username": post.author.u_name,
             "avatar": f"/{post.author.u_avatarPath}"

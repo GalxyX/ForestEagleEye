@@ -5,7 +5,10 @@
       <RouterLink to="/forum">
         < 返回 </RouterLink>
           <article>
-            <h1>{{ post?.title }}</h1>
+            <section class="poster-title">
+              <h1>{{ post?.title }}</h1>
+              <p>{{ post?.time ? formatDateTime(post.time) : '' }}</p>
+            </section>
             <section class="poster-info">
               <img class="avatar" :src="post?.author.avatar ? `${post?.author.avatar}` : '#'" alt="avatar" />
               <p>{{ post?.author.username }}</p>
@@ -74,11 +77,13 @@ import axios from 'axios';
 import { createApp, onMounted, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import ImageViewer from '@/components/imageViewer.vue';
+import { formatDateTime } from '@/components/fotmatTime';
 interface Post {
   id: number;
   title: string;
   content: string;
   images: string[];
+  time: Date;
   author: {
     username: string;
     avatar: string;
@@ -115,6 +120,10 @@ const fetchPostDetails = async () => {
     const response = await axios.get(`http://127.0.0.1:5000/post/${route.params.id}`, { params: { username: username } });
     if (response.status === 200) {
       post.value = response.data.posts;
+      console.log('Post details:', post.value);
+      if (post.value) {
+        post.value.time = new Date(response.data.posts.time); // 将时间字符串转换为 Date 对象
+      }
       comments.value = response.data.comments;
       comments.value.reverse();
       likeNum.value = response.data.like_count;
@@ -284,6 +293,16 @@ article {
 }
 
 /* 标题 */
+.poster-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.poster-title p {
+  color: grey;
+}
+
 /* 头像 */
 /* 用户名 */
 .poster-info {
