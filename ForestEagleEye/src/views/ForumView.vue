@@ -125,9 +125,8 @@ onMounted(async () => {
 
 
           <RouterLink to="/postwrite" class="sendbottom">
-            <el-icon-edit style="width: 30px;height: 30px;margin-right: 10px;"></el-icon-edit>
+            <el-icon-edit style="width: 25px;height: 25px;margin-right: 10px;"></el-icon-edit>
             发点什么
-            <el-icon-d-arrow-right style="width: 30px;height: 30px;margin-left: 10px;"></el-icon-d-arrow-right>
           </RouterLink>
         </aside>
         <el-footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</el-footer>
@@ -178,10 +177,10 @@ aside {
 aside>div {
   display: flex;
   gap: 20px;
-  margin: 20px 30px;
+  margin: 20px 40px;
   text-align: center;
-  background-color: rgba(149, 242, 4, 0.1);
-  border-radius: 40px;
+  background-color: rgba(219, 219, 219, 0.167);
+  border-radius: 30px;
 }
 
 aside a {
@@ -268,6 +267,7 @@ footer {
   margin-top: 0px;
   margin-bottom: 0px;
   font-size: 16px;
+  color: #4b4b4b;
 }
 
 .text {
@@ -275,6 +275,7 @@ footer {
   font-size: larger;
   margin-top: 10px;
   margin-bottom: 0px;
+  color: #4b4b4b;
 }
 
 .unit2 {
@@ -296,4 +297,12 @@ footer {
   top: 40px; 
   left: 1300px; 
 } */
+.sendbottom{
+  border: 1px solid #60a130;
+  border-radius: 10px;
+  font-weight: normal;
+  font-size: 12pt;
+  height: 40px;
+  width: 200px;
+}
 </style>

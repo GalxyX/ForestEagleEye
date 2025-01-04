@@ -3,29 +3,29 @@
   <div class="detail-page">
     <div class="all-contents">
       <el-page-header @back="$router.go(-1)" content="帖子详情" title="返回"></el-page-header>
-
       <el-divider></el-divider>
-
       <article>
         <div>
           <section class="poster-title">
-            <div style="display: flex; align-items: center;">
-              <h1 style="font-size: 30px; margin-left: 20px; margin-top: 0px; margin-bottom: 0px;color:#60a130;">{{
+            <div style="align-items: center;">
+              <h1 style="font-size: 30px; margin-left: 20px; margin-top: 0px; margin-bottom: 0px;color:black;">{{
                 post?.title }}</h1>
-              <p style="margin-left:30px;">{{ post?.time ? formatDateTime(post.time) : '' }}</p>
             </div>
             <section class="poster-info">
-              <p style="font-weight: bold;">{{ post?.author.username }}</p>
               <img class="avatar" :src="post?.author.avatar ? `${post?.author.avatar}` : '#'" alt="avatar" />
+              <div style="line-height:0.5;">
+                <p style="font-weight: bold; font-size: 12pt;">{{ post?.author.username }}</p>
+                <p style="font-size: small;">{{ post?.time ? formatDateTime(post.time) : '' }}</p>
+              </div>
             </section>
           </section>
         </div>
 
-        <el-divider border-style="dashed" />
-        <div style="display: flex;justify-content: space-between;margin-left: 30px;margin-right: 30px;gap:50px;">
+        
+        <div style="margin-left: 30px;margin-right: 30px;gap:50px;">
           <section>
-            <h2 style="color:grey;margin-top: 5px; font-size: 20px;">原文</h2>
-            <p style="font-size:16px;color:rgb(93, 95, 94);;">{{ post?.content }}</p>
+            
+            <p style="font-size:16px; color:#4b4b4b;">{{ post?.content }}</p>
             <h2 v-if="post?.original_post" style="color:grey;margin-top: 30px; font-size: 20px;">被引原贴</h2>
             <div v-if="post?.original_post" class="oriPost-container" @click="toOriPost">
               <div>
@@ -42,10 +42,15 @@
           </section>
           <div class="postimage-container">
             <ImageViewer v-for="image in post?.images" :key="image" :alt="image" :src="image ? `/public/${image}` : '#'"
-              height="200px" width="200px" />
+              height="200px" width="200px" gap="5px"/>
           </div>
         </div>
-
+        <div class="interact-buttons">
+          <section>
+            <el-button style="width: 80px;" plain type='success' @click="likePost">点赞👍<span>{{ likeNum }}</span></el-button>
+            <el-button style="width: 80px;" plain type='success' @click="sharePost">分享🏑</el-button>
+          </section>
+        </div
         <el-divider border-style="dashed" />
 
         <!-- <div>
@@ -65,7 +70,8 @@
                 </ul>
               </section>
             </div> -->
-
+          
+        
         <div class="upload">
           <div style="display: flex; justify-content: space-between;margin-right: 20px;margin-left: 20px;">
             <section class="postComment-container">
@@ -74,15 +80,12 @@
                   style="resize: none;"></textarea>
                 <!-- @keyup.enter="submitComment" -->
                 <input type="file" accept="image/*" multiple @change="handleFileUpload" ref="fileInput" />
-                <p @click="submitComment">发布评论✍</p>
+                <el-button plain type='success' @click="submitComment">发布评论✍</el-button>
               </div>
 
             </section>
 
-            <section class="interact-buttons">
-              <p :style="likedButton" @click="likePost">点赞👍<span>{{ likeNum }}</span></p>
-              <p @click="sharePost">分享🏑</p>
-            </section>
+            
           </div>
 
           <!--上传图片的预览-->
@@ -92,10 +95,10 @@
 
         <p id="wrongWarning" v-if="warningSentence">{{ warningSentence }}</p>
 
-        <el-divider border-style="dashed" />
+        
 
         <section>
-          <h2 style="font-size: 30px; margin-left: 20px; margin-top: 0px; margin-bottom: 20px;color:#60a130;">{{
+          <h2 style="font-size: 20px; margin-left: 20px; margin-top: 0px; margin-bottom: 20px;color:#60a130;">{{
             comments.length }}条评论</h2>
           <div class="comment-container" v-for="comment in comments" :key="comment.content">
             <span style="align-items: center;">
@@ -343,9 +346,6 @@ article {
 
 /* 标题 */
 .poster-title {
-  display: flex;
-  justify-content: space-between;
-  /* 子元素横向排布，两端对齐 */
   align-items: center;
   /* 子元素在垂直方向上居中对齐 */
   margin-right: 20px;
@@ -360,15 +360,16 @@ article {
 /* 头像 */
 /* 用户名 */
 .poster-info {
-  margin-left: 50px;
+  margin-top:10px;
+  margin-left: 30px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
 }
 
 .avatar {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   border-radius: 2px;
 }
 
@@ -586,5 +587,13 @@ footer {
 
 .oriPost-container:hover p {
   color: white;
+}
+
+.interact-buttons{
+  margin-top: 20px;
+  margin-left: 30px;
+  margin-bottom: 10px;
+  display: flex; /* 使用flex布局 */
+  
 }
 </style>

@@ -2,24 +2,24 @@
   <RouterLink :to="`/post/${id}`">
     <div>
       <div class="title-time">
-        <h2>{{ title }}</h2>
-        <p>{{ time }}</p>
+        <h2 style="margin-top: 15px;">{{ title }}</h2>
+        <p style="font-size: small;">{{ time }}</p>
       </div>
-      <div style="margin-left:20px;">
-        <p>{{ content }}</p>
+      <div style="margin-left:20px; margin-top: 0px;">
+        <p style="color: #4b4b4b;">{{ content }}</p>
         <img v-if="image" :src="image ? `public/${image}` : '#'" alt="Post Image">
       </div>
     </div>
   </RouterLink>
-  <div style="display:flex; justify-content: space-between;  align-items: center;">
+  <div style="display:flex; justify-content: space-between;  align-items: center; margin-bottom: 10px;">
     <div class="interact-buttons" style="margin-left:20px;">
       <p @click="likePost">点赞👍<span>{{ _likeNum }}</span></p>
       <p @click="sharePost">分享🏑</p>
     </div>
 
     <div class="read" @click="routerToPost">
-      <p style="width:70px;">阅读全文</p>
-      <el-icon-d-arrow-right style="width: 30px;height: 30px;"></el-icon-d-arrow-right>
+      <p style="width:55px;">阅读全文</p>
+      <el-icon-d-arrow-right style="width: 20px;height: 20px;"></el-icon-d-arrow-right>
     </div>
   </div>
 </template>
@@ -135,21 +135,21 @@ a>div>div>p {
 
 
 .interact-buttons>p:hover {
-  background-color: #60a130;
-  color: white;
+  background-color: rgba(205, 228, 168, 0.511);
 }
 
 .interact-buttons>p {
   margin-top: 10px;
-  border-radius: 15px;
+  border-radius: 5px;
   background-color: rgba(149, 242, 4, 0.1);
-  width: 110px;
-  height: 45px;
+  width: 80px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3c5c26;
-  font-weight: bold;
+  color: #60a130;
+  font-weight: normal;
+  font-size: small;
 }
 
 
@@ -163,8 +163,9 @@ a>div>div>p {
 .read {
   display: flex;
   align-items: center;
-  margin-right: 20px;
+  margin-right: 10px;
   color: #8e918d;
+  font-size: small;
 }
 
 .read:hover {
