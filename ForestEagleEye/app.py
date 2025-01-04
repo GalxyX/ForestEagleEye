@@ -57,10 +57,10 @@ dashscope.api_key = 'sk-16d20b70778043379f8afa4b6a940a8b'
 # MySQL 数据库连接配置
 db_config={
     'user':'root',
-    'password':'a!oe3q4r',#这里改成自己的数据库密码
+    'password':'Jwy040103-',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
-    'database': 'forest',#这里改成自己的数据库名字
+    'database': 'forest2025',#这里改成自己的数据库名字
     'charset':'utf8mb4'}
 # 创建数据库连接
 engine = create_engine(
@@ -311,7 +311,7 @@ class AIMessage(Base):
 #     Base.metadata.drop_all(engine)
 #     connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
 
-# Base.metadata.create_all(engine)
+#Base.metadata.create_all(engine)
 
 db_session_class = sessionmaker(bind=engine)
 db_session = db_session_class()
@@ -632,7 +632,33 @@ def uploadDisasterFile():
         db_session.rollback()
     return jsonify({'message': '文件上传成功'}), 200
 
+@app.route("/get_top5_participation", methods=["GET"])
+def get_top5_participation():
+    try:
+        results = (
+            db_session.query(user_participate_activity, Activity)
+            .join(Activity, user_participate_activity.activity_id == Activity.a_id)
+            .order_by(user_participate_activity.participateNumber.desc())
+            .limit(5)
+            .all()
+        )
+        print(results)
+        data_list = []
+        for upa, act in results:
+            data_list.append({
+                "upa_id": upa.upa_id,
+                "activity_id": upa.activity_id,
+                "participateNumber": upa.participateNumber,
+                "activityName": act.a_name
+            })
 
+        return jsonify({
+            "status": "success",
+            "data": data_list
+        }), 200
+    except Exception as e:
+        print("发生错误:", e)
+        return jsonify({"status": "fail", "message": "数据库查询失败"}), 500
 # 林业活动界面
 @app.route("/activity")
 def activity():
