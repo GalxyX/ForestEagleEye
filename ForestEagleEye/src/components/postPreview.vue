@@ -1,28 +1,34 @@
 <template>
   <RouterLink :to="`/post/${id}`">
     <div>
-      <div>
+      <div class="title-time">
         <h2>{{ title }}</h2>
         <p>{{ time }}</p>
       </div>
-      <div>
-        <img v-if="image" :src="image ? `public/${image}` : '#'" alt="Post Image">
+      <div style="margin-left:20px;">
         <p>{{ content }}</p>
+        <img v-if="image" :src="image ? `public/${image}` : '#'" alt="Post Image">
       </div>
     </div>
   </RouterLink>
+  <div style="display:flex; justify-content: space-between;  align-items: center;">
+    <div class="interact-buttons" style="margin-left:20px;">
+      <p @click="likePost">点赞👍<span>{{ _likeNum }}</span></p>
+      <p @click="sharePost">分享🏑</p>
+    </div>
 
-  <div class="interact-buttons">
-    <p :style="likedButton" @click="likePost">点赞👍<span>{{ _likeNum }}</span></p>
-    <p @click="sharePost">分享🏑</p>
+    <div class="read" @click="routerToPost">
+      <p style="width:70px;">阅读全文</p>
+      <el-icon-d-arrow-right style="width: 30px;height: 30px;"></el-icon-d-arrow-right>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import router from '@/router';
 import axios from 'axios';
-import { defineProps, reactive, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { defineProps, reactive, ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps<{
   id: number;
@@ -31,6 +37,7 @@ const props = defineProps<{
   content: string;
   image: string;
   likeNum: number;
+  liked: boolean;
 }>();
 
 //点赞
@@ -39,7 +46,9 @@ const likedButton = reactive({
   backgroundColor: 'azure'
 });
 const likePost = async () => {
-  const response = await axios.post(`http://127.0.0.1:5000/post/${props.id}/like`);
+  const formData = new FormData();
+  formData.append('username', sessionStorage.getItem('username') as string);
+  const response = await axios.post(`http://127.0.0.1:5000/post/${props.id}/like`, formData);
   if (response.status === 200) {
     console.log('SUCCESS: Post liked successfully');
     if (response.data.is_liked) {
@@ -55,12 +64,24 @@ const likePost = async () => {
     console.error(`ERROR: ${response.data.error}`);
   }
 };
+const router1 = useRouter(); // 使用useRouter钩子获取router对象
+const routerToPost = () => {
+  router1.push(`/post/${props.id}`); // 使用router.push进行路由跳转
+};
 //分享
 const sharePost = () => {
   router.push(`/postshare/${props.id}`).then(() => {
     window.location.reload();
   });
 };
+onMounted(() => {
+  if (props.liked) {
+    likedButton.backgroundColor = 'green';
+  }
+  else {
+    likedButton.backgroundColor = 'azure';
+  }
+});
 </script>
 
 <style scoped>
@@ -71,7 +92,7 @@ a {
 }
 
 a>div {
-  border-top: 2px solid #ababab;
+  border-top: 1px solid #d6d6d6;
   padding-bottom: 10px;
 }
 
@@ -82,13 +103,17 @@ a>div>div {
 
 a>div>div:nth-of-type(2)>img {
   width: 10vw;
-  height: 10vw;
+  height: 8vw;
   flex: 1;
   object-fit: cover;
 }
 
 a>div>div:nth-of-type(2)>p {
   flex: 3;
+  word-wrap: break-word;
+  /* 使长单词换行 */
+  word-break: break-all;
+  /* 强制长单词换行 */
 }
 
 a>div>div:nth-of-type(1) {
@@ -103,19 +128,46 @@ a>div>div>p {
 .interact-buttons {
   display: flex;
   justify-content: flex-start;
-  gap: 10px;
-  margin-top: 50px;
+  gap: 15px;
   align-items: center;
+  margin-bottom: 5px;
+}
+
+
+.interact-buttons>p:hover {
+  background-color: #60a130;
+  color: white;
 }
 
 .interact-buttons>p {
   margin-top: 10px;
-  border-radius: 5px;
-  background-color: azure;
+  border-radius: 15px;
+  background-color: rgba(149, 242, 4, 0.1);
   width: 110px;
-  height: 50px;
+  height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #3c5c26;
+  font-weight: bold;
+}
+
+
+.title-time {
+  margin-top: 10px;
+  margin-left: 20px;
+  align-items: center;
+  /* 垂直居中 */
+}
+
+.read {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  color: #8e918d;
+}
+
+.read:hover {
+  color: #60a130;
 }
 </style>

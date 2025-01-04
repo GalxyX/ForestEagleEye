@@ -36,7 +36,7 @@
           </div>
           <div class="info-item">
             <span class="info-label">活动名称:</span>
-            <span class="info-value">###</span>
+            <span class="info-value">{{ activity.name }}</span>
           </div>
           <div class="info-item">
             <span class="info-label">剩余名额:</span>
