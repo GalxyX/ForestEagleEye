@@ -5,7 +5,7 @@
       <div class="sidebar">
         <div style="background-color: #60a103;height:40vh;">
           <div style="display: flex;">
-            <img class="avatar" src="../assets/default-avatar.png">
+             <img class="avatar" :src="avatar || '../assets/default-avatar.png'" @click="openAvatarUploadDialog">
             <div style="margin-left: 15px; margin-top:50px;">
               <text class="side-username">{{username}}</text>
               <text v-if="role==='普通用户'" style="color:white; font-size: small; display:block; text-align: left;">您还没有所属团队~</text>
@@ -34,14 +34,12 @@
             </div>
             <h4 v-if="!isEditing">{{ signature }}</h4>
           </div>
-          <div class="side-container">
-            <div class="side-header">
-              <text class="side-label">我的头像</text>
-            </div>
-            
-          </div>
         </div>
-
+      </div>
+      <div v-if="showAvatarDialog" class="avatar-upload-dialog">
+      <input type="file" @change="handleFileChange" accept="image/*" />
+      <button @click="uploadAvatar">上传头像</button>
+      <button @click="closeAvatarUploadDialog">取消</button>
       </div>
       <!-- userinfo -->
       <div class="userinfo">
@@ -97,7 +95,9 @@
           </div>
 
         </div>
-
+        <div class="container">
+          <div class="subtitle"><h2>主页访问数据</h2><h3>(次)</h3></div>
+        </div>
         <footer>
           <p>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</p>
         </footer>
@@ -129,7 +129,8 @@
         signupTime:'',
         newestTime:'',
         days:'',
-
+       showAvatarDialog: false, // 控制头像上传对话框的显示
+       selectedFile: null, // 保存用户选择的文件
         signature:'',
         isEditing: false,
         isEditingName: false,
@@ -168,6 +169,48 @@
 
     },
     methods:{
+ // 打开头像上传对话框
+    openAvatarUploadDialog() {
+      this.showAvatarDialog = true;
+    },
+    // 关闭头像上传对话框
+    closeAvatarUploadDialog() {
+      this.showAvatarDialog = false;
+    },
+    // 处理文件选择
+    handleFileChange(event) {
+      this.selectedFile = event.target.files[0];
+    },
+     async uploadAvatar() {
+      if (!this.selectedFile) {
+        alert('请先选择一个文件');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('avatar', this.selectedFile);
+      formData.append('user_id', this.user_id);
+
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/uploadAvatar', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        // 更新头像
+        if (response.data.status === 'success') {
+          this.avatar = response.data.avatar_url;
+          sessionStorage.setItem('avatar', this.avatar); // 保存到 sessionStorage
+          this.closeAvatarUploadDialog(); // 关闭对话框
+        } else {
+          alert('上传失败: ' + response.data.message);
+        }
+      } catch (error) {
+        console.error('上传失败:', error);
+        alert('上传失败，请稍后再试');
+      }
+    },
       async toggleEdit() {
         this.isEditing = true;
         this.editedSignature = this.signature;
@@ -250,6 +293,20 @@
   </script>
   
   <style scoped>
+  .avatar-upload-dialog {
+  position: fixed;
+  top: 20%;
+  left: 15%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-upload-dialog button {
+  margin-top: 10px;
+}
   .main{
     padding-top: 50px;
     background-color: #F0F2F5;
