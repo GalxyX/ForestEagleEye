@@ -733,12 +733,11 @@ def upload_avatar():
             avatar=f"public/uploads/{filename}"
 
             try:
-                user.u_avatar = avatar  # 存储图片路径
-                print(f"已更新头像路径: {user.u_avatar}")
+                user.u_avatarPath = avatar  # 存储图片路
                 db_session.flush()  # 强制刷新数据库操作
                 db_session.commit()
                 db_session.refresh(user)  # 刷新会话确保更新生效
-                print(f"数据库中的头像路径: {user.u_avatar}")
+
                 return jsonify({"status": "success", "avatar_url": f"public/uploads/{filename}"}), 200
             except Exception as e:
                 db_session.rollback()  # 出现错误时回滚事务
@@ -1933,10 +1932,10 @@ def post_detail(post_id):
     comments = db_session.query(Comment).filter_by(c_post_id=post_id).all()
     # 查询帖文的作者头像
     author_avatar = db_session.query(User.u_avatarPath).filter_by(u_name=post.author.u_name).scalar()
-    print(author_avatar)
     # 获取转发帖文的作者头像
-    original_post_author_avatar = db_session.query(User.u_avatarPath).filter_by(u_name=post.original_post.author.u_name).scalar()
-    print(original_post_author_avatar)
+    original_post_author_avatar = None
+    if post.original_post:
+        original_post_author_avatar = db_session.query(User.u_avatarPath).filter_by(u_name=post.original_post.author.u_name).scalar()
     post_data = {
         "id": post.p_id,
         "title": post.p_title,
