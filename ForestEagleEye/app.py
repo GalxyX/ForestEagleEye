@@ -49,7 +49,7 @@ dashscope.api_key = 'sk-16d20b70778043379f8afa4b6a940a8b'
 # MySQL 数据库连接配置
 db_config={
     'user':'root',
-    'password':'Jwy040103-',#这里改成自己的数据库密码
+    'password':'20040616',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
     'database': 'forest2025',#这里改成自己的数据库名字
