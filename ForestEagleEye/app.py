@@ -25,7 +25,8 @@ app.secret_key = "123456789"
 
 # 配置上传文件夹路径
 app.config["UPLOAD_FOLDER"] = os.path.join(os.getcwd(), 'public/uploads')
-
+# 设置允许上传的文件类型
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 # 确保上传目录存在
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
@@ -48,7 +49,7 @@ dashscope.api_key = 'sk-16d20b70778043379f8afa4b6a940a8b'
 # MySQL 数据库连接配置
 db_config={
     'user':'root',
-    'password':'20040616',#这里改成自己的数据库密码
+    'password':'Jwy040103-',#这里改成自己的数据库密码
     'host':'localhost',
     'port':3306,
     'database': 'forest2025',#这里改成自己的数据库名字
@@ -707,6 +708,50 @@ def logout():
     return jsonify({"status": "success"})
 
 
+@app.route("/uploadAvatar", methods=["POST"])
+def upload_avatar():
+    if 'avatar' not in request.files:
+        return jsonify({"status": "fail", "message": "没有选择文件"}), 400
+
+    file = request.files['avatar']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)  # 保证文件名安全
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        # 保存文件
+        try:
+            file.save(file_path)
+        except Exception as e:
+            print(f"文件保存失败: {e}")
+            return jsonify({"message": "文件保存失败", "status": "error"}), 500
+
+        # 更新数据库中的头像路径
+        user_id = request.form['user_id']
+        print(user_id)
+        user = db_session.query(User).filter_by(u_id=user_id).first()
+
+        if user:
+            avatar=f"public/uploads/{filename}"
+
+            try:
+                user.u_avatar = avatar  # 存储图片路径
+                print(f"已更新头像路径: {user.u_avatar}")
+                db_session.flush()  # 强制刷新数据库操作
+                db_session.commit()
+                db_session.refresh(user)  # 刷新会话确保更新生效
+                print(f"数据库中的头像路径: {user.u_avatar}")
+                return jsonify({"status": "success", "avatar_url": f"public/uploads/{filename}"}), 200
+            except Exception as e:
+                db_session.rollback()  # 出现错误时回滚事务
+                print(f"数据库提交失败: {e}")
+                return jsonify({"status": "fail", "message": "数据库提交失败"}), 500
+        else:
+            return jsonify({"status": "fail", "message": "用户不存在"}), 404
+
+        # 返回成功消息
+        file_url = f"/public/uploads/{filename}"
+        return jsonify({"filePath": file_url, "status": "success"}), 200
+
+    return jsonify({"status": "fail", "message": "无效的文件类型"}), 400
 # 用户信息修改
 @app.route("/setUserInfo", methods=["POST"])
 def setUserInfo():
@@ -1882,7 +1927,12 @@ def post_detail(post_id):
 
     post = db_session.query(Post).get(post_id)
     comments = db_session.query(Comment).filter_by(c_post_id=post_id).all()
-
+    # 查询帖文的作者头像
+    author_avatar = db_session.query(User.u_avatarPath).filter_by(u_name=post.author.u_name).scalar()
+    print(author_avatar)
+    # 获取转发帖文的作者头像
+    original_post_author_avatar = db_session.query(User.u_avatarPath).filter_by(u_name=post.original_post.author.u_name).scalar()
+    print(original_post_author_avatar)
     post_data = {
         "id": post.p_id,
         "title": post.p_title,
@@ -1891,13 +1941,13 @@ def post_detail(post_id):
         "time": post.p_timestamp,
         "author": {
             "username": post.author.u_name,
-            "avatar": f"/{post.author.u_avatarPath}"
+            "avatar": f"/{author_avatar}"
         },
         "original_post": {
             "id": post.original_post.p_id,
             "title": post.original_post.p_title,
             "author": post.original_post.author.u_name,
-            "avatar": f"/{post.original_post.author.u_avatarPath}"
+            "avatar": f"/{original_post_author_avatar}"
         } if post.original_post else None
     }
 
