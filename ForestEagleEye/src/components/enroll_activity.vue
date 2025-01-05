@@ -35,8 +35,8 @@
             <span class="info-value">{{ activity.type }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">活动名称:</span>
-            <span class="info-value">{{ activity.name }}</span>
+            <span class="info-label">活动开始时间:</span>
+            <span class="info-value">{{ activity.start_time }}</span>
           </div>
           <div class="info-item">
             <span class="info-label">剩余名额:</span>
