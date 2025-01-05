@@ -153,7 +153,8 @@ const username = sessionStorage.getItem('username');
 //获取post信息
 const route = useRoute();
 const likedButton = reactive({
-  backgroundColor: 'rgb(239.8, 248.9, 235.3)'
+  backgroundColor: 'rgb(239.8, 248.9, 235.3)',
+  color: 'initial'
 });
 const fetchPostDetails = async () => {
   try {
@@ -168,10 +169,12 @@ const fetchPostDetails = async () => {
       comments.value.reverse();
       likeNum.value = response.data.like_count;
       if (response.data.is_liked) {
-        likedButton.backgroundColor = 'green';
+        likedButton.backgroundColor = '#67c23a';
+        likedButton.color = 'white'
       }
       else {
         likedButton.backgroundColor = 'rgb(239.8, 248.9, 235.3)';
+        likedButton.color = '#67c23a'
       }
     }
     else {
@@ -196,11 +199,13 @@ const likePost = async () => {
     console.log('SUCCESS: Post liked successfully');
     if (response.data.is_liked) {
       console.log('Post is liked');
-      likedButton.backgroundColor = 'green';
+      likedButton.backgroundColor = '#67c23a';
+      likedButton.color = 'white'
     }
     else {
       console.log('Post is not liked');
       likedButton.backgroundColor = 'rgb(239.8, 248.9, 235.3)';
+      likedButton.color = '#67c23a'
     }
     likeNum.value = response.data.like_count;
   }
