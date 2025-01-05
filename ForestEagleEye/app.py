@@ -193,7 +193,7 @@ class CountryForestCover(Base):
     __tablename__ = 'country_tree_cover_gain'
     c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True)   # 记录唯一标识
     c_name = Column(String(100), nullable=False)  # 国家名称
-    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    c_iso = Column(String(10), nullable=False)  # 国家ISO名称
     c_tree_cover_gain = Column(Float)    # 2000~2020森林覆盖率增长
 
 ### 森林覆盖损失数据表
@@ -201,8 +201,8 @@ class CountryForestCoverYearLoss(Base):
     __tablename__ = "country_tree_cover_year_loss"
     c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
     c_name = Column(String(100), nullable=False)  # 国家名称
-    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
-    year = Column(Integer, primary_key=True)  # 记录年份
+    c_iso = Column(String(10), nullable=False)  # 国家ISO名称
+    year = Column(Integer)  # 记录年份
     c_tree_cover_loss = Column(Float)   # 对应年份的森林覆盖率损失
 
 ### 森林原生林覆盖数据表
@@ -210,7 +210,7 @@ class CountryPrimevalTreeCover(Base):
     __tablename__ = "country_primeval_tree_cover"
     c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True)   # 国家编号
     c_name = Column(String(100), nullable=False)  # 国家名称
-    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    c_iso = Column(String(10), nullable=False)  # 国家ISO名称
     c_primeval_tree_cover = Column(Float)    # 原生林覆盖
 
 ### 森林原生林覆盖损失数据表
@@ -218,7 +218,7 @@ class CountryPrimevalTreeLoss(Base):
     __tablename__ = "country_primeval_tree_loss"
     c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
     c_name = Column(String(100), nullable=False)  # 国家名称
-    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    c_iso = Column(String(10), nullable=False)  # 国家ISO名称
     c_primeval_tree_loss = Column(Float)   # 原生林损失
 
 ### 森林土壤有机碳数据表
@@ -226,7 +226,7 @@ class CountryForestSoilOrganicCarbon(Base):
     __tablename__ = "country_soil_organic_carbon"
     c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
     c_name = Column(String(100), nullable=False)  # 国家名称
-    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    c_iso = Column(String(10), nullable=False)  # 国家ISO名称
     c_soil_organic_carbon = Column(Float)   # 土壤有机碳总量
     c_soil_organic_carbon_density = Column(Float)   # 土壤有机碳密度
 
@@ -235,8 +235,8 @@ class CountryForestFireCount(Base):
     __tablename__ = "country_forest_fire_count"
     c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
     c_name = Column(String(100), nullable=False)  # 国家名称
-    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
-    year = Column(Integer, primary_key=True)  # 记录年份
+    c_iso = Column(String(10), nullable=False)  # 国家ISO名称
+    year = Column(Integer)  # 记录年份
     fire_count = Column(Integer)    # 对应年份发生的火灾数
 
 ### 森林火灾造成损失数据表
@@ -244,8 +244,8 @@ class CountryForestFireLoss(Base):
     __tablename__ = "country_forest_fire_loss"
     c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
     c_name = Column(String(100), nullable=False)  # 国家名称
-    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
-    year = Column(Integer, primary_key=True)  # 记录年份
+    c_iso = Column(String(10), nullable=False)  # 国家ISO名称
+    year = Column(Integer)  # 记录年份
     fire_loss = Column(Float)   # 对应年份因森林火灾造成的森林面积损失
 
 ### 森林存活林木生物量
@@ -253,7 +253,7 @@ class CountryForestBioMass(Base):
     __tablename__ = "country_forest_biomass_co2"
     c_id = Column(Integer, nullable=False, unique=True, autoincrement=True, primary_key=True) # 记录唯一标识
     c_name = Column(String(100), nullable=False)  # 国家名称
-    c_iso = Column(String(10), nullable=False, primary_key=True)  # 国家ISO名称
+    c_iso = Column(String(10), nullable=False)  # 国家ISO名称
     above_ground_biomass = Column(Float)    # 林木生物量
     above_ground_co2 = Column(Float)    # 二氧化碳含量
 
@@ -1930,18 +1930,10 @@ def post_detail(post_id):
 @app.route('/post/<int:post_id>/comment', methods=['POST'])
 def post_comment(post_id):
     username = request.form['username']
-    print()
-    print(username)
-    print()
-
     content = request.form['content']
     images = request.files.getlist('images')
 
     user = db_session.query(User).filter_by(u_name=username).first()
-    print()
-    print(user)
-    print()
-    print(user.u_id)
     new_comment = Comment(c_content=content, c_post_id=post_id, author=user)
     db_session.add(new_comment)
     db_session.commit()
