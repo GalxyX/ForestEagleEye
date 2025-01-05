@@ -1422,6 +1422,7 @@ def activity_enroll(activity_id):
         "name": activity.a_name,
         "picPath": activity.a_picPath,
         "location": activity.a_location,
+        "start_time":activity.a_beginTime,
         "type": activity.a_type,
         "introduction": activity.a_introduction,
         "participantNumber": activity.a_participantNumber,

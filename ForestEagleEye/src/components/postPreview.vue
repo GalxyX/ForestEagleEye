@@ -13,7 +13,12 @@
   </RouterLink>
   <div  style="display:flex; justify-content: space-between;  align-items: center; margin-bottom: 15px; margin-bottom: 10px;">
     <div class="interact-buttons" style="margin-left:20px;">
-      <el-button plain type="success" @click="likePost">点赞👍<span>{{ _likeNum }}</span></el-button>
+      <div v-if="liked">
+        <el-button type="success" @click="likePost">点赞👍<span>{{ _likeNum }}</span></el-button>
+      </div>
+      <div v-else>
+        <el-button plain type="success" @click="likePost">点赞👍<span>{{ _likeNum }}</span></el-button>
+      </div>
       <el-button plain type="success" @click="sharePost">分享🏑</el-button>
     </div>
 
