@@ -65,12 +65,12 @@ const fetchHistory = async () => {
     response.data.forEach((msg: any) => {
       messages.value.push({
         name: username,
-        time: new Date(msg.q_time),
+        time: new Date(new Date(msg.q_time).getTime() - 8 * 60 * 60 * 1000),
         message: msg.question
       });
       messages.value.push({
         name: AI_NAME,
-        time: new Date(msg.a_time),
+        time: new Date(new Date(msg.a_time).getTime() - 8 * 60 * 60 * 1000),
         message: msg.answer
       });
     });
