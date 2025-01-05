@@ -59,7 +59,7 @@ const fetchPostDetails = async () => {
 };
 //跳转原帖
 const toOriPost = () => {
-  router.push(`/post/${ori_post.value?.original_post?.id}`).then(() => {
+  router.push(`/post/${ori_post.value?.id}`).then(() => {
     window.location.reload();
   });
 };
