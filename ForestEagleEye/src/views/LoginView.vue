@@ -86,7 +86,7 @@ export default {
           }
 
           // 暂时转到活动页面
-          this.$router.push('/encyclopedia');
+          this.$router.push('/');
         }
       } catch (error) {
         if (response.data.message == "请求错误")

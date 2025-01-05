@@ -40,7 +40,7 @@ export default {
   data() {
     return {
       username: sessionStorage.getItem('username'),
-      __avatar: sessionStorage.getItem('avatar')
+      __avatar: sessionStorage.getItem('avatar') ?? 'src/assets/default-avatar.png',
     };
   },
   methods: {
