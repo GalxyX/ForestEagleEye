@@ -45,7 +45,7 @@ import { formatDateTime } from '@/components/fotmatTime';
 //////////////////////////////////////////////////获取历史聊天信息//////////////////////////////////////////////////
 const AI_NAME = '小林';
 const username = sessionStorage.getItem('username') || '';
-const user_avatar = sessionStorage.getItem('avatar') || '../assets/default-avatar.svg';
+const user_avatar = sessionStorage.getItem('avatar') || '../assets/default-avatar.png';
 interface Message {
   // id: number;
   name: string;

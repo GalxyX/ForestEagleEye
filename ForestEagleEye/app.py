@@ -622,9 +622,9 @@ def send_verification_code():
     msg.body = f"您的验证码为 {code}"
     try:
         mail.send(msg)
-        return jsonify({"status": "success", "message": "验证码已发送到您的邮箱"}), 100
+        return jsonify({"status": "success", "message": "验证码已发送到您的邮箱"}), 200
     except Exception as e:
-        return jsonify({"status": "fail", "message": "发送邮件失败，请检查邮箱输入是否有误"}), 250
+        return jsonify({"status": "fail", "message": "发送邮件失败，请检查邮箱输入是否有误"}), 404
 
 
 @app.route("/register", methods=["GET", "POST"])
