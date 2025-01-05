@@ -3,23 +3,23 @@
     <div >
       <div class="title-time" >
         <h2 class="title">{{ title }}</h2>
-        <p>{{ time }}</p>
+        <p style="font-size: small;">{{ time }}</p>
       </div>
-      <div style="margin-left:20px;">
-        <p>{{ content }}</p>
+      <div style="margin-left:20px; ">
+        <p style="font-size: normal; margin-right: 10px; line-height: 1.5;">{{ content }}</p>
         <img v-if="image" :src="image ? `public/${image}` : '#'" alt="Post Image">
       </div>
     </div>
   </RouterLink>
-  <div  style="display:flex; justify-content: space-between;  align-items: center;">
+  <div  style="display:flex; justify-content: space-between;  align-items: center; margin-bottom: 15px; margin-bottom: 10px;">
     <div class="interact-buttons" style="margin-left:20px;">
-      <p @click="likePost">点赞👍<span>{{ _likeNum }}</span></p>
-      <p @click="sharePost">分享🏑</p>
+      <el-button plain type="success" @click="likePost">点赞👍<span>{{ _likeNum }}</span></el-button>
+      <el-button plain type="success" @click="sharePost">分享🏑</el-button>
     </div>
 
     <div class="read" @click="routerToPost">
-      <p style="width:70px;">阅读全文</p>
-      <el-icon-d-arrow-right style="width: 30px;height: 30px;"></el-icon-d-arrow-right>
+      <p style="width: 55px; font-size: small;">阅读全文</p>
+      <el-icon-d-arrow-right style="width: 20px;height: 20px;"></el-icon-d-arrow-right>
     </div>
   </div>
 </template>
@@ -165,11 +165,11 @@ a>div>div>p {
   margin-top:10px;
   margin-left:20px;
   align-items: center; /* 垂直居中 */
+  
 }
 .read{
   display:flex;
   align-items: center;
-  margin-right:20px;
   color:#8e918d;
 }
 .read:hover{

@@ -34,9 +34,13 @@
             </div>
             <h4 v-if="!isEditing">{{ signature }}</h4>
           </div>
+          <div class="side-container">
+            <div class="side-header">
+              <text class="side-label">我的头像</text>
+            </div>
+            
+          </div>
         </div>
-
-
 
       </div>
       <!-- userinfo -->
@@ -93,9 +97,7 @@
           </div>
 
         </div>
-        <div class="container">
-          <div class="subtitle"><h2>主页访问数据</h2><h3>(次)</h3></div>
-        </div>
+
         <footer>
           <p>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</p>
         </footer>

@@ -105,8 +105,8 @@ onMounted(async () => {
               </div>
               <el-divider style="width: 100px;"></el-divider>
               <div class="unit">
-                <p class="h2">昨日数据</p>
-                <p class="text">###</p>
+                <p class="h2">昨日点赞数据</p>
+                <p class="text">20</p>
               </div>
             </div>
             <el-divider direction="vertical" style="height: 150px;"></el-divider>
@@ -117,8 +117,8 @@ onMounted(async () => {
               </div>
               <el-divider style="width: 100px;"></el-divider>
               <div class="unit">
-                <p class="h2">昨日数据</p>
-                <p class="text">###</p>
+                <p class="h2">昨日发布数据</p>
+                <p class="text">8</p>
               </div>
             </div>
           </div>
