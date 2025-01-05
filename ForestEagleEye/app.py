@@ -1374,11 +1374,12 @@ def activities():
     }
 
     for activity in due_activities:
+        forest = db_session.query(Forest).filter_by(f_id = activity.a_forest).first()
         activities_data['due_activities'].append({
             'id': activity.a_id,
             'name': activity.a_name,
             'picPath': activity.a_picPath,
-            'location': activity.a_location,
+            'location': forest.f_name + '-' + activity.a_location,
             'type': activity.a_type,
             'introduction': activity.a_introduction,
             'participantNumber': activity.a_participantNumber,
@@ -1417,11 +1418,13 @@ def activity_enroll(activity_id):
         return jsonify({"success": False, "message": "活动不可报名或已结束"}), 400
 
     # 返回活动详情
+    forest = db_session.query(Forest).filter_by(f_id=activity.a_forest).first()
+
     activity_data = {
         "id": activity.a_id,
         "name": activity.a_name,
         "picPath": activity.a_picPath,
-        "location": activity.a_location,
+        "location": forest.f_name+'-'+activity.a_location,
         "start_time":activity.a_beginTime,
         "type": activity.a_type,
         "introduction": activity.a_introduction,
