@@ -1,25 +1,25 @@
 <template>
   <RouterLink :to="`/post/${id}`">
-    <div>
-      <div class="title-time">
-        <h2 style="margin-top: 15px;">{{ title }}</h2>
-        <p style="font-size: small;">{{ time }}</p>
+    <div >
+      <div class="title-time" >
+        <h2 class="title">{{ title }}</h2>
+        <p>{{ time }}</p>
       </div>
-      <div style="margin-left:20px; margin-top: 0px;">
-        <p style="color: #4b4b4b;">{{ content }}</p>
+      <div style="margin-left:20px;">
+        <p>{{ content }}</p>
         <img v-if="image" :src="image ? `public/${image}` : '#'" alt="Post Image">
       </div>
     </div>
   </RouterLink>
-  <div style="display:flex; justify-content: space-between;  align-items: center; margin-bottom: 10px;">
+  <div  style="display:flex; justify-content: space-between;  align-items: center;">
     <div class="interact-buttons" style="margin-left:20px;">
       <p @click="likePost">点赞👍<span>{{ _likeNum }}</span></p>
       <p @click="sharePost">分享🏑</p>
     </div>
 
     <div class="read" @click="routerToPost">
-      <p style="width:55px;">阅读全文</p>
-      <el-icon-d-arrow-right style="width: 20px;height: 20px;"></el-icon-d-arrow-right>
+      <p style="width:70px;">阅读全文</p>
+      <el-icon-d-arrow-right style="width: 30px;height: 30px;"></el-icon-d-arrow-right>
     </div>
   </div>
 </template>
@@ -107,6 +107,14 @@ a>div>div:nth-of-type(2)>img {
   flex: 1;
   object-fit: cover;
 }
+.title {
+  flex: 3;
+  word-wrap: break-word;
+  /* 使长单词换行 */
+  word-break: break-all;
+  /* 强制长单词换行 */
+}
+
 
 a>div>div:nth-of-type(2)>p {
   flex: 3;
@@ -135,40 +143,36 @@ a>div>div>p {
 
 
 .interact-buttons>p:hover {
-  background-color: rgba(205, 228, 168, 0.511);
+  background-color: #60a130;
+  color:white;
 }
 
 .interact-buttons>p {
   margin-top: 10px;
-  border-radius: 5px;
-  background-color: rgba(149, 242, 4, 0.1);
-  width: 80px;
-  height: 30px;
+  border-radius: 15px;
+  background-color: rgba(149, 242, 4, 0.1); 
+  width: 110px;
+  height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #60a130;
-  font-weight: normal;
-  font-size: small;
+  color:#3c5c26;
+  font-weight: bold;
 }
 
 
-.title-time {
-  margin-top: 10px;
-  margin-left: 20px;
+.title-time{
+  margin-top:10px;
+  margin-left:20px;
+  align-items: center; /* 垂直居中 */
+}
+.read{
+  display:flex;
   align-items: center;
-  /* 垂直居中 */
+  margin-right:20px;
+  color:#8e918d;
 }
-
-.read {
-  display: flex;
-  align-items: center;
-  margin-right: 10px;
-  color: #8e918d;
-  font-size: small;
-}
-
-.read:hover {
-  color: #60a130;
+.read:hover{
+  color:#60a130;
 }
 </style>
