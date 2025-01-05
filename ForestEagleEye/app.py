@@ -1,23 +1,16 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash, send_from_directory, abort, jsonify
-import pymysql
+from flask import Flask, request, session, flash, jsonify
 import hashlib
-import sqlalchemy
-from sqlalchemy import Column, Integer, String, JSON
-from sqlalchemy import insert
+from sqlalchemy import Column, Integer, String
 from werkzeug.utils import secure_filename
-from sqlalchemy import text
-from sqlalchemy import create_engine, Column, Enum, Integer, Table, String, ForeignKey, DateTime, Text, Boolean, Float,inspect,MetaData, select, func
+from sqlalchemy import create_engine, Column, Enum, Integer, String, ForeignKey, DateTime, Text, Boolean, Float,inspect,MetaData, select, func
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from datetime import datetime
-from flask import render_template  # 引入模板插件
-from sqlalchemy.testing import db
 from flask_mail import Mail, Message
 import random
 from datetime import timedelta
 import os
 from flask_cors import CORS
-from sqlalchemy.exc import SQLAlchemyError,OperationalError
-import re
+from sqlalchemy.exc import SQLAlchemyError
 import pandas as pd
 import requests
 from http import HTTPStatus
@@ -707,14 +700,6 @@ def login():
         return jsonify({"status": "fail", "message": error})
 
 
-# 注销
-@app.route("/logoff", methods=["GET", "POST"])
-def logoff():
-    session.clear()
-    flash("您已成功注销", "success")
-    return redirect(url_for("login"))
-
-
 # 退出登录
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
@@ -952,7 +937,7 @@ def uploadForestImage():
             new_filename = f"{f_name}_{filename}"
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
             file.save(file_path)
-            # 这里可以添加代码将文件信息存储到数据库中
+
             return jsonify({'message': '文件上传成功', 'path': file_path})
     return jsonify({"message": "文件类型不支持", "status": "error"}), 400
 
@@ -1084,30 +1069,12 @@ def get_top5_participation():
         print("发生错误:", e)
         return jsonify({"status": "fail", "message": "数据库查询失败"}), 500
 
-# 林业活动界面
-@app.route("/activity")
-def activity():
-    print(session)
-    username = session.get("username")  # 从会话中获取用户名
-    if not username:
-        return redirect(url_for("login"))  # 如果没有用户名信息，重定向到登录页面
-
-    # 根据用户名查询用户角色
-    user = db_session.query(User).filter_by(u_name=username).first()
-    if user:
-        u_role = user.u_role
-    else:
-        flash("用户不存在或已被删除", "error")
-        return redirect(url_for("login"))
-    # 传递当前用户角色给前端，根据不同角色显示不同的按钮
-    return render_template("activity.html", u_role=u_role)
-
 
 # 我的申请界面，显示当前用户已申请的活动
 @app.route("/apply", methods=["POST"])
 def apply():
     u_id = request.form.get("user_id")
-    # print(u_id)
+
     if not u_id:
         flash("未提供有效的user_id", "error")
         return jsonify({"error": "未提供有效的user_id"}), 400
@@ -1240,18 +1207,16 @@ def activity_detail(activity_id):
     u_id = request.form.get("user_id")
     if not u_id:
         return jsonify({"message": "用户ID缺失", "status": "error"}), 400
-    # print(u_id)
+
     user = db_session.query(User).filter_by(u_id=u_id).first()
     current_user_role = user.u_role
     # 判断当前用户是否为审批人
     is_approver = (current_user_role == "林业管理人员" or current_user_role == "林业监管人员")
-    # print("执行到了")
-    # print(is_approver)
 
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
     if not activity:
         flash("活动不存在", "error")
-        return redirect(url_for("activity"))
+        return jsonify({"message": "活动不存在", "status": "error"}), 404
 
     # 返回 JSON 数据，供 Vue.js 前端使用
     return jsonify({
@@ -1303,7 +1268,7 @@ def delete_activity(activity_id):
 @app.route("/approve", methods=["POST"])
 def approve():
     u_id = request.form.get("user_id")
-    # print(u_id)
+
     if not u_id:
         flash("未提供有效的user_id", "error")
         return jsonify({"error": "未提供有效的user_id"}), 400
@@ -1317,7 +1282,7 @@ def approve():
 
     if not current_forest:
         flash("您尚未登录或没有权限访问此页面", "error")
-        return redirect(url_for("login"))
+        return jsonify({"error": "您尚未登录或没有权限访问此页面"}), 403
 
     # 根据当前管理员的森林名称和状态查询活动
     approving_activities = db_session.query(Activity).filter(Activity.a_forest == current_forest,
@@ -1440,10 +1405,9 @@ def activities():
 # 报名活动界面
 @app.route("/activity_enroll/<int:activity_id>", methods=["GET"])
 def activity_enroll(activity_id):
-    # print(activity_id)
     # 查询数据库，获取指定活动的详情
     activity = db_session.query(Activity).filter_by(a_id=activity_id).first()
-    # print("执行到了1")
+
     if not activity:
         return jsonify({"success": False, "message": "活动未找到"}), 404
 
@@ -1624,49 +1588,6 @@ def delete_forest():
         except SQLAlchemyError as e:
             db_session.rollback()
             return jsonify({'message': '操作失败，请重新尝试'})
-
-
-@app.route("/forest_variable", methods=["GET", "POST"])
-def view_forest_variable():
-    if request.method == "POST":
-        forest_name = request.form["forest_name"]
-        ForestVariable = get_forest_variable_table(forest_name)
-        try:
-
-            forest_variables = db_session.query(ForestVariable).all()
-        except SQLAlchemyError as e:
-            forest_variables = []
-
-        return render_template("forest_variable.html", forests=get_all_forests(),
-                               forest_variables=forest_variables, selected_forest_name=forest_name)
-    else:
-        return render_template("forest_variable.html", forests=get_all_forests())
-
-
-@app.route("/forest_info", methods=["GET", "POST"])
-def forest_info():
-    forests = get_all_forests()
-
-    if request.method == "POST":
-        forest_name = request.form["forest_name"]
-
-        forest_static_info = db_session.query(Forest).filter_by(f_name=forest_name).first()
-
-        ForestVariable = get_forest_variable_table(forest_name)
-
-        try:
-            forest_variables = db_session.query(ForestVariable).all()
-        except OperationalError as e:
-            db_session.rollback()  # 回滚事务，防止表修改冲突
-
-            forest_variables = []
-
-        return render_template("forest_info.html",
-                               forests=forests,
-                               forest_static_info=forest_static_info,
-                               forest_variables=forest_variables)
-
-    return render_template("forest_info.html", forests=forests)
 
 
 @app.route("/get_world_tree_cover_json", methods=["GET"])
@@ -1854,8 +1775,7 @@ def searchOneForest():
     })
 
 
-# 这里是论坛首页，现在的session我写死了等于一个字符串，到时候只需登录的时候把session动态填写一下就好
-# 返回字典 post代表帖子信息，user代表用户信息
+# 林上论坛首页
 @app.route('/forum', methods=['GET'])
 def forum_home():
     username = request.args.get('username')
@@ -1895,7 +1815,7 @@ def forum_home():
     return jsonify({"posts": post_data, "total_likes": total_likes, "total_writes": total_posts})
 
 
-# 发表帖子
+# 发布帖文
 @app.route('/forum/post', methods=['GET', 'POST'])
 def forum_post():
     if request.method == 'POST':
@@ -1926,6 +1846,7 @@ def forum_post():
         return jsonify({"message": "Post created successfully", "post_id": new_post.p_id}), 200
     
 
+# 点赞帖文
 @app.route('/post/<int:post_id>/like', methods=['POST'])
 def like_post(post_id):
     username = request.form['username']
@@ -1954,6 +1875,7 @@ def like_post(post_id):
     })
 
 
+# 帖文详情页
 @app.route('/post/<int:post_id>', methods=['GET'])
 def post_detail(post_id):
     username = request.args.get('username')
@@ -2003,6 +1925,7 @@ def post_detail(post_id):
     return jsonify({"posts": post_data, "comments": comments_data, "like_count": like_count, "is_liked": action == "liked"})
 
 
+# 评论帖文
 @app.route('/post/<int:post_id>/comment', methods=['POST'])
 def post_comment(post_id):
     username = request.form['username']
@@ -2035,6 +1958,8 @@ def post_comment(post_id):
 
     return jsonify({"message": "Comment created successfully", "comment_id": new_comment.c_id}), 200
 
+
+# 转发帖文
 @app.route('/post/<int:post_id>/share', methods=['POST'])
 def share_post(post_id):
     username = request.form['username']
@@ -2079,12 +2004,13 @@ def share_post(post_id):
     }), 200
 
 
+# 林上论坛个人主页
 @app.route('/user/<string:username>', methods=['GET'])
 def user_profile(username):
     user = db_session.query(User).filter_by(u_name=username).first()
     if user is None:
-        return redirect(url_for('forum_home'))
-
+        return jsonify({"error": "User not found"}), 404
+    
     # 获取要显示的栏目，默认为“我的发布”
     tab = request.args.get('tab', 'my_posts')
 
@@ -2136,9 +2062,9 @@ def user_profile(username):
             "original_post": original_post_data  # 添加原帖信息
         })
 
-    return render_template('user_profile.html', user=user, posts=post_data, current_tab=tab)
+    return jsonify({"posts": post_data})
 
-
+# 问答模块
 @app.route('/ask_model', methods=['POST'])
 def ask_model():
     qtime=datetime.now()
@@ -2174,10 +2100,12 @@ def ask_model():
             answer = f"Error: {response.code}, {response.message}"
     except Exception as e:
         answer = f'调用API时出错: {str(e)}'
+        return jsonify({"error": answer}), 500
 
     return jsonify({"text": answer})
 
 
+# 获取用户的聊天记录
 @app.route('/fetchChatHistory', methods=['GET'])
 def fetch_chat_history():
     username = request.args.get('username')
@@ -2199,6 +2127,7 @@ def fetch_chat_history():
     return jsonify(message_data)
 
 
+# 删除聊天记录
 @app.route('/deleteChatHistory', methods=['POST'])
 def delete_chat_history():
     username = request.form.get('username')
@@ -2212,11 +2141,5 @@ def delete_chat_history():
     return jsonify({"message": "Chat history deleted successfully"})
 
 
-
-
-
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
