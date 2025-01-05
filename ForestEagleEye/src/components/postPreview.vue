@@ -44,7 +44,8 @@ const props = defineProps<{
 //点赞
 const _likeNum = ref(props.likeNum);
 const likedButton = reactive({
-  backgroundColor: 'rgb(239.8, 248.9, 235.3)'
+  backgroundColor: 'rgb(239.8, 248.9, 235.3)',
+  color: 'initial'
 });
 const likePost = async () => {
   const formData = new FormData();
@@ -54,11 +55,13 @@ const likePost = async () => {
     console.log('SUCCESS: Post liked successfully');
     if (response.data.is_liked) {
       console.log('Post is liked');
-      likedButton.backgroundColor = 'green';
+      likedButton.backgroundColor = '#67c23a';
+      likedButton.color = 'white';
     }
     else {
       console.log('Post is not liked');
       likedButton.backgroundColor = '';
+      likedButton.color = '#67c23a'
     }
     _likeNum.value = response.data.like_count;
   } else {
@@ -77,10 +80,12 @@ const sharePost = () => {
 };
 onMounted(() => {
   if (props.liked) {
-    likedButton.backgroundColor = 'green';
+    likedButton.backgroundColor = '#67c23a';
+    likedButton.color = 'white';
   }
   else {
     likedButton.backgroundColor = 'rgb(239.8, 248.9, 235.3)';
+    likedButton.color = '#67c23a'
   }
 });
 </script>

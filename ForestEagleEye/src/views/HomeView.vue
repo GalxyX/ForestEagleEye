@@ -128,11 +128,11 @@ const sections = ref([
     <!--轮播图片-->
     <div class="slideshow-images-container">
       <ul>
-        <li><img src="../assets/login.png" alt="" /></li>
-        <li><img src="../assets/default-avatar.png" alt="" /></li>
-        <li><img src="../assets/icon-pencil.png" alt="" /></li>
-        <li><img src="../assets/icon-ready.png" alt="" /></li>
-        <li><img src="../assets/icon-right.png" alt="" /></li>
+        <li><img src="../assets/homepage.png" alt="" /></li>
+        <li><img src="../assets/Activity1.png" alt="" /></li>
+        <li><img src="../assets/Activity2.png" alt="" /></li>
+        <li><img src="../assets/Activity3.png" alt="" /></li>
+        <li><img src="../assets/Activity4.png" alt="" /></li>
       </ul>
       <ol>
         <li></li>
@@ -241,13 +241,20 @@ const sections = ref([
         </div>
         <!-- 右侧活动列表 -->
         <div class="activities-container">
-          <h3>报名活动排行榜</h3>
+          <h3 style="color: #666; margin-top: 20px; font-weight: bold;">报名活动排行榜</h3>
           <div v-for="(item, index) in topParticipationList" :key="item.upa_id" class="activity-item">
             <p class="activity-name">
-              {{ index + 1 }}. {{ item.activityName }}
+              Top{{ index + 1 }}  {{ item.activityName }}
             </p>
             <p class="participation-number">
-              参与人数: {{ item.participateNumber }}
+              <el-progress
+                :text-inside="true"
+                :stroke-width="20"
+                :percentage="item.participateNumber"
+                status="success"
+              >
+                <span>{{ item.participateNumber }}人次</span>
+              </el-progress>
             </p>
           </div>
         </div>
@@ -604,7 +611,7 @@ section>div>div {
 
 .activity-name {
   font-size: 14px;
-  color: #0056b3;
+  color: #60a103;
   font-weight: bold;
 }
 
