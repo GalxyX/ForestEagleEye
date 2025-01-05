@@ -1,14 +1,10 @@
 <template>
   <div class="apply-page">
-     <!-- Tab 切换 -->
-      <div class="tabs">
-        <div class="tabs-header">
-        <span
-          v-for="(tab, index) in tabs"
-          :key="index"
-          :class="['tab', { 'active-tab': activeTab === tab.name }]"
-          @click="activeTab = tab.name"
-        >
+    <!-- Tab 切换 -->
+    <div class="tabs">
+      <div class="tabs-header">
+        <span v-for="(tab, index) in tabs" :key="index" :class="['tab', { 'active-tab': activeTab === tab.name }]"
+          @click="activeTab = tab.name">
           {{ tab.label }}
         </span>
       </div>
@@ -34,10 +30,10 @@
         </el-table-column>
         <el-table-column fixed="right" label="操作" min-width="240">
           <template #default="scope">
-              <el-button link type="success"  @click="viewDetails(scope.row.a_id)">
-                Read more
-              </el-button>
-            </template>
+            <el-button link type="success" @click="viewDetails(scope.row.a_id)">
+              Read more
+            </el-button>
+          </template>
         </el-table-column>
       </el-table>
     </div>
@@ -45,8 +41,9 @@
     <!-- <div class="action-buttons">
       <el-button type="primary" @click="navigateToCreateActivity">创建新活动</el-button>
     </div> -->
-    <el-button class="mt-4" type="success" plain style="width: 100%" @click="navigateToCreateActivity">+   创建新活动</el-button>
-    
+    <el-button class="mt-4" type="success" plain style="width: 100%" @click="navigateToCreateActivity">+
+      创建新活动</el-button>
+
   </div>
   <el-footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</el-footer>
 </template>
@@ -165,6 +162,7 @@ export default {
   display: flex;
   justify-content: space-between;
 }
+
 .tabs-header {
   display: flex;
 }
@@ -172,29 +170,35 @@ export default {
 .tab {
   padding: 10px 15px;
   cursor: pointer;
-  color: rgb(115, 121, 115); /* 设置标签文字颜色为绿色 */
-  border-bottom: 2px solid transparent; /* 下划线默认透明 */
+  color: rgb(115, 121, 115);
+  /* 设置标签文字颜色为绿色 */
+  border-bottom: 2px solid transparent;
+  /* 下划线默认透明 */
 }
 
 .active-tab {
-  color:#60a130;
-  border-bottom: 2px solid #60a130; /* 激活状态的下划线颜色 */
+  color: #60a130;
+  border-bottom: 2px solid #60a130;
+  /* 激活状态的下划线颜色 */
 }
 
 .tabs-content {
   margin-top: 20px;
 }
+
 .tab:hover {
-  color: #60a130; 
+  color: #60a130;
 }
-.el-footer{
+
+.el-footer {
   background-color: transparent;
   color: #ababab;
   text-align: center;
   bottom: 0;
-  font-size:xx-small;
+  font-size: xx-small;
 }
-.mt-4{
+
+.mt-4 {
   margin-top: 20px;
 }
 </style>

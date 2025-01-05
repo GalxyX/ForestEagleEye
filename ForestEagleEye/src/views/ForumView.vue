@@ -297,7 +297,7 @@ footer {
   top: 40px; 
   left: 1300px; 
 } */
-.sendbottom{
+.sendbottom {
   border: 1px solid #60a130;
   border-radius: 10px;
   font-weight: normal;

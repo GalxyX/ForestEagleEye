@@ -6,14 +6,11 @@
         <p class="name">{{ name }}</p>
         <p class="time">{{ time }}</p>
       </div>
-      <div
-        class="message-bubble"
-        :style="{
-          backgroundColor: name === '小林' ? 'white' : '#d4edda', /* 浅绿色背景 */
-          color: '#333', /* 保持文字颜色一致 */
-          border: name !== '小林' ? '1px solid #28a745' : '1px solid #ccc' /* 边框颜色 */
-        }"
-      >
+      <div class="message-bubble" :style="{
+        backgroundColor: name === '小林' ? 'white' : '#d4edda', /* 浅绿色背景 */
+        color: '#333', /* 保持文字颜色一致 */
+        border: name !== '小林' ? '1px solid #28a745' : '1px solid #ccc' /* 边框颜色 */
+      }">
         <p>{{ message }}</p>
       </div>
     </div>
@@ -72,7 +69,8 @@ const props = defineProps<{
 .name {
   font-weight: bold;
   color: #333;
-  font-size: 15px; /* 调大字体 */
+  font-size: 15px;
+  /* 调大字体 */
 }
 
 .time {
@@ -82,8 +80,10 @@ const props = defineProps<{
 
 .message-bubble {
   border-radius: 10px;
-  padding: 0px 20px; /* 调整上下和左右的文字空隙 */
-  margin-top: 3px; /* 调小消息框与上一部分的间距 */
+  padding: 0px 20px;
+  /* 调整上下和左右的文字空隙 */
+  margin-top: 3px;
+  /* 调小消息框与上一部分的间距 */
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   word-wrap: break-word;
 }

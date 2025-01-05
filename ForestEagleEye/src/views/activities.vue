@@ -100,14 +100,17 @@ export default {
   padding-top: 50px;
   background-color: #f0f2f5;
 }
+
 .el-scrollbar {
   background-color: white;
   position: fixed;
   width: 250px;
 }
+
 .el-menu-item:hover {
   background-color: rgba(149, 242, 4, 0.1);
 }
+
 .el-menu-item.is-active {
   color: #60a103;
 }
@@ -159,8 +162,10 @@ h1 {
 
 .activity-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* 自动调整列数 */
-  gap: 20px; /* 卡片之间的间距 */
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  /* 自动调整列数 */
+  gap: 20px;
+  /* 卡片之间的间距 */
 }
 
 .activity-card {

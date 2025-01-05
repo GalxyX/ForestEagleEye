@@ -22,56 +22,56 @@
         <!-- 活动信息 -->
         <div class="h1">活动信息</div>
         <div class="activity-info">
-            <div class="info-grid">
-              <div class="info-unit">
-                <p class="h2">活动名称</p>
-                <p class="h3">{{ activity.a_name }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动编号</p>
-                <p class="h3">{{ activity.a_id }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动地点</p>
-                <p class="h3">{{ activity.a_location }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动类型</p>
-                <p class="h3">{{ activity.a_type || "未知" }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动开始时间</p>
-                <p class="h3">{{ activity.a_beginTime }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动结束时间</p>
-                <p class="h3">{{ activity.a_endTime }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动人数</p>
-                <p class="h3">{{ activity.a_participantNumber }}</p>
-              </div>
-              <div v-if="activity.a_ableParticipate" class="info-unit">
-                <p class="h2">已报名人数</p>
-                <p class="h3">{{ activity.a_enrolledNumber }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动主办单位</p>
-                <p class="h3">{{ activity.a_forest }}</p>
-              </div>
+          <div class="info-grid">
+            <div class="info-unit">
+              <p class="h2">活动名称</p>
+              <p class="h3">{{ activity.a_name }}</p>
             </div>
+            <div class="info-unit">
+              <p class="h2">活动编号</p>
+              <p class="h3">{{ activity.a_id }}</p>
+            </div>
+            <div class="info-unit">
+              <p class="h2">活动地点</p>
+              <p class="h3">{{ activity.a_location }}</p>
+            </div>
+            <div class="info-unit">
+              <p class="h2">活动类型</p>
+              <p class="h3">{{ activity.a_type || "未知" }}</p>
+            </div>
+            <div class="info-unit">
+              <p class="h2">活动开始时间</p>
+              <p class="h3">{{ activity.a_beginTime }}</p>
+            </div>
+            <div class="info-unit">
+              <p class="h2">活动结束时间</p>
+              <p class="h3">{{ activity.a_endTime }}</p>
+            </div>
+            <div class="info-unit">
+              <p class="h2">活动人数</p>
+              <p class="h3">{{ activity.a_participantNumber }}</p>
+            </div>
+            <div v-if="activity.a_ableParticipate" class="info-unit">
+              <p class="h2">已报名人数</p>
+              <p class="h3">{{ activity.a_enrolledNumber }}</p>
+            </div>
+            <div class="info-unit">
+              <p class="h2">活动主办单位</p>
+              <p class="h3">{{ activity.a_forest }}</p>
+            </div>
+          </div>
 
-            <div class="h1">活动简介</div>
-              <p class="h3" style="margin-left:120px;margin-top:20px;">{{ activity.a_introduction }}</p>
-              
+          <div class="h1">活动简介</div>
+          <p class="h3" style="margin-left:120px;margin-top:20px;">{{ activity.a_introduction }}</p>
 
-              <!-- 图片显示 -->
-              <div v-if="activity.a_picPath">
-                <h2 class="h1">活动封面</h2>
-                <div class="images" style="margin-left:120px;margin-top:20px;">
-                  <img :src="activity.a_picPath" alt="活动封面" />
-                </div>
-              </div>
+
+          <!-- 图片显示 -->
+          <div v-if="activity.a_picPath">
+            <h2 class="h1">活动封面</h2>
+            <div class="images" style="margin-left:120px;margin-top:20px;">
+              <img :src="activity.a_picPath" alt="活动封面" />
+            </div>
+          </div>
         </div>
 
         <el-divider></el-divider>
@@ -80,21 +80,22 @@
           <h2 class="h1">审批信息</h2>
           <div class="info-grid">
             <div class="info-unit">
-                <p class="h2">审批状态</p>
-                <p class="h3" :style="{ color: getStateColor(activity.a_state) }">
-                  <span v-if="activity.a_state" :style="{ backgroundColor: getStateColor(activity.a_state) }" class="status-dot"></span>
-                  {{ getStateText(activity.a_state) }}
-                </p>
+              <p class="h2">审批状态</p>
+              <p class="h3" :style="{ color: getStateColor(activity.a_state) }">
+                <span v-if="activity.a_state" :style="{ backgroundColor: getStateColor(activity.a_state) }"
+                  class="status-dot"></span>
+                {{ getStateText(activity.a_state) }}
+              </p>
 
-                <!-- <p class="h3">{{ activity.a_state === 'approving' ? '审批中' : activity.a_state === 'approved' ? '已通过' : '已驳回' }}</p> -->
+              <!-- <p class="h3">{{ activity.a_state === 'approving' ? '审批中' : activity.a_state === 'approved' ? '已通过' : '已驳回' }}</p> -->
             </div>
             <div class="info-unit">
-                <p class="h2">申请人编号</p>
-                <p class="h3">{{ activity.a_applicantId }}</p>
+              <p class="h2">申请人编号</p>
+              <p class="h3">{{ activity.a_applicantId }}</p>
             </div>
             <div class="info-unit">
-                <p class="h2">申请提交时间</p>
-                <p class="h3">{{ activity.a_submitTime }}</p>
+              <p class="h2">申请提交时间</p>
+              <p class="h3">{{ activity.a_submitTime }}</p>
             </div>
           </div>
         </div>
@@ -118,13 +119,8 @@
             </form>
           </div>
           <div class="action-buttons" v-if="isApprover && activity.a_state === 'approving'">
-          <el-input
-                type="textarea"
-                v-model="dismissReason"
-                id="dismiss_reason"
-                placeholder="请输入驳回理由"
-                style="width: 300px;"
-          ></el-input> 
+            <el-input type="textarea" v-model="dismissReason" id="dismiss_reason" placeholder="请输入驳回理由"
+              style="width: 300px;"></el-input>
           </div>
         </div>
 
@@ -186,39 +182,39 @@ export default {
         console.error("活动数据获取失败", error);
       }
     },
-  async deleteActivity() {
-    const activityId = this.activity.a_id;
-    try {
-      const response = await axios.post(`http://127.0.0.1:5000/delete_activity/${activityId}`);
+    async deleteActivity() {
+      const activityId = this.activity.a_id;
+      try {
+        const response = await axios.post(`http://127.0.0.1:5000/delete_activity/${activityId}`);
 
-      if (response.data.status === "success") {
-        // 删除成功的提示
+        if (response.data.status === "success") {
+          // 删除成功的提示
+          ElNotification({
+            title: '删除成功',
+            message: '活动已成功删除~',
+            type: 'success',
+          });
+          // 跳转到活动列表页面
+          this.$router.push("/activities");
+        } else {
+          throw new Error(response.data.message || "删除失败");
+        }
+      } catch (error) {
+        console.error("删除活动失败", error);
+        // 删除失败的提示
         ElNotification({
-          title: '删除成功',
-          message: '活动已成功删除~',
-          type: 'success',
+          title: '删除失败',
+          message: error.message || "请稍后再试",
+          type: 'error',
         });
-        // 跳转到活动列表页面
-        this.$router.push("/activities");
-      } else {
-        throw new Error(response.data.message || "删除失败");
       }
-    } catch (error) {
-      console.error("删除活动失败", error);
-      // 删除失败的提示
-      ElNotification({
-        title: '删除失败',
-        message: error.message || "请稍后再试",
-        type: 'error',
-      });
-    }
-  },
+    },
     async approveActivity() {
       const activityId = this.activity.a_id;
       try {
         const params = new URLSearchParams();
         params.append("user_id", user_id);
-        await axios.post(`http://127.0.0.1:5000/approve_activity/${activityId}`,params);
+        await axios.post(`http://127.0.0.1:5000/approve_activity/${activityId}`, params);
         this.activity.a_state = "approved";
       } catch (error) {
         console.error("同意活动失败", error);
@@ -228,11 +224,11 @@ export default {
       const activityId = this.activity.a_id;
 
       try {
-         const params = new URLSearchParams();
-         params.append("user_id", user_id);
-         params.append("udismiss_reason", this.dismissReason);
+        const params = new URLSearchParams();
+        params.append("user_id", user_id);
+        params.append("udismiss_reason", this.dismissReason);
         await axios.post(
-          `http://127.0.0.1:5000/dismiss_activity/${activityId}`,params
+          `http://127.0.0.1:5000/dismiss_activity/${activityId}`, params
         );
         this.activity.a_state = "dismissed";
       } catch (error) {
@@ -255,14 +251,14 @@ export default {
       }
     },
     getStateColor(state) {
-    switch (state) {
-      case 'approving':
-        return '#db9d41'; // 审批中的颜色，例如：浅珊瑚色
-      case 'approved':
-        return '#60a130'; // 已通过的颜色，例如：亮绿色
-      default:
-        return '#8d2c2c'; // 已驳回的颜色，例如：红色
-    }
+      switch (state) {
+        case 'approving':
+          return '#db9d41'; // 审批中的颜色，例如：浅珊瑚色
+        case 'approved':
+          return '#60a130'; // 已通过的颜色，例如：亮绿色
+        default:
+          return '#8d2c2c'; // 已驳回的颜色，例如：红色
+      }
     },
     getStateText(state) {
       switch (state) {
@@ -280,8 +276,10 @@ export default {
 
 <style scoped>
 .container {
-  display: flex;       /* 使用Flexbox布局 */
-  flex-direction: column; /* 设置主轴方向为垂直 */
+  display: flex;
+  /* 使用Flexbox布局 */
+  flex-direction: column;
+  /* 设置主轴方向为垂直 */
   background-color: #f8f8f8;
 }
 
@@ -317,8 +315,8 @@ export default {
 }
 
 .info-grid {
-  margin-left:150px;
-  margin-right:80px;
+  margin-left: 150px;
+  margin-right: 80px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px 10px;
@@ -341,42 +339,54 @@ export default {
   font-weight: bold;
   color: #333;
 }
+
 .el-page-header {
-  margin-top: 20px; /* 或者其他适当的值 */
-  margin-left: 20px; /* 左边距 */
+  margin-top: 20px;
+  /* 或者其他适当的值 */
+  margin-left: 20px;
+  /* 左边距 */
 }
-.all-contents{
+
+.all-contents {
   background-color: #ffffff;
-  margin-left: 20px; /* 左边距 */
-  margin-right: 20px; /* 右边距 */
+  margin-left: 20px;
+  /* 左边距 */
+  margin-right: 20px;
+  /* 右边距 */
   margin-top: 80px;
   display: flex;
-  flex-direction: column; /* 设置子元素纵向排列 */
+  flex-direction: column;
+  /* 设置子元素纵向排列 */
 }
-.h1{
+
+.h1 {
   margin-left: 50px;
-  margin-top:10px;
-  margin-bottom:30px;
-  font-size:20px;
+  margin-top: 10px;
+  margin-bottom: 30px;
+  font-size: 20px;
   font-weight: lighter;
-  color:grey;
+  color: grey;
 }
+
 .h2 {
   font-size: 15px;
   /* font-family: 'Source Han Serif', 'Noto Serif CJK SC', serif; */
   /* font-weight: bold;  */
-  color:rgb(164, 162, 162);
-  width:160px;
+  color: rgb(164, 162, 162);
+  width: 160px;
 }
-.h3{
+
+.h3 {
   font-size: 15px;
   /* font-family: 'Source Han Serif', 'Noto Serif CJK SC', serif; */
-  width:300px;
+  width: 300px;
   /* font-weight:bolder; */
 }
-.info-unit{
+
+.info-unit {
   display: flex;
 }
+
 .status-dot {
   display: inline-block;
   width: 15px;
@@ -384,20 +394,27 @@ export default {
   border-radius: 50%;
   margin-right: 5px;
 }
+
 .buttons {
-  display: flex;          /* 启用 Flexbox 布局 */
-  justify-content: center; /* 水平居中对齐子组件 */
-  align-items: center;     /* 垂直居中对齐子组件（如果需要的话） */
-  flex-wrap: wrap;        /* 允许子组件换行 */
-  gap: 30px;              /* 设置子组件之间的间隔为 30px */
+  display: flex;
+  /* 启用 Flexbox 布局 */
+  justify-content: center;
+  /* 水平居中对齐子组件 */
+  align-items: center;
+  /* 垂直居中对齐子组件（如果需要的话） */
+  flex-wrap: wrap;
+  /* 允许子组件换行 */
+  gap: 30px;
+  /* 设置子组件之间的间隔为 30px */
   margin-bottom: 30px;
 }
-.el-footer{
+
+.el-footer {
   background-color: transparent;
   color: #ababab;
   text-align: center;
   bottom: 0;
-  font-size:xx-small;
+  font-size: xx-small;
   margin-top: 50px;
 }
 </style>
