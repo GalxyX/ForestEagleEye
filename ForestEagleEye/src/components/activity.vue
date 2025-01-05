@@ -21,7 +21,7 @@
       <div class="carousel-section">
         <div class="carousel-inner" :style="{ transform: `translateX(-${currentIndex * 100}%)` }">
           <div class="carousel-item" v-for="item in 4" :key="item">
-            <img :src="`/static/image/image${item}.png`" alt="carousel image" class="carousel-image">
+            <img :src="`src/assets/Activity${item}.png`" alt="carousel image" class="carousel-image">
           </div>
         </div>
         <button class="prev" @click="prevSlide"></button>
@@ -29,19 +29,21 @@
       </div>
 
       <div class="scroll">
-        <p style="margin: 0px; font-size:25px;color:grey;">下 拉 查 看 更 多</p>
+        <p style="margin: 0px; font-size:20px;color:grey;">下拉查看更多</p>
         <div class="scrollarrow" @click="scroll">
-          <el-icon-arrow-down></el-icon-arrow-down>
+          <el-icon-arrow-down style="width: 40px; height: 40px; margin-left: 30px;"></el-icon-arrow-down>
         </div>
       </div>
 
       <!-- 展示可报名的活动 -->
       <div class="activity-list">
         <div v-for="activity in filteredActivities" :key="activity.id" class="activity-card">
-          <img :src="activity.picPath" alt="活动封面" class="activity-image">
+          <h2>{{ activity.name }}</h2>
           <div>
-            <div class="activity-details"style="width:100px;">
-              <h2>{{ activity.name }}</h2>
+            <img :src="activity.picPath" alt="活动封面" class="activity-image">
+          </div>
+          <div>
+            <div class="activity-details">
               <h3>活动地点</h3> 
               <p>{{ activity.location }}</p>
               <h3>活动类型</h3> 
@@ -52,10 +54,7 @@
               <p>{{ activity.participantNumber - activity.enrolledNumber }}</p>
             </div>
             <div v-if="activeTab === 'enrollable'" class="activity-actions">
-              <router-link :to="`/enroll_activity/${activity.id}`" class="enroll-button" style="display:flex;flex-direction: row;">
-                <p class="button">报名</p>
-                <el-icon-d-arrow-right style="color:#678771"></el-icon-d-arrow-right>
-              </router-link>
+              <el-button style="width: 100%; justify-content: center;" plain type="success" @click="$router.push(`/enroll_activity/${activity.id}`)">报名</el-button>
             </div>
           </div>
         </div>
@@ -71,7 +70,7 @@ export default {
       activities: [], // 存储活动数据
       due_activities: [],
       overdue_activities: [],
-      activeTab: 'all', // 默认激活的标签
+      activeTab: 'enrollable', // 默认激活的标签
       tabs: [
         { name: 'all', label: '往期风采', component: 'AllTab' },
         { name: 'enrollable', label: '可报名活动', component: 'EnrollableTab' },
@@ -292,18 +291,25 @@ color: #60a130;
   height: 100%; /* 设置高度为容器的100%，或者可以设置为具体的高度值 */
 }
 .activity-card {
-  background-color: #dce7d3;
+  background-color:  rgb(244, 251, 246);
   /* border: 1px solid #eee; */
   border-radius: 15px;
   box-shadow: 0 15px 15px rgba(0, 0, 0, 0.1);
-  display: flex;
   flex-direction: row;
-  padding: 15px;
+  padding-left: 50px;
+  padding-right: 50px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   justify-content: space-between; /* 子元素靠两侧排放 */
-  align-items: stretch; /* 让子元素等高 */
 }
 .activity-card:hover {
-  background-color: #c6dbb7; /* 鼠标悬停时的背景颜色 */
+  background-color:  rgb(229, 240, 232); /* 鼠标悬停时的背景颜色 */
+}
+.activity-card>div:nth-of-type(1) {
+  flex: 2;
+}
+.activity-card>div:nth-of-type(2) {
+  flex: 1;
 }
 .activity-list {
   margin-left: 20px;
@@ -314,29 +320,22 @@ color: #60a130;
   gap: 10px 30px; /* 卡片之间的间距 */
 }
 .activity-details {
-  width:40px;
-  flex: 1;
   margin-bottom: 10px;
   display: flex; /* 使用flex布局 */
   flex-direction: column; /* 子元素垂直排列 */
-  justify-content: flex-end; /* 子元素靠右排放 */
-  align-items: flex-end; /* 子元素靠右对齐 */
-  text-align: right; /* 文本内容靠右对齐 */
 }
 
 .activity-details h2 {
   font-size: 18px;
   font-weight: bold;
-  color: #333;
+  color: #60a130;
   margin-bottom: 5px;
-  text-align: right; /* 文本内容靠右对齐 */
 }
 .activity-details h3 {
   font-size: 15px;
   font-weight: bold;
-  color: #919491;
+  color: #666;
   margin-bottom: 10px;
-  text-align: right; /* 文本内容靠右对齐 */
 }
 
 
@@ -345,35 +344,25 @@ color: #60a130;
   margin: 5px 0;
   color: #666;
   justify-content: flex-end; 
-  text-align: right; /* 文本内容靠右对齐 */
 }
 
 .activity-actions {
-  text-align: center;
+  align-items: center;
 }
 .activity-image {
-  margin-right: 0px; 
-  max-width: 500px;
-  height: auto;
+  height: 300px;
   border-radius: 4px;
+  object-fit: cover;
+  width: 100%;
 }
-.enroll-button {
-  display: inline-block;
-  /* background-color: #5cb85c; */
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: bold;
-  transition: background-color 0.3s;
-}
+
 .el-icon-d-arrow-right{
   width:10px;
 }
 .button{
   width:100px; 
   font-size:25px; 
-  color:#678771;
+  color:#60a130;
 }
 .button:hover {
   color: #3e634a; /* 鼠标悬停时的颜色 */

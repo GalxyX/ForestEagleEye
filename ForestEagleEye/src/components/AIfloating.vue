@@ -63,15 +63,15 @@ const fetchHistory = async () => {
   if (response.status === 200) {
     console.log('SUCCESS: Post liked successfully');
     response.data.forEach((msg: any) => {
-      messages.value.push({
-        name: username,
-        time: new Date(new Date(msg.q_time).getTime() - 8 * 60 * 60 * 1000),
-        message: msg.question
-      });
-      messages.value.push({
+      messages.value.unshift({
         name: AI_NAME,
         time: new Date(new Date(msg.a_time).getTime() - 8 * 60 * 60 * 1000),
         message: msg.answer
+      });
+      messages.value.unshift({
+        name: username,
+        time: new Date(new Date(msg.q_time).getTime() - 8 * 60 * 60 * 1000),
+        message: msg.question
       });
     });
   }

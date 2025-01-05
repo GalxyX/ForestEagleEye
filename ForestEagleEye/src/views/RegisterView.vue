@@ -177,11 +177,21 @@ export default {
           },
         });
         // 处理响应
-        alert(response.data.message);
+        ElNotification({
+          title: '发送成功',
+          message: '验证码已成功发送到您的邮箱，请及时查看~',
+          type: 'success',
+        })
+      
+      
       } catch (error) {
         // 处理错误
         console.error('Error sending verification code:', error);
-        alert(response.data.message);
+        ElNotification({
+          title: '发送失败',
+          message: '验证码发送失败，请稍后重试',
+          type: 'success',
+        })
         return;
       }
 

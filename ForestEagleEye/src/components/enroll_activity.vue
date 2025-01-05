@@ -35,8 +35,8 @@
             <span class="info-value">{{ activity.type }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">活动名称:</span>
-            <span class="info-value">{{ activity.name }}</span>
+            <span class="info-label">活动开始时间:</span>
+            <span class="info-value">{{ activity.start_time }}</span>
           </div>
           <div class="info-item">
             <span class="info-label">剩余名额:</span>
@@ -220,7 +220,7 @@ export default {
 .info-item {
   display: flex;
   justify-content: space-between;
-  background-color: rgb(223, 240, 223); /* 设置底色为绿色 */
+  background-color: rgb(244, 251, 246);
   border-radius: 15px; /* 设置圆角大小为10px */
   height: 4dvh;
   margin-left:10px;

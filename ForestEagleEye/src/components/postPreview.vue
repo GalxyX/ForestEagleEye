@@ -2,23 +2,24 @@
   <RouterLink :to="`/post/${id}`">
     <div>
       <div class="title-time">
-        <h2 style="margin-top: 15px;">{{ title }}</h2>
+        <h2 class="title">{{ title }}</h2>
         <p style="font-size: small;">{{ time }}</p>
       </div>
-      <div style="margin-left:20px; margin-top: 0px;">
-        <p style="color: #4b4b4b;">{{ content }}</p>
+      <div style="margin-left:20px; ">
+        <p style="font-size: normal; margin-right: 10px; line-height: 1.5;">{{ content }}</p>
         <img v-if="image" :src="image ? `public/${image}` : '#'" alt="Post Image">
       </div>
     </div>
   </RouterLink>
-  <div style="display:flex; justify-content: space-between;  align-items: center; margin-bottom: 10px;">
+  <div
+    style="display:flex; justify-content: space-between;  align-items: center; margin-bottom: 15px; margin-bottom: 10px;">
     <div class="interact-buttons" style="margin-left:20px;">
-      <p @click="likePost">点赞👍<span>{{ _likeNum }}</span></p>
-      <p @click="sharePost">分享🏑</p>
+      <el-button plain type="success" @click="likePost" :style="likedButton">点赞👍<span>{{ _likeNum }}</span></el-button>
+      <el-button plain type="success" @click="sharePost">分享🏑</el-button>
     </div>
 
     <div class="read" @click="routerToPost">
-      <p style="width:55px;">阅读全文</p>
+      <p style="width: 55px; font-size: small;">阅读全文</p>
       <el-icon-d-arrow-right style="width: 20px;height: 20px;"></el-icon-d-arrow-right>
     </div>
   </div>
@@ -43,7 +44,7 @@ const props = defineProps<{
 //点赞
 const _likeNum = ref(props.likeNum);
 const likedButton = reactive({
-  backgroundColor: 'azure'
+  backgroundColor: 'rgb(239.8, 248.9, 235.3)'
 });
 const likePost = async () => {
   const formData = new FormData();
@@ -57,7 +58,7 @@ const likePost = async () => {
     }
     else {
       console.log('Post is not liked');
-      likedButton.backgroundColor = 'azure';
+      likedButton.backgroundColor = '';
     }
     _likeNum.value = response.data.like_count;
   } else {
@@ -79,7 +80,7 @@ onMounted(() => {
     likedButton.backgroundColor = 'green';
   }
   else {
-    likedButton.backgroundColor = 'azure';
+    likedButton.backgroundColor = 'rgb(239.8, 248.9, 235.3)';
   }
 });
 </script>
@@ -108,6 +109,15 @@ a>div>div:nth-of-type(2)>img {
   object-fit: cover;
 }
 
+.title {
+  flex: 3;
+  word-wrap: break-word;
+  /* 使长单词换行 */
+  word-break: break-all;
+  /* 强制长单词换行 */
+}
+
+
 a>div>div:nth-of-type(2)>p {
   flex: 3;
   word-wrap: break-word;
@@ -135,21 +145,21 @@ a>div>div>p {
 
 
 .interact-buttons>p:hover {
-  background-color: rgba(205, 228, 168, 0.511);
+  background-color: #60a130;
+  color: white;
 }
 
 .interact-buttons>p {
   margin-top: 10px;
-  border-radius: 5px;
+  border-radius: 15px;
   background-color: rgba(149, 242, 4, 0.1);
-  width: 80px;
-  height: 30px;
+  width: 110px;
+  height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #60a130;
-  font-weight: normal;
-  font-size: small;
+  color: #3c5c26;
+  font-weight: bold;
 }
 
 
@@ -158,14 +168,13 @@ a>div>div>p {
   margin-left: 20px;
   align-items: center;
   /* 垂直居中 */
+
 }
 
 .read {
   display: flex;
   align-items: center;
-  margin-right: 10px;
   color: #8e918d;
-  font-size: small;
 }
 
 .read:hover {
