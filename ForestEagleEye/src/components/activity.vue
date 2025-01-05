@@ -21,7 +21,7 @@
       <div class="carousel-section">
         <div class="carousel-inner" :style="{ transform: `translateX(-${currentIndex * 100}%)` }">
           <div class="carousel-item" v-for="item in 4" :key="item">
-            <img :src="`src/assets/activity_top/img${item}.jpg`" alt="carousel image" class="carousel-image">
+            <img :src="`src/assets/Activity${item}.png`" alt="carousel image" class="carousel-image">
           </div>
         </div>
         <button class="prev" @click="prevSlide"></button>
