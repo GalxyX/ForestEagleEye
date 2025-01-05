@@ -25,7 +25,7 @@ onMounted(async () => {
 
 function scrollToContent() {
 window.scrollTo({
-top: 950, // 指定滚动到的位置
+top: 800, // 指定滚动到的位置
  behavior: 'smooth' // 平滑滚动
  });
 }
@@ -97,25 +97,25 @@ const sections = ref([
   {
     title: '森林百科',
     description: '探索森林知识的海洋，了解生态系统和物种保护的重要性。',
-    image: 'src/assets/img1.jpg',
+    image: 'src/assets/baike.png',
     link: '/encyclopedia',
   },
   {
     title: '林业活动',
     description: '参与森林保护活动，与自然和谐共处，共建绿色家园。',
-    image: 'src/assets/img2.jpg',
+    image: 'src/assets/activity.png',
     link: '/activities',
   },
   {
     title: '林上论坛',
     description: '加入讨论，与全球森林爱好者一起分享你的灵感和想法。',
-    image: 'src/assets/img3.jpg',
+    image: 'src/assets/forum.png',
     link: '/ForumView',
   },
   {
     title: '小林问答',
     description: '使用AI助手小林，解答您关于森林的一切问题。',
-    image: 'src/assets/img4.jpg',
+    image: 'src/assets/icon-AI.svg',
     link: '/AIfloating',
   },
 ]);
@@ -142,116 +142,120 @@ const sections = ref([
         <li></li>
       </ol>
     </div>
-   <div class="beginbutton"@click.prevent="scrollToContent">
-<el-icon-arrow-down style="width: 120px;height: 120px;font-weight: bolder;"></el-icon-arrow-down>
-</div>
-    <article id="content-start-point">
-      <!--介绍部分-->
-      <section>
-        <div>
-          <div class="image-container">
-          </div>
-          <div class="text-container">
-            <h2>Why Are Forests So Important?</h2>
-            <h2>森林资源为什么如此重要？</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida
-              dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque
-              penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra
-              vulputate, felis tellus mollis orci, sed rhoncus pronin sapien nunc accuan eget.</p>
-          </div>
-        </div>
-      </section>
-      <section>
-        <div>
-          <div class="text-container">
-            <h2>Why Are Forests So Important?</h2>
-            <h2>森林资源为什么如此重要？</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida
-              dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque
-              penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra
-              vulputate, felis tellus mollis orci, sed rhoncus pronin sapien nunc accuan eget.</p>
-          </div>
-          <div class="image-container">
-          </div>
-        </div>
-      </section>
-      <!--能做什么部分-->
-      <section>
-        <h2 class="can-do-heading">
-          在林上鹰眼，你可以...
-        </h2>
-        <div class="carousel-section">
-  <el-carousel :interval="5000" arrow="always" type="card" :autoplay="true">
-      <el-carousel-item v-for="(item, index) in sections" :key="index">
-        <div class="carousel-item">
-          <img :src="item.image" alt="板块图片" class="carousel-image" />
-          <div class="carousel-text">
-            <h2 class="section-title">{{ item.title }}</h2>
-            <p class="section-description">{{ item.description }}</p>
-          </div>
-        </div>
-      </el-carousel-item>
-    </el-carousel>
-  </div>
-</section>
-      <!--林上资讯-->
-<section>
-  <div class="function-intro-topic">
-    <p>Forest News·林上资讯</p>
-    <h2>从林上鹰眼获得新闻</h2>
-  </div>
-  <div class="function-example-container">
-    <div class="function-example-news">
-      <a href="https://www.sciencedaily.com/news/earth_climate/forests/" target="_blank">气候变化导致北卡罗来纳州沿海湿地从森林转变为沼泽地 >></a><br />
-      <a href="https://www.sciencedaily.com/news/earth_climate/forests/" target="_blank">澳大利亚土著的古老文化焚烧实践限制了燃料供应 >></a><br />
-      <a href="https://globalforestcoalition.org/featured-news/" target="_blank">全球森林联盟在生物多样性公约第16次缔约方大会上呼吁采取实际行动 >></a><br />
-      <a href="https://forestsnews.cifor.org/" target="_blank">2024年环境叙事：树木、气候和社区 >></a><br />
-      <a href="https://www.wri.org/insights/global-trends-forest-fires" target="_blank">最新数据证实：森林火灾愈发严重 >></a><br />
-      <a href="https://www.sciencedaily.com/news/earth_climate/forests/" target="_blank">全球热带地区有2.15亿公顷土地具有自然再生森林的潜力 >></a><br />
-      <a href="https://globalforestcoalition.org/featured-news/" target="_blank">第29次缔约方大会上敦促立即停止为碳交易和抵消等虚假解决方案融资 >></a><br />
-      <a href="https://forestsnews.cifor.org/" target="_blank">2024年森林的五个积极迹象 >></a><br />
-      <a href="https://www.globalforestwatch.org/blog/insights/global-tree-cover-loss-data-2021/" target="_blank">2021年巴西亚马逊地区出现新的大规模森林砍伐前沿 >></a><br />
-      <a href="https://www.wri.org/insights/global-trends-forest-fires" target="_blank">农业扩张和森林退化加剧了热带森林的火灾 >></a>
+    <div class="beginbutton"@click.prevent="scrollToContent">
+      <el-icon-arrow-down style="width: 70px;height: 70px;font-weight: bolder;"></el-icon-arrow-down>
     </div>
-    <div class="function-example-image">
-      <img src="../assets/homenew.png" alt="新闻相关图片" />
-    </div>
-  </div>
-</section>
-  <!--林业活动-->
-
+      <article id="content-start-point">
+        <!--介绍部分-->
+        <section>
+          <div>
+            <div class="image-container">
+            </div>
+            <div class="text-container">
+              <h2>Lucid Waters and Lush Mountains Are Invaluable Assets</h2>
+              <h2>绿水青山就是金山银山</h2>
+              <p style="font-weight: bold; font-size: 12pt; line-height: 1.5; font-family:Georgia, 'Times New Roman', Times, serif">
+                - 绿水青山就是金山银山彰显经济与生态的辩证关系，体现人与自然和谐共生的理念。<br>
+                - 新时代要求我们坚持绿色发展，将生态文明融入经济社会发展。<br>
+                - 绿水青山是多维财富，良好生态是最普惠的民生福祉。保护生态即保护生产力，改善生态即发展生产力。<br>
+                - 我们应坚持节约资源、保护环境，推动产业绿色升级，倡导绿色生活，让绿水青山持续发挥效益，为中华民族永续发展奠基。
+              </p>
+            </div>
+          </div>
+        </section>
+        <section>
+          <div>
+            <div class="text-container">
+              <h2>Why Are Forests So Important?</h2>
+              <h2>森林资源为什么如此重要？</h2>
+              <p style="font-weight: bold; font-size: 12pt; line-height: 1.5; font-family:Georgia, 'Times New Roman', Times, serif">
+                - 森林资源是地球上最宝贵的自然资源之一，它在维持生态平衡、保护生物多样性、调节气候等方面发挥着不可替代的作用。<br>
+                - 森林是地球上最大的陆地生态系统，不仅为无数动植物提供了栖息地和食物来源，更是生物多样性的宝库。<br>
+                - 森林具有强大的碳汇功能，能够吸收大量的二氧化碳，在全球变暖的今天能够减缓全球气候变化的速度。<br>
+                - 保护和合理利用森林资源，对于实现可持续发展、保障人类福祉有至关重要的作用。
+              </p>
+            </div>
+            <div class="image-container">
+            </div>
+          </div>
+        </section>
+        <!--能做什么部分-->
+        <section>
+          <h2 style="margin-left: 350px; margin-bottom: 50px; font-size: 16pt; color: #60a130;">
+            在林上鹰眼，你可以...
+          </h2>
+          <div class="carousel-section">
+            <el-carousel :interval="5000" arrow="always" type="card" :autoplay="true">
+                <el-carousel-item v-for="(item, index) in sections" :key="index">
+                  <div class="carousel-item">
+                    <img :src="item.image" alt="板块图片" class="carousel-image" />
+                    <div class="carousel-text">
+                      <h2 class="section-title">{{ item.title }}</h2>
+                      <p class="section-description">{{ item.description }}</p>
+                    </div>
+                  </div>
+              </el-carousel-item>
+            </el-carousel>
+          </div>
+        </section>
+        <!--林上资讯-->
   <section>
-  <div class="function-intro-topic">
-    <p>Forest Events·林业活动</p>
-    <h2>享受林上鹰眼的活动</h2>
+    <div class="function-intro-topic">
+      <p>Forest News·林上资讯</p>
+      <h2>从林上鹰眼获得新闻</h2>
     </div>
-   <div class="forest-events-section">
-    <div class="forest-events-container">
-      <!-- 左侧轮播图 -->
-      <div class="carousel-container">
-        <el-carousel :interval="3000" arrow="always" height="300px">
-          <el-carousel-item v-for="i in 5" :key="i">
-            <img :src="`src/assets/img${i}.jpg`" alt="轮播图图片" class="carousel-image-activity" />
-          </el-carousel-item>
-        </el-carousel>
+    <div class="function-example-container">
+      <div class="function-example-news">
+        <a href="https://www.sciencedaily.com/news/earth_climate/forests/" target="_blank">气候变化导致北卡罗来纳州沿海湿地从森林转变为沼泽地 >></a><br />
+        <a href="https://www.sciencedaily.com/news/earth_climate/forests/" target="_blank">澳大利亚土著的古老文化焚烧实践限制了燃料供应 >></a><br />
+        <a href="https://globalforestcoalition.org/featured-news/" target="_blank">全球森林联盟在生物多样性公约第16次缔约方大会上呼吁采取实际行动 >></a><br />
+        <a href="https://forestsnews.cifor.org/" target="_blank">2024年环境叙事：树木、气候和社区 >></a><br />
+        <a href="https://www.wri.org/insights/global-trends-forest-fires" target="_blank">最新数据证实：森林火灾愈发严重 >></a><br />
+        <a href="https://www.sciencedaily.com/news/earth_climate/forests/" target="_blank">全球热带地区有2.15亿公顷土地具有自然再生森林的潜力 >></a><br />
+        <a href="https://globalforestcoalition.org/featured-news/" target="_blank">第29次缔约方大会上敦促立即停止为碳交易和抵消等虚假解决方案融资 >></a><br />
+        <a href="https://forestsnews.cifor.org/" target="_blank">2024年森林的五个积极迹象 >></a><br />
+        <a href="https://www.globalforestwatch.org/blog/insights/global-tree-cover-loss-data-2021/" target="_blank">2021年巴西亚马逊地区出现新的大规模森林砍伐前沿 >></a><br />
+        <a href="https://www.wri.org/insights/global-trends-forest-fires" target="_blank">农业扩张和森林退化加剧了热带森林的火灾 >></a>
       </div>
-      <!-- 右侧活动列表 -->
-      <div class="activities-container">
-        <h3>报名活动排行榜</h3>
-        <div v-for="(item, index) in topParticipationList" :key="item.upa_id" class="activity-item">
-          <p class="activity-name">
-            {{ index + 1 }}. {{ item.activityName }}
-          </p>
-          <p class="participation-number">
-            参与人数: {{ item.participateNumber }}
-          </p>
-        </div>
+      <div class="function-example-image">
+        <img src="../assets/homenew.png" alt="新闻相关图片" />
       </div>
-    </div>
     </div>
   </section>
-    </article>
-  </main>
+    <!--林业活动-->
+
+    <section>
+    <div class="function-intro-topic">
+      <p>Forest Events·林业活动</p>
+      <h2>享受林上鹰眼的活动</h2>
+      </div>
+    <div class="forest-events-section">
+      <div class="forest-events-container">
+        <!-- 左侧轮播图 -->
+        <div class="carousel-container">
+          <el-carousel :interval="3000" arrow="always" height="300px">
+            <el-carousel-item v-for="i in 5" :key="i">
+              <img :src="`src/assets/img${i}.jpg`" alt="轮播图图片" class="carousel-image-activity" />
+            </el-carousel-item>
+          </el-carousel>
+        </div>
+        <!-- 右侧活动列表 -->
+        <div class="activities-container">
+          <h3>报名活动排行榜</h3>
+          <div v-for="(item, index) in topParticipationList" :key="item.upa_id" class="activity-item">
+            <p class="activity-name">
+              {{ index + 1 }}. {{ item.activityName }}
+            </p>
+            <p class="participation-number">
+              参与人数: {{ item.participateNumber }}
+            </p>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+      </article>
+    </main>
 
   <!--底部版权信息-->
   <footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</footer>
@@ -378,15 +382,22 @@ main>article>section>div {
 
 section>div>div {
   flex: 1;
+  align-items: center;
 }
 
 .image-container {
-  background-image: url("../assets/default-avatar.png");
+  width: 400px;
+  height: 350px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
-
+.image-container:nth-of-type(1) {
+  background-image: url("../assets/water.png");
+}
+.image-container:nth-of-type(2) {
+  background-image: url("../assets/dessert.png");
+}
 /* .text-container h2:nth-of-type(1) {
   font-family: "Georgia Negreta", "Georgia Normal", "Georgia", sans-serif;
 } */
@@ -406,7 +417,7 @@ section>div>div {
 /*功能总览部分*/
 /* 轮播部分的样式 */
 .carousel-section {
-  width: 700px;
+  width: 900px;
   margin: 0 auto;
   padding-top: 0px;
 }
@@ -487,18 +498,20 @@ section>div>div {
 
 .function-example-news {
   flex: 2;
+  margin-top: 20px;
+  margin-left: 20px;
 }
 
 .function-example-news a {
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1.8; /* 增加行距 */
-  color: #0056b3; /* 链接为蓝色 */
+  color: #60a103; 
   text-decoration: none; /* 去掉下划线 */
 }
 
 .function-example-news a:hover {
   text-decoration: underline; /* 鼠标悬停时显示下划线 */
-  color: #003d99; /* 鼠标悬停时字体颜色加深 */
+  color: #4d7d0a; /* 鼠标悬停时字体颜色加深 */
 }
 
 .function-example-image {
@@ -510,14 +523,13 @@ section>div>div {
 
 .function-example-image img {
   max-width: 100%;
-  height:380px;
+  height:330px;
   border-radius: 10px; /* 图片圆角 */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 添加图片阴影 */
 }
 /* 林业活动部分样式 */
 .forest-events-section {
-  margin: -28px;
-  width: 80%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -542,7 +554,8 @@ section>div>div {
   display: flex;
   gap: 20px;
   margin-top: 30px;
-  justify-content: space-between;
+  justify-content: space-around;
+  align-items: center;
   width: 100%;
 }
 

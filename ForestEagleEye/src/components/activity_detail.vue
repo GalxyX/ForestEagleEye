@@ -214,8 +214,6 @@ export default {
     }
   },
     async approveActivity() {
-      console.log('你好吗你好吗在同意');
-
       const activityId = this.activity.a_id;
       try {
         const params = new URLSearchParams();

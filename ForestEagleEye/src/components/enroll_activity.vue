@@ -220,7 +220,7 @@ export default {
 .info-item {
   display: flex;
   justify-content: space-between;
-  background-color: rgb(223, 240, 223); /* 设置底色为绿色 */
+  background-color: rgb(244, 251, 246);
   border-radius: 15px; /* 设置圆角大小为10px */
   height: 4dvh;
   margin-left:10px;

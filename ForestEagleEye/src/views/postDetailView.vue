@@ -11,23 +11,24 @@
               <section class="poster-title">
                 <div style="display: flex; align-items: center;">
                   <h1 class="titleh1">{{ post?.title }}</h1>
-                  <p style="margin-left:30px;">{{ post?.time ? formatDateTime(post.time) : '' }}</p>
                 </div>
                   <section class="poster-info">
-                    <p style="font-weight: bold;">{{ post?.author.username }}</p>
                     <img class="avatar" :src="post?.author.avatar ? `${post?.author.avatar}` : '#'" alt="avatar" />
+                    <div style="display: block; line-height: 1; margin-top: 0;">
+                      <p style="font-weight: bold; font-size: normal; margin-bottom: 0;">{{ post?.author.username }}</p>
+                      <p style="font-size: small;">{{ post?.time ? formatDateTime(post.time) : '' }}</p>
+                    </div>
                   </section>
               </section>
             </div>
 
-            <el-divider border-style="dashed" />
-            <div style="display: flex;justify-content: space-between;margin-left: 30px;margin-right: 30px;gap:50px;">
+            
+            <div style="margin-left: 30px;margin-right: 30px;gap:50px;">
               <section>
-                <h2 class="h2title">原文</h2>
                 <p class="pcontext">{{ post?.content }}</p>
                 <h2 v-if="post?.original_post" style="color:grey;margin-top: 30px; font-size: 20px;">被引原贴</h2>
                 <div v-if="post?.original_post" class="oriPost-container" @click="toOriPost">
-                  <div>
+                  <div style="width: 550px; margin-left: 10px;">
                     <h2 class="oriposttitle">{{ post?.original_post?.title }}</h2>
                     <span style="display: flex; justify-content: space-between; align-items: center; width:100%;">
                       <div style="display: flex; align-items: center;">
@@ -35,7 +36,7 @@
                         <p style="margin-left: 10px;">{{ post?.original_post?.author }}</p>
                       </div>
                       <div>
-                        <p style="padding-top:0px;margin-right: 20px;text-decoration: underline;">点击查看更多</p>
+                        <p style="padding-top:0px;text-decoration: underline;">查看更多</p>
                       </div>
                     </span>
                   </div>
@@ -58,19 +59,19 @@
                   <!-- <input type="file" accept="image/*" multiple @change="handleFileUpload" ref="fileInput" /> -->
 
                   <div class="btn-box">
-                    <button class="btn">上传图片</button>
+                    <el-button plain type="success">上传图片</el-button>
                     <!-- <input type="file" id="file" accept="image/*" @change="handleFileUpload" class="file-ipt" > -->
                     <input type="file" accept="image/*" @change="handleFileUpload" ref="fileInput" class="file-ipt" />
                   </div>
 
-                  <p @click="submitComment">发布评论✍</p>
+                  <el-button plain type="success" @click="submitComment">发布评论✍</el-button>
                 </div>
 
               </section>
 
               <section class="interact-buttons">
-                <p :style="likedButton" @click="likePost">点赞👍<span>{{ likeNum }}</span></p>
-                <p @click="sharePost">分享🏑</p>
+                <el-button plain type="success" @click="likePost">点赞👍<span>{{ likeNum }}</span></el-button>
+                <el-button plain type="success" @click="sharePost">分享🏑</el-button>
               </section>
               </div>
 
@@ -85,7 +86,7 @@
             <el-divider border-style="dashed" />
 
             <section>
-              <h2 style="font-size: 30px; margin-left: 20px; margin-top: 0px; margin-bottom: 20px;color:#60a130;">{{ comments.length }}条评论</h2>
+              <h2 style="font-size: 25px; margin-left: 20px; margin-top: 0px; margin-bottom: 20px;color:#60a130;">{{ comments.length }}条评论</h2>
               <div class="comment-container" v-for="comment in comments" :key="comment.content">
                 <span style="align-items: center;">
                   <img class="avatar" :src="comment.author.avatar ? `${comment.author.avatar}` : '#'" alt="avatar" />
@@ -332,10 +333,6 @@ article {
 
 /* 标题 */
 .poster-title {
-  display: flex;
-  justify-content: space-between; /* 子元素横向排布，两端对齐 */
-  align-items: center; /* 子元素在垂直方向上居中对齐 */
-  margin-right: 20px;
   height: 100%; /* 确保容器的高度占满其父容器的高度 */
 }
 
@@ -346,15 +343,16 @@ article {
 /* 头像 */
 /* 用户名 */
 .poster-info {
-  margin-left: 50px;
+  margin-top: 10px;
+  margin-left: 25px;
+  align-items: center;
   display: flex;
-  align-items: flex-start;
   gap: 10px;
 }
 
 .avatar {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border-radius: 2px;
 }
 
@@ -376,7 +374,7 @@ article {
 /* 转发 */
 .oriPost-container {
   margin-top: 10px;
-  width: 800px;
+  width: 600px;
   padding-left: 20px;
   padding-top: 12px;
   padding-bottom: 12px;
@@ -537,16 +535,8 @@ footer {
   margin-top: 20px; /* 或者其他适当的值 */
   margin-left: 20px; /* 左边距 */
 }
-.try-btn{
-  color:#60a103;
-  border: 1px solid#60a103;
-  border-radius: 10px;
-  margin: 0;
-}
-.try-btn:hover{
-  color:#ffffff;
-  border: 1px solid#60a103;
-}
+
+
 .oriPost-container:hover p {
   color: white;
 }
@@ -616,7 +606,7 @@ footer {
   margin-left: 20px; 
   margin-top: 0px; 
   margin-bottom: 0px;
-  color:#60a130;
+  color:black;
   flex: 3;
   word-wrap: break-word;
   /* 使长单词换行 */
