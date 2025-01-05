@@ -1,7 +1,7 @@
 <template>
   <RouterLink :to="`/post/${id}`">
-    <div >
-      <div class="title-time" >
+    <div>
+      <div class="title-time">
         <h2 class="title">{{ title }}</h2>
         <p style="font-size: small;">{{ time }}</p>
       </div>
@@ -11,9 +11,10 @@
       </div>
     </div>
   </RouterLink>
-  <div  style="display:flex; justify-content: space-between;  align-items: center; margin-bottom: 15px; margin-bottom: 10px;">
+  <div
+    style="display:flex; justify-content: space-between;  align-items: center; margin-bottom: 15px; margin-bottom: 10px;">
     <div class="interact-buttons" style="margin-left:20px;">
-      <el-button plain type="success" @click="likePost">点赞👍<span>{{ _likeNum }}</span></el-button>
+      <el-button plain type="success" @click="likePost" :style="likedButton">点赞👍<span>{{ _likeNum }}</span></el-button>
       <el-button plain type="success" @click="sharePost">分享🏑</el-button>
     </div>
 
@@ -43,7 +44,7 @@ const props = defineProps<{
 //点赞
 const _likeNum = ref(props.likeNum);
 const likedButton = reactive({
-  backgroundColor: 'azure'
+  backgroundColor: 'rgb(239.8, 248.9, 235.3)'
 });
 const likePost = async () => {
   const formData = new FormData();
@@ -57,7 +58,7 @@ const likePost = async () => {
     }
     else {
       console.log('Post is not liked');
-      likedButton.backgroundColor = 'azure';
+      likedButton.backgroundColor = '';
     }
     _likeNum.value = response.data.like_count;
   } else {
@@ -79,7 +80,7 @@ onMounted(() => {
     likedButton.backgroundColor = 'green';
   }
   else {
-    likedButton.backgroundColor = 'azure';
+    likedButton.backgroundColor = 'rgb(239.8, 248.9, 235.3)';
   }
 });
 </script>
@@ -107,6 +108,7 @@ a>div>div:nth-of-type(2)>img {
   flex: 1;
   object-fit: cover;
 }
+
 .title {
   flex: 3;
   word-wrap: break-word;
@@ -144,35 +146,38 @@ a>div>div>p {
 
 .interact-buttons>p:hover {
   background-color: #60a130;
-  color:white;
+  color: white;
 }
 
 .interact-buttons>p {
   margin-top: 10px;
   border-radius: 15px;
-  background-color: rgba(149, 242, 4, 0.1); 
+  background-color: rgba(149, 242, 4, 0.1);
   width: 110px;
   height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color:#3c5c26;
+  color: #3c5c26;
   font-weight: bold;
 }
 
 
-.title-time{
-  margin-top:10px;
-  margin-left:20px;
-  align-items: center; /* 垂直居中 */
-  
-}
-.read{
-  display:flex;
+.title-time {
+  margin-top: 10px;
+  margin-left: 20px;
   align-items: center;
-  color:#8e918d;
+  /* 垂直居中 */
+
 }
-.read:hover{
-  color:#60a130;
+
+.read {
+  display: flex;
+  align-items: center;
+  color: #8e918d;
+}
+
+.read:hover {
+  color: #60a130;
 }
 </style>
