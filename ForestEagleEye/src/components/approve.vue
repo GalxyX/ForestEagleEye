@@ -2,20 +2,16 @@
   <div class="container">
     <!-- Tab 切换 -->
     <div class="tabs">
-    <div class="tabs-header">
-      <span
-        v-for="(tab, index) in tabs"
-        :key="index"
-        :class="['tab', { 'active-tab': activeTab === tab.name }]"
-        @click="activeTab = tab.name"
-      >
-        {{ tab.label }}
-      </span>
+      <div class="tabs-header">
+        <span v-for="(tab, index) in tabs" :key="index" :class="['tab', { 'active-tab': activeTab === tab.name }]"
+          @click="activeTab = tab.name">
+          {{ tab.label }}
+        </span>
+      </div>
+      <div class="tabs-content">
+        <component :is="activeTabComponent"></component>
+      </div>
     </div>
-    <div class="tabs-content">
-      <component :is="activeTabComponent"></component>
-    </div>
-  </div>
 
     <!-- 活动列表 -->
     <div class="activity-list">
@@ -214,26 +210,31 @@ export default {
 .tab {
   padding: 10px 15px;
   cursor: pointer;
-  color: rgb(115, 121, 115); /* 设置标签文字颜色为绿色 */
-  border-bottom: 2px solid transparent; /* 下划线默认透明 */
+  color: rgb(115, 121, 115);
+  /* 设置标签文字颜色为绿色 */
+  border-bottom: 2px solid transparent;
+  /* 下划线默认透明 */
 }
 
 .active-tab {
-  color:#60a130;
-  border-bottom: 2px solid #60a130; /* 激活状态的下划线颜色 */
+  color: #60a130;
+  border-bottom: 2px solid #60a130;
+  /* 激活状态的下划线颜色 */
 }
 
 .tabs-content {
   margin-top: 20px;
 }
+
 .tab:hover {
-  color: #60a130; 
+  color: #60a130;
 }
-.el-footer{
+
+.el-footer {
   background-color: transparent;
   color: #ababab;
   text-align: center;
   bottom: 0;
-  font-size:xx-small;
+  font-size: xx-small;
 }
 </style>

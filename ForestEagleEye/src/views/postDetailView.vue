@@ -376,7 +376,6 @@ article {
   border-radius: 2px;
 }
 
-
 /* 正文 */
 .postimage-container {
   display: flex;
@@ -577,7 +576,6 @@ footer {
   /* 左边距 */
 }
 
-
 .oriPost-container:hover p {
   color: white;
 }
@@ -610,13 +608,6 @@ footer {
   /* 强制长单词换行 */
 }
 
-
-
-
-
-
-
-
 .img {
   width: 80px;
   height: 80px;
@@ -632,16 +623,6 @@ footer {
   left: 0;
   top: 0;
   opacity: 0;
-}
-
-.btn {
-  width: 100px;
-  height: 30px;
-  background-color: #60a130;
-  color: white;
-  margin-right: 10px;
-  border: none;
-  border-radius: 10px;
 }
 
 .titleh1 {

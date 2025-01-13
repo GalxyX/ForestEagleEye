@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref,onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import Nav from '../components/navbar.vue'
 import axios from "axios";
 
@@ -7,7 +7,7 @@ onMounted(async () => {
   choose_i_pic(0);
   slideShow();
 
-   try{
+  try {
     const resp = await axios.get('http://127.0.0.1:5000/get_top5_participation')
     const response = resp.data
     if (response.status === 'success') {
@@ -24,10 +24,10 @@ onMounted(async () => {
 })
 
 function scrollToContent() {
-window.scrollTo({
-top: 800, // 指定滚动到的位置
- behavior: 'smooth' // 平滑滚动
- });
+  window.scrollTo({
+    top: 800, // 指定滚动到的位置
+    behavior: 'smooth' // 平滑滚动
+  });
 }
 //图片自动轮播
 function slideShow() {
@@ -142,7 +142,7 @@ const sections = ref([
         <li></li>
       </ol>
     </div>
-    <div class="beginbutton"@click.prevent="scrollToContent">
+    <div class="beginbutton" @click.prevent="scrollToContent">
       <el-icon-arrow-down style="width: 70px;height: 70px;font-weight: bolder;"></el-icon-arrow-down>
     </div>
       <article id="content-start-point">
@@ -226,7 +226,7 @@ const sections = ref([
 
     <section>
     <div class="function-intro-topic">
-      <p>Forest Events · 林业活动</p>
+      <p>Forest Events·林业活动</p>
       <h2>享受林上鹰眼的活动</h2>
       </div>
     <div class="forest-events-section">
@@ -341,10 +341,10 @@ main>div:nth-of-type(1) ol>li {
 }
 
 /*开始按钮*/
-.beginbutton{
-margin-top:0px;
-font-size:28px;
-color: #7da85f;
+.beginbutton {
+  margin-top: 0px;
+  font-size: 28px;
+  color: #7da85f;
 }
 
 main>a:nth-of-type(1):hover {
@@ -399,12 +399,15 @@ section>div>div {
   background-position: center;
   background-repeat: no-repeat;
 }
+
 .image-container:nth-of-type(1) {
   background-image: url("../assets/water.png");
 }
+
 .image-container:nth-of-type(2) {
   background-image: url("../assets/dessert.png");
 }
+
 /* .text-container h2:nth-of-type(1) {
   font-family: "Georgia Negreta", "Georgia Normal", "Georgia", sans-serif;
 } */
@@ -436,7 +439,8 @@ section>div>div {
   align-items: center;
   text-align: center;
   height: 300px;
-  background-color: #66a833; /* 绿色背景 */
+  background-color: #66a833;
+  /* 绿色背景 */
   border-radius: 10px;
   overflow: hidden;
   position: relative;
@@ -460,13 +464,15 @@ section>div>div {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 5px;
-  color: #105e21; /* 深绿色 */
+  color: #105e21;
+  /* 深绿色 */
 }
 
 .section-description {
   font-size: 14px;
   color: #333;
 }
+
 /*林上资讯*/
 .function-intro-topic>p:nth-child(1):before {
   content: "";
@@ -492,15 +498,18 @@ section>div>div {
 .function-example-container {
   display: flex;
   justify-content: space-between;
-  gap: 20px; /* 左右框的间距 */
+  gap: 20px;
+  /* 左右框的间距 */
   align-items: flex-start;
   border-width: 1px;
   border-style: solid;
   border-color: #ababab;
-  border-radius: 10px; /* 圆角边框 */
+  border-radius: 10px;
+  /* 圆角边框 */
   padding: 15px;
   background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* 添加阴影 */
 }
 
 .function-example-news {
@@ -511,14 +520,18 @@ section>div>div {
 
 .function-example-news a {
   font-size: 16px;
-  line-height: 1.8; /* 增加行距 */
-  color: #60a103; 
-  text-decoration: none; /* 去掉下划线 */
+  line-height: 1.8;
+  /* 增加行距 */
+  color: #60a103;
+  text-decoration: none;
+  /* 去掉下划线 */
 }
 
 .function-example-news a:hover {
-  text-decoration: underline; /* 鼠标悬停时显示下划线 */
-  color: #4d7d0a; /* 鼠标悬停时字体颜色加深 */
+  text-decoration: underline;
+  /* 鼠标悬停时显示下划线 */
+  color: #4d7d0a;
+  /* 鼠标悬停时字体颜色加深 */
 }
 
 .function-example-image {
@@ -530,10 +543,13 @@ section>div>div {
 
 .function-example-image img {
   max-width: 100%;
-  height:330px;
-  border-radius: 10px; /* 图片圆角 */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 添加图片阴影 */
+  height: 330px;
+  border-radius: 10px;
+  /* 图片圆角 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* 添加图片阴影 */
 }
+
 /* 林业活动部分样式 */
 .forest-events-section {
   width: 100%;
@@ -573,13 +589,15 @@ section>div>div {
   border-radius: 10px;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  height: 300px; /* 确保容器有固定高度 */
+  height: 300px;
+  /* 确保容器有固定高度 */
 }
 
 .carousel-image-activity {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 保证图片填满父容器 */
+  object-fit: cover;
+  /* 保证图片填满父容器 */
   border-radius: 10px;
 }
 
@@ -592,8 +610,10 @@ section>div>div {
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
   background-color: #f9f9f9;
   text-align: left;
-  height: 300px; /* 确保与轮播图容器高度一致 */
-  overflow-y: auto; /* 如果内容过多，则添加滚动条 */
+  height: 300px;
+  /* 确保与轮播图容器高度一致 */
+  overflow-y: auto;
+  /* 如果内容过多，则添加滚动条 */
 }
 
 .activities-container h3 {

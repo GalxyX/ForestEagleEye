@@ -2,8 +2,8 @@
     <div style="display: flex; gap: 10px;">
         <CountrySelectbox @select-change="handleSelectChange" />
         <el-button type="success" plain style="width: 80px;" @click="searchOneCountry">查询</el-button>
-    </div> 
-    <div v-if="isEmpty==true">
+    </div>
+    <div v-if="isEmpty == true">
         <el-empty description="来到了没有森林的荒原..." />
     </div>
     <div v-else style="margin-left: 15px; margin-top: 30px;">
@@ -23,58 +23,50 @@
         </div>
         <h3>*数据来源：Global Forest Watch, 所有数据截至2024年</h3>
     </div>
-    
-    
-    
-    
-    
-    
 </template>
-
-
 <script>
 import { ref } from 'vue';
 import axios from 'axios';
 import CountrySelectbox from '../components/countrySelectbox.vue';
 import * as echarts from 'echarts';
 
-export default{
+export default {
     name: 'encyclopedia',
     components: {
         CountrySelectbox,
     },
-    data(){
-        return{
-            iso:'CHN',
+    data() {
+        return {
+            iso: 'CHN',
 
             isLoading: false,
-            isEmpty:true,
+            isEmpty: true,
 
             tree_cover_gain: 0,
-            tree_cover_year_loss:[],
-            primeval_tree_cover:0,
-            primeval_tree_loss:0,
-            organic_carbon_total:0,
-            organic_carbon_density:0,
-            forest_fire_count:[],
-            forest_fire_loss:[],
-            biomass:0,
-            co2:0,
+            tree_cover_year_loss: [],
+            primeval_tree_cover: 0,
+            primeval_tree_loss: 0,
+            organic_carbon_total: 0,
+            organic_carbon_density: 0,
+            forest_fire_count: [],
+            forest_fire_loss: [],
+            biomass: 0,
+            co2: 0,
 
             //echarts实例化
-            tree_cover_year_loss_Instance:null,
-            forest_fire_count_Instance:null,
-            forest_fire_loss_Instance:null,
+            tree_cover_year_loss_Instance: null,
+            forest_fire_count_Instance: null,
+            forest_fire_loss_Instance: null,
         }
     },
-    methods:{
-        async searchOneCountry(){
+    methods: {
+        async searchOneCountry() {
             this.isEmpty = false;
-            try{
-                const params= new URLSearchParams;
-                params.append('iso',this.iso);
-                const response = await axios.post('http://127.0.0.1:5000/fetchSingleCountryAllForestData',params,{
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded',},
+            try {
+                const params = new URLSearchParams;
+                params.append('iso', this.iso);
+                const response = await axios.post('http://127.0.0.1:5000/fetchSingleCountryAllForestData', params, {
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', },
                 });
                 this.tree_cover_gain = response.data.tree_cover_gain || '数据暂无';
                 this.tree_cover_year_loss = response.data.tree_cover_year_loss || [];
@@ -83,7 +75,7 @@ export default{
                 this.organic_carbon_total = response.data.organic_carbon_total || '数据暂无';
                 this.organic_carbon_density = response.data.organic_carbon_density || '数据暂无';
                 this.forest_fire_count = response.data.forest_fire_count || [];
-                this.forest_fire_loss = response.data.forest_fire_loss|| [];
+                this.forest_fire_loss = response.data.forest_fire_loss || [];
                 this.biomass = response.data.biomass || '数据暂无';
                 this.co2 = response.data.co2 || '数据暂无';
 
@@ -91,14 +83,14 @@ export default{
                 this.drawForestFireCount();
                 this.drawForestFireLoss();
             }
-            catch(error){}            
+            catch (error) { }
         },
-        async handleSelectChange(value){
+        async handleSelectChange(value) {
             //接收子组件countrySelectbox选中的ISO
             this.iso = value;
         },
-        async drawTreeCoverYearLoss(){
-            if(this.tree_cover_year_loss){
+        async drawTreeCoverYearLoss() {
+            if (this.tree_cover_year_loss) {
                 this.tree_cover_year_loss_Instance = echarts.init(this.$refs.TreeCoverYearLoss);
                 const year = this.tree_cover_year_loss.map(item => item.year);
                 const loss = this.tree_cover_year_loss.map(item => item.loss);
@@ -121,14 +113,14 @@ export default{
                         name: '损失',
                         type: 'bar',
                         data: loss,
-                        itemStyle: {color: '#60a130'}
+                        itemStyle: { color: '#60a130' }
                     }]
                 };
                 this.tree_cover_year_loss_Instance.setOption(option);
             }
         },
-        async drawForestFireCount(){
-            if(this.forest_fire_count){
+        async drawForestFireCount() {
+            if (this.forest_fire_count) {
                 this.forest_fire_count_Instance = echarts.init(this.$refs.ForestFireCount);
                 const year = this.forest_fire_count.map(item => item.year);
                 const count = this.forest_fire_count.map(item => item.count);
@@ -151,14 +143,14 @@ export default{
                         name: '次数',
                         type: 'bar',
                         data: count,
-                        itemStyle: {color: '#60a130'}
+                        itemStyle: { color: '#60a130' }
                     }]
                 };
                 this.forest_fire_count_Instance.setOption(option);
             }
         },
-        async drawForestFireLoss(){
-            if(this.forest_fire_loss){
+        async drawForestFireLoss() {
+            if (this.forest_fire_loss) {
                 this.forest_fire_loss_Instance = echarts.init(this.$refs.ForestFireLoss);
                 const year = this.forest_fire_loss.map(item => item.year);
                 const loss = this.forest_fire_loss.map(item => item.loss);
@@ -182,7 +174,7 @@ export default{
                         name: '损失',
                         type: 'bar',
                         data: loss,
-                        itemStyle: {color: '#60a130'}
+                        itemStyle: { color: '#60a130' }
                     }]
                 };
                 this.forest_fire_loss_Instance.setOption(option);
@@ -190,19 +182,16 @@ export default{
         },
     }
 }
-
-
 </script>
-
-
 <style>
-h3{
-  font-size: xx-small;
-  font-weight: normal;
-  color:grey;
-  margin-top:-20px;
+h3 {
+    font-size: xx-small;
+    font-weight: normal;
+    color: grey;
+    margin-top: -20px;
 }
-.charts{
+
+.charts {
     display: flex;
 }
 </style>

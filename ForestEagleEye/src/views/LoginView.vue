@@ -1,53 +1,43 @@
 <template>
   <!doctype html>
   <html lang="zh-CN">
-    <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>登录 - 林上鹰眼</title>
-    </head>
-    <body>
-      <main>
-        <div>
-          <div class="image-box"></div>
-          <div class="login-box">
-            <section>
-              <div class="title-wrapper">
-                <h1>欢迎回来</h1>
-                <p>登录开启你的林上之旅</p>
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>登录 - 林上鹰眼</title>
+  </head>
+
+  <body>
+    <main>
+      <div>
+        <div class="image-box"></div>
+        <div class="login-box">
+          <section>
+            <div class="title-wrapper">
+              <h1>欢迎回来</h1>
+              <p>登录开启你的林上之旅</p>
+            </div>
+            <form @submit.prevent="login">
+              <div class="input-wrapper">
+                <label for="email">邮箱</label>
+                <input type="email" name="email" v-model="email" id="email" placeholder="请输入账号的电子邮箱" required
+                  autofocus />
               </div>
-              <form @submit.prevent="login" >
-                <div class="input-wrapper">
-                  <label for="email">邮箱</label>
-                  <input
-                    type="email"
-                    name="email"
-                    v-model="email"
-                    id="email"
-                    placeholder="请输入账号的电子邮箱"
-                    required
-                    autofocus
-                  />
-                </div>
-                <div class="input-wrapper">
-                  <label for="password">密码</label>
-                  <input
-                    type="password"
-                    name="password"
-                    v-model="password"
-                    id="password"
-                    placeholder="请输入账号的密码"
-                    required
-                  />
-                </div>
-                <button type="submit">登录</button>
-              </form>
-              <p>还没有账号？ <a href="/register" title="林上鹰眼-注册">注册</a></p>
-            </section>
-          </div>
+              <div class="input-wrapper">
+                <label for="password">密码</label>
+                <input type="password" name="password" v-model="password" id="password" placeholder="请输入账号的密码"
+                  required />
+              </div>
+              <button type="submit">登录</button>
+            </form>
+            <p>还没有账号？ <a href="/register" title="林上鹰眼-注册">注册</a></p>
+          </section>
         </div>
-      </main>
-    </body>
+      </div>
+    </main>
+  </body>
+
   </html>
 </template>
 
@@ -80,26 +70,26 @@ export default {
         alert(response.data.message);
         if (response.data.status === 'success') {
           // 会话状态存储当前用户信息
-          sessionStorage.setItem('username',response.data.username);
-          sessionStorage.setItem('email',response.data.email);
-          sessionStorage.setItem('avatar',response.data.avatar);
-          sessionStorage.setItem('user_id',response.data.user_id);
-          sessionStorage.setItem('role',response.data.role);
-          sessionStorage.setItem('newestTime',response.data.newestTime);
-          sessionStorage.setItem('signupTime',response.data.signupTime);
-          sessionStorage.setItem('days',response.data.days);
-          sessionStorage.setItem('signature',response.data.signature);
+          sessionStorage.setItem('username', response.data.username);
+          sessionStorage.setItem('email', response.data.email);
+          sessionStorage.setItem('avatar', response.data.avatar);
+          sessionStorage.setItem('user_id', response.data.user_id);
+          sessionStorage.setItem('role', response.data.role);
+          sessionStorage.setItem('newestTime', response.data.newestTime);
+          sessionStorage.setItem('signupTime', response.data.signupTime);
+          sessionStorage.setItem('days', response.data.days);
+          sessionStorage.setItem('signature', response.data.signature);
 
-          if(response.data.role!=='普通用户'){
-            sessionStorage.setItem('forest',response.data.forest);
-            sessionStorage.setItem('inst',response.data.inst);
+          if (response.data.role !== '普通用户') {
+            sessionStorage.setItem('forest', response.data.forest);
+            sessionStorage.setItem('inst', response.data.inst);
           }
 
           // 登陆成功跳转主页
           this.$router.push('/');
         } 
       } catch (error) {
-        if(response.data.message=="请求错误")
+        if (response.data.message == "请求错误")
           window.location.reload(); // 请求错误刷新当前页面
       }
     },
@@ -117,7 +107,7 @@ main {
   background-color: #ddd;
 }
 
-main > div {
+main>div {
   background: white;
   border-radius: 30px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -232,5 +222,4 @@ a {
 a:hover {
   text-decoration: underline;
 }
-
 </style>

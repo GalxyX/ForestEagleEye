@@ -167,54 +167,65 @@ export default {
   margin-bottom: 20px;
   padding:10px 40px 30px 40px;
 }
+
 .el-carousel {
-height: 700px;
+  height: 700px;
 }
+
 .el-carousel__item {
-display: flex;
-align-items: center;
-justify-content: center;
-background-size: cover;
-background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
 }
+
 .el-carousel__item h3 {
-color: #47695b;
-font-size: 18px;
-opacity: 0.75;
-margin: 0;
+  color: #47695b;
+  font-size: 18px;
+  opacity: 0.75;
+  margin: 0;
 }
+
 .el-carousel__item:nth-child(2n) {
-background-color: #99a9bf;
+  background-color: #99a9bf;
 }
+
 .el-carousel__item:nth-child(2n+1) {
-background-color: #d3dce6;
+  background-color: #d3dce6;
 }
+
 .carousel-image {
 width: 800px;
 height: 400px;
 object-fit: cover; /* 确保图片覆盖整个容器 */
 }
+
 .tabs-header {
-display: flex;
+  display: flex;
 }
 
 .tab {
-padding: 10px 15px;
-cursor: pointer;
-color: rgb(115, 121, 115); /* 设置标签文字颜色为绿色 */
-border-bottom: 2px solid transparent; /* 下划线默认透明 */
+  padding: 10px 15px;
+  cursor: pointer;
+  color: rgb(115, 121, 115);
+  /* 设置标签文字颜色为绿色 */
+  border-bottom: 2px solid transparent;
+  /* 下划线默认透明 */
 }
 
 .active-tab {
-color:#60a130;
-border-bottom: 2px solid #60a130; /* 激活状态的下划线颜色 */
+  color: #60a130;
+  border-bottom: 2px solid #60a130;
+  /* 激活状态的下划线颜色 */
 }
 
 .tabs-content {
-margin-top: 20px;
+  margin-top: 20px;
 }
+
 .tab:hover {
-color: #60a130; 
+  color: #60a130;
 }
 
 .carousel-section {
@@ -243,7 +254,8 @@ color: #60a130;
   display: block;
 }
 
-.prev, .next {
+.prev,
+.next {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -272,10 +284,13 @@ color: #60a130;
   border-radius: 50%;
   font-size: 40px;
 }
+
 .prev:hover::after,
 .next:hover::after {
-  color: #60a130; /* 鼠标悬停时的颜色，这里使用了金色作为示例 */
+  color: #60a130;
+  /* 鼠标悬停时的颜色，这里使用了金色作为示例 */
 }
+
 .prev {
   left: 7px;
 }
@@ -285,7 +300,8 @@ color: #60a130;
 }
 
 .el-icon-arrow-down {
-  font-size: 24px; /* 图标大小 */
+  font-size: 24px;
+  /* 图标大小 */
 }
 
 .activity-card {
@@ -297,16 +313,20 @@ color: #60a130;
   padding: 20px 20px;
   justify-content: space-between; /* 子元素靠两侧排放 */
 }
+
 .activity-card:hover {
   background-color:  rgb(247, 253, 249); /* 鼠标悬停时的背景颜色 */
   border: 1px solid #60a130;
 }
+
 .activity-card>div:nth-of-type(1) {
   flex: 2;
 }
+
 .activity-card>div:nth-of-type(2) {
   flex: 1;
 }
+
 .activity-list {
   margin-left: 20px;
   margin-right: 40px;
@@ -340,12 +360,13 @@ color: #60a130;
   font-size: 14px;
   margin: 5px 0;
   color: #666;
-  justify-content: flex-end; 
+  justify-content: flex-end;
 }
 
 .activity-actions {
   align-items: center;
 }
+
 .activity-image {
   height: 200px;
   border-radius: 4px;
@@ -353,14 +374,16 @@ color: #60a130;
   width: 100%;
 }
 
-.el-icon-d-arrow-right{
-  width:10px;
+.el-icon-d-arrow-right {
+  width: 10px;
 }
-.button{
-  width:100px; 
-  font-size:25px; 
-  color:#60a130;
+
+.button {
+  width: 100px;
+  font-size: 25px;
+  color: #60a130;
 }
+
 .button:hover {
   color: #3e634a; /* 鼠标悬停时的颜色 */
 }

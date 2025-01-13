@@ -5,8 +5,8 @@
 
     <!-- 页头部分 -->
     <div class="all-contents">
-        <el-page-header @back="$router.go(-1)" content="活动报名" title="返回">
-        </el-page-header>
+      <el-page-header @back="$router.go(-1)" content="活动报名" title="返回">
+      </el-page-header>
 
     <el-divider></el-divider>
 
@@ -166,17 +166,24 @@ export default {
   background-color: #F0F2F5;
 
 }
-.all-contents{
+
+.all-contents {
   background-color: #ffffff;
-  margin-left: 20px; /* 左边距 */
-  margin-right: 20px; /* 右边距 */
+  margin-left: 20px;
+  /* 左边距 */
+  margin-right: 20px;
+  /* 右边距 */
   margin-top: 80px;
   display: flex;
-  flex-direction: column; /* 设置子元素纵向排列 */
+  flex-direction: column;
+  /* 设置子元素纵向排列 */
 }
+
 .el-page-header {
-  margin-top: 20px; /* 或者其他适当的值 */
-  margin-left: 20px; /* 左边距 */
+  margin-top: 20px;
+  /* 或者其他适当的值 */
+  margin-left: 20px;
+  /* 左边距 */
 }
 
 
@@ -195,7 +202,7 @@ export default {
 .activity-details {
   flex: 1.5;
   margin-left: 40px;
-  margin-bottom:40px;
+  margin-bottom: 40px;
 }
 
 .activity-details h1 {
@@ -210,7 +217,7 @@ export default {
   margin-bottom: 10px;
   color: rgb(66, 66, 66);
   font-weight: light;
-  margin-left:5px;
+  margin-left: 5px;
 }
 
 .activity-description {
@@ -218,7 +225,7 @@ export default {
   color: #666;
   line-height: 1.5;
   margin-bottom: 20px;
-  margin-left:5px;
+  margin-left: 5px;
 }
 
 .activity-info-grid {
@@ -232,12 +239,14 @@ export default {
   display: flex;
   justify-content: space-between;
   background-color: rgb(244, 251, 246);
-  border-radius: 15px; /* 设置圆角大小为10px */
+  border-radius: 15px;
+  /* 设置圆角大小为10px */
   height: 4dvh;
   margin-right: 10px;
-  margin-top:5px;
+  margin-top: 5px;
   margin-bottom: 5px;
-  align-items: center; /* 垂直居中子元素 */
+  align-items: center;
+  /* 垂直居中子元素 */
 }
 
 .info-label {
@@ -256,9 +265,11 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display:flex;
-  justify-content: center; /* 水平居中 */
-  flex-direction: column; /* 设置子元素纵向排列 */
+  display: flex;
+  justify-content: center;
+  /* 水平居中 */
+  flex-direction: column;
+  /* 设置子元素纵向排列 */
 }
 
 .form-item {
@@ -280,7 +291,7 @@ label {
 .form-actions {
   display: flex;
   padding-left: 400px;
-  padding-right:200px;
+  padding-right: 200px;
 }
 
 .activity-image {
@@ -321,17 +332,20 @@ label {
   margin-right: 10px; /* 与输入框之间的距离 */
 }
 
-.form-item1{
+.form-item1 {
   margin-bottom: 20px;
-  display: flex; /* 使用Flexbox布局 */
-  justify-content: space-between; /* 子元素靠至左右两侧排布 */
+  display: flex;
+  /* 使用Flexbox布局 */
+  justify-content: space-between;
+  /* 子元素靠至左右两侧排布 */
 }
-.el-footer{
+
+.el-footer {
   background-color: transparent;
   color: #ababab;
   text-align: center;
   bottom: 0;
-  font-size:xx-small;
+  font-size: xx-small;
   margin-top: 20px;
 }
 </style>

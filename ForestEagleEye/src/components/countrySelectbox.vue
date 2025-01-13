@@ -1,22 +1,8 @@
 <template>
-  <el-select 
-    v-model="value" 
-    placeholder="请选择国家和地区"  
-    popper-class="dropdown" 
-    style="width: 500px"
-    @change="handleSelectChange"
-    >
-      <el-option-group
-        v-for="group in options"
-        :key="group.label"
-        :label="group.label"
-      >
-      <el-option
-        v-for="item in group.options"
-        :key="item.iso"
-        :label="item.name"
-        :value="item.iso"
-      />
+  <el-select v-model="value" placeholder="请选择国家和地区" popper-class="dropdown" style="width: 500px"
+    @change="handleSelectChange">
+    <el-option-group v-for="group in options" :key="group.label" :label="group.label">
+      <el-option v-for="item in group.options" :key="item.iso" :label="item.name" :value="item.iso" />
     </el-option-group>
   </el-select>
 </template>
@@ -78,7 +64,7 @@ const options = [
   },
   {
     label: 'C',
-    options:[
+    options: [
       { name: 'Cambodia', iso: 'KHM' },
       { name: 'Cameroon', iso: 'CMR' },
       { name: 'Canada', iso: 'CAN' },
@@ -105,7 +91,7 @@ const options = [
   },
   {
     label: 'D',
-    options:[
+    options: [
       { name: 'Democratic Republic of the Congo', iso: 'COD' },
       { name: 'Denmark', iso: 'DNK' },
       { name: 'Djibouti', iso: 'DJI' },
@@ -115,7 +101,7 @@ const options = [
   },
   {
     label: 'E',
-    options:[
+    options: [
       { name: 'East Timor', iso: 'TLS' },
       { name: 'Ecuador', iso: 'ECU' },
       { name: 'Egypt', iso: 'EGY' },
@@ -128,7 +114,7 @@ const options = [
   },
   {
     label: 'F',
-    options:[
+    options: [
       { name: 'Falkland Islands', iso: 'FLK' },
       { name: 'Faroe Islands', iso: 'FRO' },
       { name: 'Fiji', iso: 'FJI' },
@@ -141,7 +127,7 @@ const options = [
   },
   {
     label: 'G',
-    options:[
+    options: [
       { name: 'Gabon', iso: 'GAB' },
       { name: 'Gambia', iso: 'GMB' },
       { name: 'Georgia', iso: 'GEO' },
@@ -161,8 +147,8 @@ const options = [
     ],
   },
   {
-    label:'H',
-    options:[
+    label: 'H',
+    options: [
       { name: 'Haiti', iso: 'HTI' },
       { name: 'Heard Island and McDonald Islands', iso: 'HMD' },
       { name: 'Honduras', iso: 'HND' },
@@ -172,7 +158,7 @@ const options = [
   },
   {
     label: 'I',
-    options:[
+    options: [
       { name: 'Iceland', iso: 'ISL' },
       { name: 'India', iso: 'IND' },
       { name: 'Indonesia', iso: 'IDN' },
@@ -185,8 +171,8 @@ const options = [
     ],
   },
   {
-    label:'J',
-    options:[
+    label: 'J',
+    options: [
       { name: 'Jamaica', iso: 'JAM' },
       { name: 'Japan', iso: 'JPN' },
       { name: 'Jersey', iso: 'JEY' },
@@ -194,8 +180,8 @@ const options = [
     ],
   },
   {
-    label:'K',
-    options:[
+    label: 'K',
+    options: [
       { name: 'Kazakhstan', iso: 'KAZ' },
       { name: 'Kenya', iso: 'KEN' },
       { name: 'Kiribati', iso: 'KIR' },
@@ -205,8 +191,8 @@ const options = [
     ],
   },
   {
-    label:'L',
-    options:[
+    label: 'L',
+    options: [
       { name: 'Laos', iso: 'LAO' },
       { name: 'Latvia', iso: 'LVA' },
       { name: 'Lebanon', iso: 'LBN' },
@@ -219,8 +205,8 @@ const options = [
     ],
   },
   {
-    label:'M',
-    options:[
+    label: 'M',
+    options: [
       { name: 'Macao', iso: 'MAC' },
       { name: 'Macedonia', iso: 'MKD' },
       { name: 'Madagascar', iso: 'MDG' },
@@ -247,8 +233,8 @@ const options = [
     ],
   },
   {
-    label:'N',
-    options:[
+    label: 'N',
+    options: [
       { name: 'Namibia', iso: 'NAM' },
       { name: 'Nauru', iso: 'NRU' },
       { name: 'Nepal', iso: 'NPL' },
@@ -267,14 +253,14 @@ const options = [
     ],
   },
   {
-    label:'O',
-    options:[
+    label: 'O',
+    options: [
       { name: 'Oman', iso: 'OMN' },
     ],
   },
   {
-    label:'P',
-    options:[
+    label: 'P',
+    options: [
       { name: 'Pakistan', iso: 'PAK' },
       { name: 'Palau', iso: 'PLW' },
       { name: 'Palestina', iso: 'PSE' },
@@ -290,14 +276,14 @@ const options = [
     ],
   },
   {
-    label:'Q',
-    options:[
+    label: 'Q',
+    options: [
       { name: 'Qatar', iso: 'QAT' },
     ],
   },
   {
-    label:'R',
-    options:[
+    label: 'R',
+    options: [
       { name: 'Republic of Congo', iso: 'COG' },
       { name: 'Reunion', iso: 'REU' },
       { name: 'Romania', iso: 'ROU' },
@@ -306,8 +292,8 @@ const options = [
     ],
   },
   {
-    label:'S',
-    options:[
+    label: 'S',
+    options: [
       { name: 'Saint Helena', iso: 'SHN' },
       { name: 'Saint Kitts and Nevis', iso: 'KNA' },
       { name: 'Saint Lucia', iso: 'LCA' },
@@ -345,8 +331,8 @@ const options = [
     ],
   },
   {
-    label:'T',
-    options:[
+    label: 'T',
+    options: [
       { name: 'Tajikistan', iso: 'TJK' },
       { name: 'Tanzania', iso: 'TZA' },
       { name: 'Thailand', iso: 'THA' },
@@ -362,8 +348,8 @@ const options = [
     ],
   },
   {
-    label:'U',
-    options:[
+    label: 'U',
+    options: [
       { name: 'Uganda', iso: 'UGA' },
       { name: 'Ukraine', iso: 'UKR' },
       { name: 'United Arab Emirates', iso: 'ARE' },
@@ -374,8 +360,8 @@ const options = [
     ],
   },
   {
-    label:'V',
-    options:[
+    label: 'V',
+    options: [
       { name: 'Vanuatu', iso: 'VUT' },
       { name: 'Vatican City', iso: 'VAT' },
       { name: 'Venezuela', iso: 'VEN' },
@@ -384,16 +370,16 @@ const options = [
     ],
   },
   {
-    label:'W',
-    options:[
+    label: 'W',
+    options: [
       { name: 'Wallis and Futuna', iso: 'WLF' },
       { name: 'Western Sahara', iso: 'ESH' },
     ],
   },
   {
-    label:'Y',
-    options:[
-    { name: 'Yemen', iso: 'YEM' },
+    label: 'Y',
+    options: [
+      { name: 'Yemen', iso: 'YEM' },
     ],
   },
   {
@@ -406,7 +392,7 @@ const options = [
 ]
 
 const emit = defineEmits(['select-change'])
-function handleSelectChange(value:any) {
+function handleSelectChange(value: any) {
   emit('select-change', value)
 }
 </script>
@@ -415,6 +401,7 @@ function handleSelectChange(value:any) {
 .el-select-dropdown__item.selected {
   color: green !important;
 }
+
 .dropdown {
   background-color: #fff;
   color: #333;
@@ -427,6 +414,7 @@ function handleSelectChange(value:any) {
 .dropdown .el-select-dropdown__item {
   color: grey;
 }
+
 .dropdown .el-select-dropdown__item.hover,
 .dropdown .el-select-dropdown__item:hover {
   background-color: rgba(149, 242, 4, 0.01);

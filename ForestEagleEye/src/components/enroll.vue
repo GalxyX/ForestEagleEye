@@ -1,23 +1,23 @@
 <template>
   <div class="enrollment-container">
     <div v-if="participations.length > 0" class="activity-list">
-    <el-table :data="participations" stripe style="width: 100%">
-      <el-table-column prop="a_name" label="活动名称" width="200"></el-table-column>
-      <el-table-column prop="a_id" label="活动编号" width="200"></el-table-column>
-      <el-table-column prop="a_location" label="活动地点" width="250"></el-table-column>
-      <el-table-column prop="a_type" label="活动类型" width="200"></el-table-column>
-      <el-table-column prop="a_beginTime" label="活动开始时间" width="300"></el-table-column>
-      <el-table-column fixed="right" label="操作" min-width="120">
-        <template #default="scope">
+      <el-table :data="participations" stripe style="width: 100%">
+        <el-table-column prop="a_name" label="活动名称" width="200"></el-table-column>
+        <el-table-column prop="a_id" label="活动编号" width="200"></el-table-column>
+        <el-table-column prop="a_location" label="活动地点" width="250"></el-table-column>
+        <el-table-column prop="a_type" label="活动类型" width="200"></el-table-column>
+        <el-table-column prop="a_beginTime" label="活动开始时间" width="300"></el-table-column>
+        <el-table-column fixed="right" label="操作" min-width="120">
+          <template #default="scope">
             <el-button round type="danger" size="small" @click="cancelEnrollment(scope.row.a_id)" class="cancel-button">
               取消报名
             </el-button>
           </template>
-      </el-table-column>
-    </el-table>
+        </el-table-column>
+      </el-table>
     </div>
     <div v-else class="no-activity">
-      <el-empty description="来到了没有森林的荒原..."> 
+      <el-empty description="来到了没有森林的荒原...">
       </el-empty>
     </div>
 
@@ -160,12 +160,11 @@ h1 {
   color: #66b1ff;
 }
 
-.el-footer{
+.el-footer {
   background-color: transparent;
   color: #ababab;
   text-align: center;
   bottom: 0;
-  font-size:xx-small;
+  font-size: xx-small;
 }
-
 </style>

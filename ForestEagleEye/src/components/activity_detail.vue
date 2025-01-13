@@ -218,10 +218,10 @@ export default {
         console.error("活动数据获取失败", error);
       }
     },
-  async deleteActivity() {
-    const activityId = this.activity.a_id;
-    try {
-      const response = await axios.post(`http://127.0.0.1:5000/delete_activity/${activityId}`);
+    async deleteActivity() {
+      const activityId = this.activity.a_id;
+      try {
+        const response = await axios.post(`http://127.0.0.1:5000/delete_activity/${activityId}`);
 
       if (response.data.status === "success") {
         this.deleteDialogVisible = false;
@@ -251,7 +251,7 @@ export default {
       try {
         const params = new URLSearchParams();
         params.append("user_id", user_id);
-        await axios.post(`http://127.0.0.1:5000/approve_activity/${activityId}`,params);
+        await axios.post(`http://127.0.0.1:5000/approve_activity/${activityId}`, params);
         this.activity.a_state = "approved";
       } catch (error) {
         console.error("同意活动失败", error);
@@ -264,7 +264,7 @@ export default {
          params.append("user_id", user_id);
          params.append("dismiss_reason", this.dismissReason);
         await axios.post(
-          `http://127.0.0.1:5000/dismiss_activity/${activityId}`,params
+          `http://127.0.0.1:5000/dismiss_activity/${activityId}`, params
         );
         this.activity.a_state = "dismissed";
       } catch (error) {
@@ -335,8 +335,8 @@ export default {
 }
 
 .info-grid {
-  margin-left:150px;
-  margin-right:80px;
+  margin-left: 150px;
+  margin-right: 80px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px 10px;
@@ -358,19 +358,27 @@ export default {
   font-weight: bold;
   color: #333;
 }
+
 .el-page-header {
-  margin-top: 20px; /* 或者其他适当的值 */
-  margin-left: 20px; /* 左边距 */
+  margin-top: 20px;
+  /* 或者其他适当的值 */
+  margin-left: 20px;
+  /* 左边距 */
 }
-.all-contents{
+
+.all-contents {
   background-color: #ffffff;
-  margin-left: 20px; /* 左边距 */
-  margin-right: 20px; /* 右边距 */
+  margin-left: 20px;
+  /* 左边距 */
+  margin-right: 20px;
+  /* 右边距 */
   margin-top: 80px;
   display: flex;
-  flex-direction: column; /* 设置子元素纵向排列 */
+  flex-direction: column;
+  /* 设置子元素纵向排列 */
 }
-.h1{
+
+.h1 {
   margin-left: 50px;
   margin-top:10px;
   margin-bottom:30px;
@@ -378,22 +386,26 @@ export default {
   font-weight: bold;
   color:grey;
 }
+
 .h2 {
   font-size: 15px;
   /* font-family: 'Source Han Serif', 'Noto Serif CJK SC', serif; */
   /* font-weight: bold;  */
-  color:rgb(164, 162, 162);
-  width:160px;
+  color: rgb(164, 162, 162);
+  width: 160px;
 }
-.h3{
+
+.h3 {
   font-size: 15px;
   /* font-family: 'Source Han Serif', 'Noto Serif CJK SC', serif; */
-  width:300px;
+  width: 300px;
   /* font-weight:bolder; */
 }
-.info-unit{
+
+.info-unit {
   display: flex;
 }
+
 .status-dot {
   display: inline-block;
   width: 15px;
@@ -401,20 +413,27 @@ export default {
   border-radius: 50%;
   margin-right: 5px;
 }
+
 .buttons {
-  display: flex;          /* 启用 Flexbox 布局 */
-  justify-content: center; /* 水平居中对齐子组件 */
-  align-items: center;     /* 垂直居中对齐子组件（如果需要的话） */
-  flex-wrap: wrap;        /* 允许子组件换行 */
-  gap: 30px;              /* 设置子组件之间的间隔为 30px */
+  display: flex;
+  /* 启用 Flexbox 布局 */
+  justify-content: center;
+  /* 水平居中对齐子组件 */
+  align-items: center;
+  /* 垂直居中对齐子组件（如果需要的话） */
+  flex-wrap: wrap;
+  /* 允许子组件换行 */
+  gap: 30px;
+  /* 设置子组件之间的间隔为 30px */
   margin-bottom: 30px;
 }
-.el-footer{
+
+.el-footer {
   background-color: transparent;
   color: #ababab;
   text-align: center;
   bottom: 0;
-  font-size:xx-small;
+  font-size: xx-small;
   margin-top: 50px;
 }
 </style>
