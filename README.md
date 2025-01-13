@@ -1,5 +1,5 @@
 # ForestEagleEye
-> 版权所有 © 2025 ForestEagleEye 项目开发组 - 采用 [MIT许可证授权](LICENSE)
+> 版权所有 © 2025 ForestEagleEye 项目开发组 - 采用 [MIT许可证授权](LICENSE)  
 > Copyright © 2025 ForestEagleEye Development Team - Licensed under [MIT.License](LICENSE)
 
 林上鹰眼——基于 MySQL 的一站式森林环境资源与信息平台  
