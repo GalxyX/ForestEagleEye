@@ -136,8 +136,8 @@ Through the `<script>` section, requests are sent to the back-end API, which is 
   
 ### 贡献者
 
-感谢[GalxyX](https://github.com/GalxyX)、[RaraCai](https://github.com/RaraCai)、[vivi-Jiang](https://github.com/vivi-Jiang)、[5555555559](https://github.com/5555555559)对本仓库的贡献。
-> Thanks to [GalxyX](https://github.com/GalxyX), [RaraCai](https://github.com/RaraCai), [vivi-Jiang](https://github.com/vivi-Jiang) and [5555555559](https://github.com/5555555559) for their contributions to this repo.
+感谢[@GalxyX](https://github.com/GalxyX)、[@RaraCai](https://github.com/RaraCai)、[@vivi-Jiang](https://github.com/vivi-Jiang)、[@5555555559](https://github.com/5555555559)对本仓库的贡献。
+> Thanks to [@GalxyX](https://github.com/GalxyX), [@RaraCai](https://github.com/RaraCai), [@vivi-Jiang](https://github.com/vivi-Jiang) and [@5555555559](https://github.com/5555555559) for their contributions to this repo.
 
 
 ### 版本控制
@@ -148,6 +148,18 @@ Through the `<script>` section, requests are sent to the back-end API, which is 
 ### 版权说明
 
 该项目签署了MIT 授权许可，详情请参阅 [LICENSE.txt](https://github.com/shaojintian/Best_README_template/blob/master/LICENSE.txt)
+
+### 项目概览
+本项目由4个主要模块组成：  
+· 森林百科：查看世界各个国家和地区的各种森林以及管理员自建数据库内所有单个林区的数据与可视化结果  
+· 林业活动：集林业活动风采展示、活动报名、活动创建与审批为一体的一站式林业活动审批流  
+· 林上论坛：与森林爱好者交换灵感，在论坛与社区发帖、评论、点赞  
+· 小林问答：AI问答助手，帮助您解决与森林相关的所有问题  
+> This project comprises four main modules:  
+· Forest Encyclopedia: View data and visualizations of forests worldwide and individual forest areas in the administrator-built database.  
+· Forestry Activities: A one-stop approval process for showcasing, registering, creating, and approving forestry events.  
+· Forest Forum: Exchange ideas with forest enthusiasts and engage in community posts, comments, and likes.  
+· Forest Q&A: An AI-powered assistant to answer all your forest-related questions.
 
 ### 其他文件
 ·[ER 图](https://kdocs.cn/l/cjCQcCVYziCP)<br>
