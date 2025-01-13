@@ -387,7 +387,11 @@ export default {
         this.mapdata = response.data.datalist;
       } catch (error) {
         //失败弹窗数据请求失败
-        alert('failed to get map data!');
+        ElMessage({
+          showClose: true,
+          message: "获取地图数据失败",
+          type: 'error',
+        })
       }
       if (this.mapdata) {
         //若请求数据成功则绘制地图

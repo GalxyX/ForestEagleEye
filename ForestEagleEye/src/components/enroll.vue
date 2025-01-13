@@ -64,13 +64,24 @@ export default {
         );
         if (response.data.success) {
           this.fetchMyEnrollments(); // 取消报名后重新加载活动列表
-          alert("取消报名成功");
+          ElMessage({
+            showClose: true,
+            message: '取消报名成功',
+            type: 'success',
+          })
         } else {
-          alert(response.data.message || "取消报名失败");
+          ElMessage({
+            showClose: true,
+            message: response.data.message || "取消报名失败",
+            type: 'error',
+          })
         }
       } catch (error) {
-        console.error("取消报名失败:", error);
-        alert("取消报名失败");
+        ElMessage({
+          showClose: true,
+          message: "取消报名失败",
+          type: 'error',
+        })
       }
     },
     setactiveIndex() {

@@ -67,7 +67,6 @@ export default {
         });
 
         // 处理响应
-        alert(response.data.message);
         if (response.data.status === 'success') {
           // 会话状态存储当前用户信息
           sessionStorage.setItem('username', response.data.username);
@@ -84,9 +83,14 @@ export default {
             sessionStorage.setItem('forest', response.data.forest);
             sessionStorage.setItem('inst', response.data.inst);
           }
-
+          ElMessage({
+            showClose: true,
+            message: response.data.message,
+            type: 'success',
+          })
           // 登陆成功跳转主页
           this.$router.push('/');
+
         } 
       } catch (error) {
         if (response.data.message == "请求错误")

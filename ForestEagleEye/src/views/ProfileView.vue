@@ -209,11 +209,19 @@ export default {
           this.closeAvatarUploadDialog(); // 关闭对话框
           window.location.reload();
         } else {
-          alert('上传失败: ' + response.data.message);
+          
+          ElMessage({
+            showClose: true,
+            message: response.data.message,
+            type: 'error',
+          })
         }
       } catch (error) {
-        console.error('上传失败:', error);
-        alert('上传失败，请稍后再试');
+        ElMessage({
+          showClose: true,
+          message: '上传失败',
+          type: 'error',
+        })
       }
     },
     async toggleEdit() {
@@ -250,7 +258,11 @@ export default {
           });
         }
         catch (error) {
-          alert(response.data.message);
+          ElMessage({
+            showClose: true,
+            message: response.data.message,
+            type: 'error',
+          })
         }
       }
       this.isEditing = false;
@@ -276,7 +288,11 @@ export default {
           });
         }
         catch (error) {
-          alert(response.data.message);
+          ElMessage({
+            showClose: true,
+            message: response.data.message,
+            type: 'error',
+          })
         }
         this.username = this.editedName;
         // 更新会话中的存储

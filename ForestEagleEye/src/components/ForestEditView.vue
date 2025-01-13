@@ -403,7 +403,6 @@ const handleExceed = (files: UploadFile[], filesList: UploadFile[]) => {
 };
 
 const handleSuccess = (response: any, file: UploadFile) => {
-  alert('文件上传成功');
   ElNotification({
     title: '上传成功',
     message: '图片成功添加到林上鹰眼数据库~',

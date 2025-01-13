@@ -146,13 +146,25 @@ export default {
         );
         if (response.data.success) {
           this.$router.push("/activities");
-          alert("报名成功");
+          ElMessage({
+            showClose: true,
+            message: "报名成功",
+            type: 'success'
+          });
         } else {
-          alert(response.data.message || "报名失败");
+          ElMessage({
+            showClose: true,
+            message: response.data.message || "报名失败",
+            type: 'error'
+          });
         }
       } catch (error) {
         console.error("报名失败:", error);
-        alert("报名失败");
+        ElMessage({
+          showClose: true,
+          message: "报名失败",
+          type: 'error'
+        });
       }
     },
   },

@@ -148,7 +148,11 @@ export default {
         this.insts = response.data.insts;
       } catch (error) {
         console.error('Error Fetching options:', error);
-        alert(error);
+        ElMessage({
+          showClose: true,
+          message: error,
+          type: 'error',
+        })
       }
     },
     async send_verification_code() {
@@ -197,9 +201,14 @@ export default {
 
         const response = await axios.post('http://127.0.0.1:5000/register', params);
 
-        // 处理响应
-        alert(response.data.message);
+        
         if (response.data.status === 'success') {
+          
+          ElMessage({
+            showClose: true,
+            message: response.data.message,
+            type: 'success',
+          })
           //注册成功直接跳转到Login
           this.$router.push('/login');
         }
