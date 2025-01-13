@@ -17,12 +17,12 @@
               </template>
             </el-menu-item>
 
-            <el-menu-item index="3" v-if="role === '林业从业人员' || role === '林业监管人员'">
+            <el-menu-item index="3" v-if="role === '林业从业人员'">
               <template #title>
                 <el-icon><icon-menu /></el-icon>我的申请
               </template>
             </el-menu-item>
-            <el-menu-item index="4" v-if="role === '林业管理人员' || role === '林业监管人员'">
+            <el-menu-item index="4" v-if="role === '林业管理人员'">
               <template #title>
                 <el-icon><icon-menu /></el-icon>我的审批
               </template>
