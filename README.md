@@ -23,8 +23,16 @@
 ### 上手指南
 
 ###### 项目介绍
-
-
+本项目设计并实现了“林上鹰眼”森林环境资源监控网站。
+该系统充分利用现代信息技术手段，通过集成实时数据采集、存储与分析功能，
+极大提升了森林资源监控与管理效率，支持科学研究与政策决策的制定，并通过
+增强公众环保意识，推动社会对森林保护的重视与行动。项目系统采用 Flask 框
+架与 MySQL 数据库构建，前端提供直观且用户友好的网页界面，后端则通过强
+大的数据处理能力支持全球及本地森林资源和环境数据的实时收集与分析。系统
+通过为不同角色（普通用户、林业从业人员、林业管理人员和林业局监管人员）
+提供定制化功能模块，包括森林资源查询、林业活动规划与审批、互动交流论坛
+以及智能 AI 问答等，确保各类用户能够根据自身需求高效操作。  
+> This project designs and implements the "ForestEagleEye" forest environmental resource monitoring website. The system leverages modern information technology to integrate real-time data collection, storage, and analysis, significantly enhancing the efficiency of forest resource monitoring and management. It supports scientific research and policy-making while raising public environmental awareness and promoting societal engagement in forest protection. Built with the Flask framework and MySQL database, the system offers an intuitive, user-friendly web interface on the front end and robust data processing capabilities on the back end for real-time global and local forest resource and environmental data collection and analysis. Customized functional modules for different roles (general users, forestry practitioners, managers, and regulatory personnel) include forest resource queries, forestry activity planning and approval, interactive forums, and intelligent AI Q&A, ensuring efficient operation according to user needs.
 
 ###### 开发前的配置要求
 
@@ -108,6 +116,12 @@ FORESTEAGLEEYE\SRC
 
 
 ### 开发的架构 
+林上鹰眼项目前端使用 Vue.js 框架，在所有.vue 文件中包含了 html（<template>）、CSS（<style>）框架和 JavaScript（<script>）的前后端请求响应连接部分。
+通过<script>向由 基于python的Flask 搭建的后端 API 发送请求，后端响应请求并于 MySQL 数据库交互，
+将结果返回给前端，前端处理响应后，等待用户进一步操作。  
+> The ForestEagleEye project utilizes the `Vue.js` framework on the front end. All .vue files encompass the HTML (`<template>`), CSS (`<style>`), and JavaScript (`<script>`) sections, which facilitate the connection between front-end and back-end request and response interactions.  
+Through the `<script>` section, requests are sent to the back-end API, which is constructed using Python-based `Flask`. The back end processes these requests and interacts with the MySQL database. The results are then returned to the front end, which handles the responses and awaits further user actions.  
+<img width="444" alt="系统开发架构" src="https://github.com/user-attachments/assets/4bd8bbbb-e0b1-45c0-b1fa-7c8686041b54" />
 
 
 ### 部署
@@ -116,25 +130,14 @@ FORESTEAGLEEYE\SRC
 
 ### 使用到的框架
 
-- [xxxxxxx](https://getbootstrap.com)
-- [xxxxxxx](https://jquery.com)
-- [xxxxxxx](https://laravel.com)
-
+- [Vue.js](https://cn.vuejs.org/)
+- [Elements-UI](https://element-plus.org/zh-CN/)
+- [FCharts](https://echarts.apache.org/zh/index.html)
+- [Flask](https://dormousehole.readthedocs.io/en/latest/index.html)
+  
 ### 贡献者
 
 请阅读**CONTRIBUTING.md** 查阅为该项目做出贡献的开发者。
-
-#### 如何参与开源项目
-
-贡献使开源社区成为一个学习、激励和创造的绝佳场所。你所作的任何贡献都是**非常感谢**的。
-
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
 
 
 ### 版本控制
