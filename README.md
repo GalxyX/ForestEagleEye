@@ -40,11 +40,10 @@
 2. pip运行环境及相关依赖  
 3. [高德开放平台API](https://lbs.amap.com/)  
 4. MySQL数据库及密钥  
->
-1. Vite runtime environment and related dependencies  
-2. Pip runtime environment and related dependencies  
-3. [Gaode Open Platform API](https://lbs.amap.com/)  
-4. MySQL database and keys  
+> 1. Vite runtime environment and related dependencies  
+> 2. Pip runtime environment and related dependencies  
+> 3. [Gaode Open Platform API](https://lbs.amap.com/)  
+> 4. MySQL database and keys  
 
 ###### **安装步骤(Installation-Steps)**
 1. 克隆仓库  
@@ -58,25 +57,25 @@ npm run dev
 python app.py
 ```
 >
-1. Clone the repo  
-```sh
-git clone https://github.com/GalxyX/ForestEagleEye.git
-```
-2. npm install  
-```sh
-npm install
-```
-3. pip install  
-```sh
-pip install
-```
-4. Get a free API Key at [https://lbs.amap.com/](https://lbs.amap.com/) and replace the  `app.py`  
-5. Use your MySQL configuration to replace `app.py`  
-6. run the project  
-```sh
-npm run dev
-python app.py
-```
+> 1. Clone the repo  
+> ```sh
+> git clone https://github.com/GalxyX/ForestEagleEye.git
+> ```
+> 2. npm install  
+> ```sh
+>npm install
+> ```
+> 3. pip install  
+> ```sh
+> pip install
+> ```
+> 4. Get a free API Key at [https://lbs.amap.com/](https://lbs.amap.com/) and replace the  `app.py`  
+> 5. Use your MySQL configuration to replace `app.py`  
+> 6. run the project  
+> ```sh
+> npm run dev
+> python app.py
+> ```
 
 ### 文件目录说明(Directory-Structure-Explanation)
 我们采用vue.js的前端框架，尽可能做到前端界面的组件化。在项目的文件结构中，`/assets`是项目运行所必须的文件，`/components`是我们封装好的组件，`/views`是主要界面。  
