@@ -17,14 +17,14 @@
               </template>
             </el-menu-item>
 
-            <el-menu-item index="3" v-if="role === '林业管理人员' || role === '林业监管人员'">
-              <template #title>
-                <el-icon><icon-menu /></el-icon>我的审批
-              </template>
-            </el-menu-item>
-            <el-menu-item index="4" v-if="role === '林业从业人员' || role === '林业监管人员'">
+            <el-menu-item index="3" v-if="role === '林业从业人员' || role === '林业监管人员'">
               <template #title>
                 <el-icon><icon-menu /></el-icon>我的申请
+              </template>
+            </el-menu-item>
+            <el-menu-item index="4" v-if="role === '林业管理人员' || role === '林业监管人员'">
+              <template #title>
+                <el-icon><icon-menu /></el-icon>我的审批
               </template>
             </el-menu-item>
           </el-menu>
@@ -41,10 +41,10 @@
             <EnrollBox />
           </div>
           <div v-if="activeIndex === '3'">
-            <ApproveBox />
+            <ApplyBox />
           </div>
           <div v-if="activeIndex === '4'">
-            <ApplyBox />
+            <ApproveBox />
           </div>
         </el-main>
       </el-container>
@@ -110,15 +110,6 @@ export default {
 }
 .el-menu-item.is-active {
   color: #60a103;
-}
-
-.container {
-  background-color: white;
-  width: 95%;
-  margin: 20px auto;
-  padding: 20px 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 h1 {

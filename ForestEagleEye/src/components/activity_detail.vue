@@ -1,136 +1,156 @@
 <template>
-  <div class="container">
+  <div class="common-layout">
     <!-- 顶部导航栏 -->
     <NavigationBar />
 
-    <div class="all-contents">
+    <div class="container">
       <el-page-header @back="handleBack" content="活动详情" title="返回">
       </el-page-header>
+      
       <el-divider></el-divider>
 
-      <div v-if="activity">
-        <!-- 审批流程展示 -->
-        <div class="h1">申请流程</div>
-        <div class="approval-steps">
-          <el-steps :active="getApprovalStep()" finish-status="success" align-center>
-            <el-step title="申请提交"></el-step>
-            <el-step title="审批中"></el-step>
-            <el-step title="申请通过"></el-step>
-            <el-step title="活动完成"></el-step>
-          </el-steps>
-        </div>
-        <!-- 活动信息 -->
-        <div class="h1">活动信息</div>
-        <div class="activity-info">
-            <div class="info-grid">
-              <div class="info-unit">
-                <p class="h2">活动名称</p>
-                <p class="h3">{{ activity.a_name }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动编号</p>
-                <p class="h3">{{ activity.a_id }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动地点</p>
-                <p class="h3">{{ activity.a_location }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动类型</p>
-                <p class="h3">{{ activity.a_type || "未知" }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动开始时间</p>
-                <p class="h3">{{ activity.a_beginTime }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动结束时间</p>
-                <p class="h3">{{ activity.a_endTime }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动人数</p>
-                <p class="h3">{{ activity.a_participantNumber }}</p>
-              </div>
-              <div v-if="activity.a_ableParticipate" class="info-unit">
-                <p class="h2">已报名人数</p>
-                <p class="h3">{{ activity.a_enrolledNumber }}</p>
-              </div>
-              <div class="info-unit">
-                <p class="h2">活动主办单位</p>
-                <p class="h3">{{ activity.a_forest }}</p>
-              </div>
-            </div>
-
-            <div class="h1">活动简介</div>
-              <p class="h3" style="margin-left:120px;margin-top:20px;">{{ activity.a_introduction }}</p>
-              
-
-              <!-- 图片显示 -->
-              <div v-if="activity.a_picPath">
-                <h2 class="h1">活动封面</h2>
-                <div class="images" style="margin-left:120px;margin-top:20px;">
-                  <img :src="activity.a_picPath" alt="活动封面" />
-                </div>
-              </div>
-        </div>
-
-        <el-divider></el-divider>
-        <!-- 审批信息 -->
-        <div class="approval-info">
-          <h2 class="h1">审批信息</h2>
-          <div class="info-grid">
-            <div class="info-unit">
-                <p class="h2">审批状态</p>
-                <p class="h3" :style="{ color: getStateColor(activity.a_state) }">
-                  <span v-if="activity.a_state" :style="{ backgroundColor: getStateColor(activity.a_state) }" class="status-dot"></span>
-                  {{ getStateText(activity.a_state) }}
-                </p>
-
-                <!-- <p class="h3">{{ activity.a_state === 'approving' ? '审批中' : activity.a_state === 'approved' ? '已通过' : '已驳回' }}</p> -->
-            </div>
-            <div class="info-unit">
-                <p class="h2">申请人编号</p>
-                <p class="h3">{{ activity.a_applicantId }}</p>
-            </div>
-            <div class="info-unit">
-                <p class="h2">申请提交时间</p>
-                <p class="h3">{{ activity.a_submitTime }}</p>
-            </div>
+      <div v-if="activity" style="margin-left: 60px;margin-right: 60px;">
+        <!-- 审批流 -->
+        <div style="margin-top: 20px;">
+          <el-descriptions
+            title="申请流程"
+            direction="vertical"
+            :column="1"
+          >
+        </el-descriptions>
+          <div class="approval-steps">
+            <el-steps :active="getApprovalStep()" finish-status="success" align-center>
+              <el-step title="申请提交"></el-step>
+              <el-step title="审批中"></el-step>
+              <el-step title="申请通过"></el-step>
+              <el-step title="活动完成"></el-step>
+            </el-steps>
           </div>
         </div>
+        <!-- 活动信息表单 -->
+        <div style="margin-top: 20px;">
+          <el-descriptions 
+            title="活动信息"
+            :column="3">
+            <el-descriptions-item label="活动编号">ACT{{activity.a_id}}</el-descriptions-item>
+            <el-descriptions-item label="活动名称">{{activity.a_name}}</el-descriptions-item>
+            <el-descriptions-item label="活动地点">{{activity.a_location}}</el-descriptions-item>
+            <el-descriptions-item label="活动类型">
+              <el-tag size="normal" type="success">{{activity.a_type || "未知"}}</el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label="活动开始时间">{{activity.a_beginTime}}</el-descriptions-item>
+            <el-descriptions-item label="活动结束时间">{{activity.a_endTime}}</el-descriptions-item>
+            <el-descriptions-item label="计划人数">{{activity.a_participantNumber}}</el-descriptions-item>
+            <el-descriptions-item label="已报名人数">{{activity.a_enrolledNumber}}</el-descriptions-item>
+            <el-descriptions-item label="主办单位">{{activity.a_inst}}</el-descriptions-item>        
+          </el-descriptions>
+        </div>
+        
+        <!--活动简介-->
+        <div style="margin-top: 20px;"> 
+          <el-descriptions
+          title="活动简介"
+          direction="vertical"
+          :column="1"
+          >
+            <el-descriptions-item>{{activity.a_introduction}}</el-descriptions-item>        
+          </el-descriptions>
+        </div>
+
+        <!-- 图片显示 -->
+        <div v-if="activity.a_picPath" style="margin-top: 20px;">
+          <el-descriptions
+            title="活动封面"
+            direction="vertical"
+            :column="1"
+          ></el-descriptions>
+          <div class="images">
+            <img :src="activity.a_picPath" alt="活动封面" />
+          </div>
+        </div>
+        
+        <!-- 审批信息 -->
+        <div style="margin-top: 20px;">
+          <el-descriptions
+            title="审批信息"
+            :column="3"
+          >
+          <el-descriptions-item label="审批状态">
+            <el-tag v-if="activity.a_state === 'approving'" size="normal" type="warning">审批中</el-tag>
+            <el-tag v-if="activity.a_state === 'approved'" size="normal" type="success">已通过</el-tag>
+            <el-tag v-if="activity.a_state === 'dismissed'" size="normal" type="error">已驳回</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="申请人编号">U{{activity.a_applicantId}}</el-descriptions-item>
+          <el-descriptions-item label="申请提交时间">{{activity.a_submitTime}}</el-descriptions-item>
+          <el-descriptions-item label="驳回原因" v-if="activity.a_state === 'dismissed'">{{activity.a_dismissReason}}</el-descriptions-item>
+        </el-descriptions>
+        </div>
+        
 
         <div class="buttons">
-          <div class="action-buttons">
-            <form @click="deleteActivity">
-              <el-button round type="danger">删除活动</el-button>
-            </form>
+          <div class="action-buttons" v-if="user_role ==='林业从业人员'">
+            <el-button plain type="danger" @click="deleteDialogVisible=true">撤销申请</el-button>
+            <!--确认撤销申请弹窗-->
+            <el-dialog
+              v-model="deleteDialogVisible"
+              title="提示"
+              width="500"
+              :before-close="handleClose"
+            >
+              <span>您确认撤销此次活动申请吗？</span>
+              <template #footer>
+                <div class="dialog-footer">
+                  <el-button plain type="info" @click="deleteDialogVisible = false">取消</el-button>
+                  <el-button type="success" @click="deleteActivity">
+                    确认
+                  </el-button>
+                </div>
+              </template>
+            </el-dialog>
           </div>
+          
 
           <div class="action-buttons" v-if="isApprover && activity.a_state === 'approving'">
             <form @click="approveActivity">
-              <el-button round type="success">同意</el-button>
+              <el-button plain type="success">同意申请</el-button>
             </form>
           </div>
 
           <div class="action-buttons" v-if="isApprover && activity.a_state === 'approving'">
-            <form @click="dismissActivity">
-              <el-button round type="warning">驳回</el-button>
-            </form>
-          </div>
-          <div class="action-buttons" v-if="isApprover && activity.a_state === 'approving'">
-          <el-input
+            <el-button plain type="warning" @click="dismissDialogVisible = true">驳回申请</el-button>
+            <!--驳回理由弹窗-->
+            <el-dialog
+              v-model="dismissDialogVisible"
+              title="驳回理由"
+              width="500"
+              :before-close="handleClose"
+            >
+              
+              <el-input
                 type="textarea"
                 v-model="dismissReason"
                 id="dismiss_reason"
                 placeholder="请输入驳回理由"
-                style="width: 300px;"
-          ></el-input> 
+                style="width: 470px;"
+              ></el-input> 
+              
+              <template #footer>
+                <div class="dialog-footer">
+                  <el-button plain type="info" @click="dismissDialogVisible = false">取消</el-button>
+                  <el-button type="success" @click="dismissActivity">
+                    驳回
+                  </el-button>
+                </div>
+              </template>
+            </el-dialog>
+
           </div>
+         
         </div>
 
       </div>
       <div v-else>
-        <p>加载中...</p>
+        <el-empty description="来到了没有森林的荒原..." />
       </div>
     </div>
     <el-footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</el-footer>
@@ -143,7 +163,10 @@ import NavigationBar from "../components/navbar.vue";
 import { ArrowLeft } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
+import { formatDateTime } from "../components/formatTime";
+
 const user_id = sessionStorage.getItem("user_id");
+
 export default {
   components: {
     NavigationBar,
@@ -153,6 +176,9 @@ export default {
       activity: null, // 活动数据
       isApprover: false, // 是否是审批人
       dismissReason: "", // 驳回理由
+      user_role: sessionStorage.getItem('role'),
+      deleteDialogVisible: false,
+      dismissDialogVisible: false,
     };
   },
   setup() {
@@ -181,6 +207,12 @@ export default {
         );
         const { activity, isApprover } = response.data;
         this.activity = activity;
+        if(this.activity){
+          //将所有时间标准化
+          this.activity.a_beginTime = formatDateTime(new Date(this.activity.a_beginTime));
+          this.activity.a_endTime = formatDateTime(new Date(this.activity.a_endTime));
+          this.activity.a_submitTime = formatDateTime(new Date(this.activity.a_submitTime));
+        }
         this.isApprover = isApprover;
       } catch (error) {
         console.error("活动数据获取失败", error);
@@ -192,10 +224,11 @@ export default {
       const response = await axios.post(`http://127.0.0.1:5000/delete_activity/${activityId}`);
 
       if (response.data.status === "success") {
+        this.deleteDialogVisible = false;
         // 删除成功的提示
         ElNotification({
-          title: '删除成功',
-          message: '活动已成功删除~',
+          title: '撤销成功',
+          message: '本次活动申请已成功撤销~',
           type: 'success',
         });
         // 跳转到活动列表页面
@@ -207,7 +240,7 @@ export default {
       console.error("删除活动失败", error);
       // 删除失败的提示
       ElNotification({
-        title: '删除失败',
+        title: '撤销失败',
         message: error.message || "请稍后再试",
         type: 'error',
       });
@@ -226,11 +259,10 @@ export default {
     },
     async dismissActivity() {
       const activityId = this.activity.a_id;
-
       try {
          const params = new URLSearchParams();
          params.append("user_id", user_id);
-         params.append("udismiss_reason", this.dismissReason);
+         params.append("dismiss_reason", this.dismissReason);
         await axios.post(
           `http://127.0.0.1:5000/dismiss_activity/${activityId}`,params
         );
@@ -254,35 +286,21 @@ export default {
           return 1;
       }
     },
-    getStateColor(state) {
-    switch (state) {
-      case 'approving':
-        return '#db9d41'; // 审批中的颜色，例如：浅珊瑚色
-      case 'approved':
-        return '#60a130'; // 已通过的颜色，例如：亮绿色
-      default:
-        return '#8d2c2c'; // 已驳回的颜色，例如：红色
-    }
-    },
-    getStateText(state) {
-      switch (state) {
-        case 'approving':
-          return '审批中';
-        case 'approved':
-          return '已通过';
-        default:
-          return '已驳回';
-      }
-    },
+    
   },
 };
 </script>
 
 <style scoped>
-.container {
-  display: flex;       /* 使用Flexbox布局 */
-  flex-direction: column; /* 设置主轴方向为垂直 */
-  background-color: #f8f8f8;
+.common-layout{
+  padding-top: 50px;
+  background-color: #F0F2F5;
+}
+
+.container{
+  background-color: white;
+  padding: 1px 20px 10px 20px; /* 上 右 下 左 */
+  margin: 20px 40px 20px 40px; /* 上 右 下 左 */
 }
 
 .page-header {
@@ -325,14 +343,13 @@ export default {
 }
 
 .images img {
-  width: 300px;
+  width: 500px;
   height: auto;
   border-radius: 4px;
 }
 
 .action-buttons {
   margin-top: 20px;
-  display: flex;
   gap: 10px;
 }
 
@@ -357,8 +374,8 @@ export default {
   margin-left: 50px;
   margin-top:10px;
   margin-bottom:30px;
-  font-size:20px;
-  font-weight: lighter;
+  font-size:normal;
+  font-weight: bold;
   color:grey;
 }
 .h2 {

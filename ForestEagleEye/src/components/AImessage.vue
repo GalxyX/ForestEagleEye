@@ -1,21 +1,28 @@
 <template>
   <main class="message-container" :class="{ 'left': name === '小林', 'right': name !== '小林' }">
-    <img :src="avatar_img" alt="对话头像" class="avatar" />
+    
     <div class="message-content">
-      <div class="message-header">
+      <div v-if="name==='小林'" class="message-header-left">
+        <img :src="avatar_img" alt="对话头像" class="avatar" />
         <p class="name">{{ name }}</p>
-        <p class="time">{{ time }}</p>
       </div>
+      <div v-else class="message-header-right">
+        <p class="name">{{ name }}</p>
+        <img :src="avatar_img" alt="对话头像" class="avatar" />
+      </div>
+
       <div
         class="message-bubble"
         :style="{
           backgroundColor: name === '小林' ? 'white' : '#d4edda', /* 浅绿色背景 */
-          color: '#333', /* 保持文字颜色一致 */
+          color: '#333', 
           border: name !== '小林' ? '1px solid #28a745' : '1px solid #ccc' /* 边框颜色 */
         }"
       >
         <p>{{ message }}</p>
+        
       </div>
+      <p class="time">{{ time }}</p>
     </div>
   </main>
 </template>
@@ -61,12 +68,20 @@ const props = defineProps<{
   max-width: 70%;
 }
 
-.message-header {
-  display: flex;
-  justify-content: space-between;
+.message-header-left {
   align-items: center;
   font-size: 12px;
   color: #888;
+  display: flex;
+  justify-content: left;
+}
+
+.message-header-right {
+  align-items: center;
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  justify-content: right;
 }
 
 .name {
@@ -78,6 +93,8 @@ const props = defineProps<{
 .time {
   font-size: 12px;
   color: #aaa;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .message-bubble {
@@ -86,5 +103,7 @@ const props = defineProps<{
   margin-top: 3px; /* 调小消息框与上一部分的间距 */
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   word-wrap: break-word;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 </style>

@@ -23,7 +23,7 @@
             <img class="icon-message" src="../assets/icon-message-normal.png">
             <img class="icon-message" src="../assets/icon-profile-normal.png" @click="profile">
             <div class="vertical-divider"></div>
-            <img class="user-avatar":src="avatar ?? '#'" alt="avatar" width="100" height="100" />
+            <img class="user-avatar" src="../assets/default-avatar.png" alt="avatar" width="100" height="100" />
             <span class="user-nickname">{{username}}</span>
             <button class="btn-logout" @click="logout" v-if="username">退出登录</button>
             <button class="btn-logout" @click="login" v-else="">登录/注册</button>

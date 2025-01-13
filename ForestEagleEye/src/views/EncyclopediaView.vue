@@ -47,7 +47,7 @@
                           <h1 style="font-size: x-large; margin-bottom: 10px; color: #60a130;">Forest Encyclopedia</h1>
                           <h2 style="font-size: xx-large; margin-top: 10px;">森林百科</h2>
                         </div>
-                        <div style="display: flex; gap: 50px;">
+                        <div style="display: flex; gap: 50px; margin-bottom: 50px;">
                           <!--世界林区覆盖地图-->
                           <div style="display: flex; flex-direction: column;margin-left:50px;">
                             <div id="world-map" style="width: 800px; height: 400px; border: 1px solid grey;"></div>
@@ -66,8 +66,9 @@
                             <el-button class="try-btn" type="success" plain style="margin-top: 20px;"@click="scrolldown">立即体验</el-button>
                           </div>
                         </div>
+                        <el-divider id="anchorPoint">· ForestEagleEye · Forest Encyclopedia ·</el-divider>
                         <!--森林百科功能详细介绍-->
-                        <div style="margin-left: 80px; margin-top: 50px;">
+                        <div style="margin-left: 80px; margin-top: 50px;" >
                           <h2 style="font-size: large; margin-top: 5px; color:#60a130;">全球森林资源数据</h2>
                           <div style="display: flex; gap: 30px; align-items: center;">
                             <img src="../assets/encyclo1.jpg" style="width: 300px; height: 180px;">
@@ -94,9 +95,6 @@
                           </div>
                         </div>
 
-                        <div id="anchorPoint" style="margin-top: 60px; margin-left: 50px; width:93%">
-                          
-                        </div>
                       </div>
 
                     </div>

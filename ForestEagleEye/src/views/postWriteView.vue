@@ -222,14 +222,16 @@ const handleUpload = (file: File, fileList: File[]) => {
         </div>
         <div class="right">
           <h2>创建你的内容</h2>
-          <textarea placeholder="请输入内容" v-model="comment" rows="1" style="resize: none;"></textarea>
+          <textarea placeholder="请输入内容" v-model="comment" rows="1" style="resize: none; font-family:Arial, Helvetica, sans-serif;"></textarea>
         </div>
       </div>
-      <div style="  display: flex; /* 使用 Flexbox 布局 */
-            justify-content: center; /* 水平居中 */
-            align-items: center; /* 垂直居中 */">
-          <button @click="submitPost">✍ 一键发布
-          </button>
+
+      <div 
+          style="display: flex; 
+          justify-content: center; 
+          align-items: center; 
+        ">
+        <el-button plain type="success" @click="submitPost">✍一键发布</el-button>
       </div>
     
     <!-- 上传图片 -->
@@ -283,17 +285,6 @@ el-upload {
   margin-bottom: 1vh;
 }
 
-button {
-  width:160px;
-  height: 5vh;
-  background-color: #60a130;
-  color: white;
-  border: none;
-  border-radius: 18px;
-  margin: 1vh;
-  font-size: 15px;
-}
-
 /* 转发 */
 .oriPost-container {
   margin: 10px;
@@ -304,7 +295,7 @@ button {
   padding-bottom: 12px;
   padding-right: 10px;
   border-radius: 14px;
-  border: 2px solid #60a130; /* 设置边框为2px宽的实线，颜色为#60a130 */
+  border: 1px solid #60a130; 
   line-height: 0.5;
   box-shadow: 0 13px 20px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
   display: flex;
@@ -312,9 +303,9 @@ button {
 }
 
 .oriPost-container:hover {
-  border: 2px solid #60a130; /* 设置边框为2px宽的实线，颜色为#60a130 */
-  background-color: #60a130;
-  color:#ffffff;
+  border: 1px solid #60a130; 
+  background-color: rgba(149, 242, 4, 0.1);
+  color:#60a130;
 }
 
 .oriPost-container p {
@@ -350,11 +341,6 @@ button {
 .left, .right {
   width: 50%;
 }
-.mycontent{
-  display: flex;
-  flex-direction: row;
-  padding-right: 20px;
-}
 .el-upload{
   margin-left: 89px;
 }
@@ -380,7 +366,7 @@ button {
   border-radius: 50%;
 }
 .oriPost-container:hover p {
-  color: white;
+  color: #60a130;
 }
 .title{
   flex: 3;

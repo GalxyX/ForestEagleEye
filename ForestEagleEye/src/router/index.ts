@@ -28,7 +28,7 @@ const router = createRouter({
     {
       path: '/encyclopedia',
       name: 'encyclopedia',
-      component: () => import('../views/encyclopedia.vue')
+      component: () => import('../views/EncyclopediaView.vue')
     },
     {
       path: '/forum',
@@ -54,20 +54,6 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: () => import('../views/ProfileView.vue')
-    },
-    {
-      path: '/message',
-      name: 'message',
-      component: () => import('../views/message.vue')
-    },
-    {
-      path: '/forest_detail/:id',
-      name: 'forest_detail',
-      component: () => import('../components/ForestDetailView.vue'),
-      meta: {
-        id: 1,
-        title: '森林详情'
-      }
     },
     {
       path: '/forests/:id/edit', // 使用动态路径参数 :id

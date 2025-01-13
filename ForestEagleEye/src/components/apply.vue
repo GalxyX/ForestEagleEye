@@ -1,5 +1,5 @@
 <template>
-  <div class="apply-page">
+  <div class="container">
      <!-- Tab 切换 -->
       <div class="tabs">
         <div class="tabs-header">
@@ -21,7 +21,7 @@
       <el-table :data="filteredActivities" stripe style="width: 100%">
         <el-table-column prop="a_name" label="活动名称" width="240"></el-table-column>
         <el-table-column prop="a_id" label="活动编号" width="240"></el-table-column>
-        <el-table-column prop="a_forest" label="审批单位" width="240"></el-table-column>
+        <el-table-column prop="a_inst" label="审批单位" width="240"></el-table-column>
         <el-table-column label="审批人" width="240">
           <template v-slot="scope">
             {{ scope.row.a_approver_id || "未知" }}
@@ -35,16 +35,13 @@
         <el-table-column fixed="right" label="操作" min-width="240">
           <template #default="scope">
               <el-button link type="success"  @click="viewDetails(scope.row.a_id)">
-                Read more
+                编辑
               </el-button>
             </template>
         </el-table-column>
       </el-table>
     </div>
 
-    <!-- <div class="action-buttons">
-      <el-button type="primary" @click="navigateToCreateActivity">创建新活动</el-button>
-    </div> -->
     <el-button class="mt-4" type="success" plain style="width: 100%" @click="navigateToCreateActivity">+   创建新活动</el-button>
     
   </div>
@@ -53,6 +50,7 @@
 
 <script>
 import axios from "axios";
+import { formatDateTime } from "../components/formatTime";
 
 export default {
   name: "apply",
@@ -104,6 +102,20 @@ export default {
           this.approvedActivities = response.data.approved_activities;
           this.dismissedActivities = response.data.dismissed_activities;
 
+          // approved和dismissed列表时间格式化
+          if(this.approvedActivities){
+            this.approvedActivities.forEach(activity => {
+              let tmp_time = activity.a_approveTime;
+              activity.a_approveTime = formatDateTime(new Date(tmp_time));
+            });
+          }
+          if(this.dismissedActivities){
+            this.dismissedActivities.forEach(activity => {
+              let tmp_time = activity.a_approveTime;
+              activity.a_approveTime = formatDateTime(new Date(tmp_time));
+            });
+          }
+
           console.log(response.data);
         } catch (error) {
           console.error("获取审批活动失败:", error);
@@ -123,8 +135,11 @@ export default {
 </script>
 
 <style scoped>
-.apply-page {
-  padding: 20px;
+.container {
+  background-color: white;
+  width:95%;
+  margin-bottom: 20px;
+  padding:10px 40px 30px 40px;
 }
 
 .activity-list {
@@ -149,15 +164,6 @@ export default {
   font-size: 14px;
   margin: 5px 0;
   color: #666;
-}
-
-.activity-actions {
-  margin-left: 20px;
-}
-
-.activity-actions .el-button {
-  color: #409eff;
-  font-size: 14px;
 }
 
 .action-buttons {

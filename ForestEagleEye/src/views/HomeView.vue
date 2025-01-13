@@ -201,7 +201,7 @@ const sections = ref([
         <!--林上资讯-->
   <section>
     <div class="function-intro-topic">
-      <p>Forest News·林上资讯</p>
+      <p>Forest News · 林上资讯</p>
       <h2>从林上鹰眼获得新闻</h2>
     </div>
     <div class="function-example-container">
@@ -226,7 +226,7 @@ const sections = ref([
 
     <section>
     <div class="function-intro-topic">
-      <p>Forest Events·林业活动</p>
+      <p>Forest Events · 林业活动</p>
       <h2>享受林上鹰眼的活动</h2>
       </div>
     <div class="forest-events-section">

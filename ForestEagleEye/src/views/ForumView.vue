@@ -4,7 +4,7 @@ import Nav from '../components/navbar.vue'
 import postPreview from '../components/postPreview.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import { formatDateTime } from '@/components/fotmatTime';
+import { formatDateTime } from '@/components/formatTime';
 
 const username = ref(sessionStorage.getItem('username'));
 const avatar = ref(sessionStorage.getItem('avatar'));
@@ -73,9 +73,19 @@ onMounted(async () => {
   <main style="background-color:#f0f2f5;">
     <!-- 网页主体内容 -->
     <div class="all-contents">
-      <!--左侧帖子-->
       <div class="posts-block">
-        <h1>实时热帖</h1>
+        <!--顶部论坛介绍-->
+        <div style="display: block; margin-bottom: 30px;">
+          <h1 style="font-size: x-large; margin-bottom: 10px; margin-top:30px; color: #60a130;">Forest Forum</h1>
+          <h2 style="font-size: xx-large; margin-top: 10px; margin-bottom: 10px;">实时热帖</h2>
+          <el-alert
+            title="🔈论坛公告：欢迎来到林上论坛！在这里与森林爱好者一起分享知识、活动打卡、探讨热点话题，携手构建一个充满活力的森林交流平台。您在论坛中的所有行为都应遵守法律法规，发布内容真实、尊重他人、原创保护！"
+            type="warning"
+            :closable="false"
+            style="font-size: small;">
+          </el-alert>
+        </div>
+        <!--左侧帖子-->
         <postPreview v-for="post in posts" :key="post.id" :id="post.id" :title="post.title"
           :time="formatDateTime(post.time)" :content="post.content_preview"
           :image="post.images.length ? post.images[0] : ''" :likeNum="post.like_count" :liked="post.is_liked" />
@@ -106,7 +116,7 @@ onMounted(async () => {
               <el-divider style="width: 100px;"></el-divider>
               <div class="unit">
                 <p class="h2">昨日点赞数据</p>
-                <p class="text">20</p>
+                <p class="text">13</p>
               </div>
             </div>
             <el-divider direction="vertical" style="height: 150px;"></el-divider>
@@ -129,14 +139,17 @@ onMounted(async () => {
             发点什么
           </RouterLink>
         </aside>
+        
         <el-footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</el-footer>
       </div>
 
     </div>
-  </main>
-  <!--底部版权信息-->
+    <!--底部版权信息-->
   <footer>&copy; 2024 同济大学·ForestEagleEye·项目开发组. All rights reserved.</footer>
+  </main>
 </template>
+
+
 <style scoped>
 main {
   padding-left: 200px;
@@ -239,8 +252,6 @@ footer {
   color: #60a130;
   font-size: 20px;
   margin-top: 20px;
-  text-align: right;
-  /* 移除了单引号 */
 }
 
 .signature {

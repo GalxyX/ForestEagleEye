@@ -58,7 +58,7 @@
               <el-descriptions-item label="空气湿度">{{w_humidity}}</el-descriptions-item>
               <el-descriptions-item label="更新时间">{{w_time}}</el-descriptions-item>
             </el-descriptions>
-            <h3 v-if="showWeatherDataBox">*气象数据来源：高德开放平台-Web服务API</h3>
+            <h3 v-if="showWeatherDataBox" >*气象数据来源：高德开放平台-Web服务API</h3>
           </div>
           <el-divider border-style="dashed" />
           <div>
@@ -109,7 +109,7 @@
             >
               <template #trigger>
                 <el-button type="success" plain>选择文件</el-button>
-                <h3 style="margin-left: 10px;">
+                <h3 style="margin-left: 10px; ">
                   您只能上传1个.xlsx格式的文件,多余的文件将被覆盖
                 </h3>
               </template>
@@ -485,6 +485,7 @@ h3{
   font-size: xx-small;
   font-weight: normal;
   color:grey;
+  margin-top: 10px;
 }
 
 </style>

@@ -95,8 +95,8 @@ export default {
             sessionStorage.setItem('inst',response.data.inst);
           }
 
-          // 暂时转到活动页面
-          this.$router.push('/encyclopedia');
+          // 登陆成功跳转主页
+          this.$router.push('/');
         } 
       } catch (error) {
         if(response.data.message=="请求错误")

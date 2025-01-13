@@ -1113,6 +1113,20 @@ def get_top5_participation():
         print("发生错误:", e)
         return jsonify({"status": "fail", "message": "数据库查询失败"}), 500
 
+def get_institution(user_id):
+    inst_id = db_session.query(User.u_institution).filter_by(u_id=user_id).first()
+    inst_name = db_session.query(Institution.i_name).filter_by(i_id=inst_id[0]).first()
+    if inst_id:
+        return f'{inst_name[0]}(INST{inst_id[0]})'
+    else:
+        return "暂无"
+
+def get_user(user_id):
+    user_name = db_session.query(User.u_name).filter_by(u_id=user_id).first()
+    if user_name:
+        return f'{user_name[0]}(U{user_id})'
+    else:
+        return '未知'
 
 # 我的申请界面，显示当前用户已申请的活动
 @app.route("/apply", methods=["POST"])
@@ -1128,22 +1142,36 @@ def apply():
         return jsonify({"error": "用户不存在"}), 404
         # 根据当前管理员的森林名称和状态查询活动
     approving_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id,
-                                                             Activity.a_state == "approving").all()
+                                                            Activity.a_state == "approving").all()
     approved_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id,
                                                             Activity.a_state == "approved").all()
     dismissed_activities = db_session.query(Activity).filter(Activity.a_applicantId == u_id,
-                                                             Activity.a_state == "dismissed").all()
+                                                            Activity.a_state == "dismissed").all()
 
     # 将活动转换为字典格式返回
-    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "a_forest": activity.a_forest,
-                                  "a_approver_id": activity.a_approver_id, "a_approveTime": activity.a_approveTime} for
-                                 activity in approving_activities]
-    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "a_forest": activity.a_forest,
-                                 "a_approver_id": activity.a_approver_id, "a_approveTime": activity.a_approveTime} for
-                                activity in approved_activities]
-    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "a_forest": activity.a_forest,
-                                  "a_approver_id": activity.a_approver_id, "a_approveTime": activity.a_approveTime} for
-                                 activity in dismissed_activities]
+    approving_activities_data = [{
+        "a_id": activity.a_id, 
+        "a_name": activity.a_name, 
+        "a_inst": '暂无',
+        "a_approver_id": activity.a_approver_id, 
+        "a_approveTime": activity.a_approveTime} 
+        for activity in approving_activities]
+    
+    approved_activities_data = [{
+        "a_id": activity.a_id, 
+        "a_name": activity.a_name, 
+        "a_inst": get_institution(activity.a_approver_id),
+        "a_approver_id": get_user(activity.a_approver_id), 
+        "a_approveTime": activity.a_approveTime} 
+        for activity in approved_activities]
+    
+    dismissed_activities_data = [{
+        "a_id": activity.a_id, 
+        "a_name": activity.a_name, 
+        "a_inst": get_institution(activity.a_approver_id),
+        "a_approver_id": get_user(activity.a_approver_id), 
+        "a_approveTime": activity.a_approveTime} 
+        for activity in dismissed_activities]
 
     # 返回 JSON 数据
     return jsonify({
@@ -1261,25 +1289,29 @@ def activity_detail(activity_id):
     if not activity:
         flash("活动不存在", "error")
         return jsonify({"message": "活动不存在", "status": "error"}), 404
+    
+    # 活动地点字符串拼接: forest+location
+    forest = db_session.query(Forest).filter_by(f_id=activity.a_forest).first()
 
     # 返回 JSON 数据，供 Vue.js 前端使用
     return jsonify({
         'activity': {
             'a_id': activity.a_id,
             'a_name': activity.a_name,
-            'a_location': activity.a_location,
+            'a_location': forest.f_name + '-' + activity.a_location,
             'a_type': activity.a_type,
             'a_beginTime': activity.a_beginTime,
             'a_endTime': activity.a_endTime,
             'a_participantNumber': activity.a_participantNumber,
             'a_enrolledNumber': activity.a_enrolledNumber,
-            'a_forest': activity.a_forest,
+            "a_inst": get_institution(activity.a_applicantId),
             'a_introduction': activity.a_introduction,
             'a_state': activity.a_state,
             'a_applicantId': activity.a_applicantId,
             'a_submitTime': activity.a_submitTime,
             'a_picPath': activity.a_picPath,
-            'a_ableParticipate': activity.a_ableParticipate
+            'a_ableParticipate': activity.a_ableParticipate,
+            'a_dismissReason': activity.a_dismissreason,
         },
         'isApprover': is_approver
     })
@@ -1337,12 +1369,26 @@ def approve():
                                                              Activity.a_state == "dismissed").all()
 
     # 将活动转换为字典格式返回
-    approving_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "startTime": activity.a_beginTime,
-                                  "applicant": activity.a_applicantId} for activity in approving_activities]
-    approved_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "startTime": activity.a_beginTime,
-                                 "applicant": activity.a_applicantId} for activity in approved_activities]
-    dismissed_activities_data = [{"a_id": activity.a_id, "a_name": activity.a_name, "startTime": activity.a_beginTime,
-                                  "applicant": activity.a_applicantId} for activity in dismissed_activities]
+    approving_activities_data = [{
+        "a_id": activity.a_id, 
+        "a_name": activity.a_name, 
+        "startTime": activity.a_beginTime,              
+        "applicant": get_user(activity.a_applicantId),
+        } for activity in approving_activities]
+    
+    approved_activities_data = [{
+        "a_id": activity.a_id, 
+        "a_name": activity.a_name, 
+        "startTime": activity.a_beginTime,
+        "applicant": get_user(activity.a_applicantId),
+        } for activity in approved_activities]
+    
+    dismissed_activities_data = [{
+        "a_id": activity.a_id, 
+        "a_name": activity.a_name, 
+        "startTime": activity.a_beginTime,
+        "applicant": get_user(activity.a_applicantId),
+        } for activity in dismissed_activities]
 
     # 返回 JSON 数据
     return jsonify({
@@ -1845,7 +1891,7 @@ def forum_home():
         post_data.append({
             "id": post.p_id,
             "title": post.p_title,
-            "content_preview": post.p_content[:280] + "..." if len(post.p_content) > 280 else post.p_content,
+            "content_preview": post.p_content[:150] + "..." if len(post.p_content) > 150 else post.p_content,
             "images": post_images,
             "like_count": like_count,
             "is_liked": is_liked,
@@ -1963,7 +2009,8 @@ def post_detail(post_id):
                 "username": comment.author.u_name,
                 "avatar": f"/{comment.author.u_avatarPath}"
             },
-            "images": comment_images
+            "images": comment_images,
+            "time": comment.c_timestamp,
         })
 
     like_count = db_session.query(Like).filter_by(l_post_id=post_id).count()

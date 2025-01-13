@@ -30,14 +30,14 @@ export function formatDateTime(date: Date, isGMT: boolean = true): string {
   }
   // 本月不同日
   else if (year === nowYear && month === nowMonth) {
-    return `${months[month]} ${day.toString().padStart(2, "0")} ${hours}:${minutes}:${seconds}`;
+    return `${months[month]}-${day.toString().padStart(2, "0")} ${hours}:${minutes}:${seconds}`;
   }
   // 本年不同月
   else if (year === nowYear) {
-    return `${months[month]}.${day.toString().padStart(2, "0")} ${hours}:${minutes}:${seconds}`;
+    return `${months[month]}-${day.toString().padStart(2, "0")} ${hours}:${minutes}:${seconds}`;
   }
   // 非本年
   else {
-    return `${year}.${months[month]}.${day.toString().padStart(2, "0")} ${hours}:${minutes}:${seconds}`;
+    return `${year}-${months[month]}-${day.toString().padStart(2, "0")} ${hours}:${minutes}:${seconds}`;
   }
 }

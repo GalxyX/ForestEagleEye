@@ -4,18 +4,22 @@
     <NavigationBar />
 
     <!-- 页头部分 -->
-    <!-- <el-page-header
-      class="page-header"
-      :icon="ArrowLeft"
-      @back="$router.go(-1)"
-      content="活动报名"
-    >
-    </el-page-header> -->
     <div class="all-contents">
         <el-page-header @back="$router.go(-1)" content="活动报名" title="返回">
         </el-page-header>
 
     <el-divider></el-divider>
+
+    <!--活动报名须知-->
+    <div style="margin-left: 45px; margin-right: 45px;">
+      <el-alert
+        title="🔈报名须知：请在规定时间内完成报名，逾期将无法参与。请务必遵守活动现场的安全规定，听从工作人员的指挥和安排。活动期间，请保持良好的秩序，尊重他人，文明参与。活动的最终解释权归林业从业主办方所有。"
+        type="warning"
+        :closable="true"
+        style="font-size: small;">
+      </el-alert>
+    </div>
+    
 
     <!-- 活动详情和报名部分 -->
     <div class="activity-container">
@@ -36,7 +40,7 @@
           </div>
           <div class="info-item">
             <span class="info-label">活动开始时间:</span>
-            <span class="info-value">{{ activity.start_time }}</span>
+            <span class="info-value">{{activity.start_time}}</span>
           </div>
           <div class="info-item">
             <span class="info-label">剩余名额:</span>
@@ -58,7 +62,7 @@
             />
           </div>
           <div class="form-item">
-            <label for="remark" class="remark-label">备注:</label>
+            <label for="remark" class="remark-label">报名备注:</label>
             <el-input
               type="textarea"
               v-model="remark"
@@ -86,6 +90,9 @@
 import axios from "axios";
 import NavigationBar from "../components/navbar.vue";
 import { ArrowLeft } from "@element-plus/icons-vue";
+import { formatDateTime } from '../components/formatTime';
+
+
 const user_id = sessionStorage.getItem("user_id");
 
 export default {
@@ -118,6 +125,10 @@ export default {
           `http://127.0.0.1:5000/activity_enroll/${activityId}`
         );
         this.activity = response.data.activity;
+        if (this.activity) {
+          this.activity.start_time = formatDateTime(new Date(this.activity.start_time));
+          
+        }
       } catch (error) {
         console.error("获取活动数据失败:", error);
       }
@@ -152,7 +163,7 @@ export default {
 .enroll-page {
   display: flex;       /* 使用Flexbox布局 */
   flex-direction: column; /* 设置主轴方向为垂直 */
-  background-color: #f8f8f8;
+  background-color: #F0F2F5;
 
 }
 .all-contents{
@@ -178,7 +189,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 20px;
+  gap: 10px;
 }
 
 .activity-details {
@@ -189,7 +200,7 @@ export default {
 
 .activity-details h1 {
   font-size: 40px;
-  font-weight: bold;
+  font-weight: bolder;
   margin-bottom: 20px;
   font-family: "SimSun";
 }
@@ -197,13 +208,13 @@ export default {
 .activity-details h2 {
   font-size: 18px;
   margin-bottom: 10px;
-  color: #a8aba8;
+  color: rgb(66, 66, 66);
   font-weight: light;
   margin-left:5px;
 }
 
 .activity-description {
-  font-size: 14px;
+  font-size: normal;
   color: #666;
   line-height: 1.5;
   margin-bottom: 20px;
@@ -223,7 +234,6 @@ export default {
   background-color: rgb(244, 251, 246);
   border-radius: 15px; /* 设置圆角大小为10px */
   height: 4dvh;
-  margin-left:10px;
   margin-right: 10px;
   margin-top:5px;
   margin-bottom: 5px;
@@ -231,13 +241,13 @@ export default {
 }
 
 .info-label {
-  font-weight: lighter;
-  color: #475e53;
+  font-weight: normal;
+  color: grey;
   margin-left:20px;
 }
 
 .info-value {
-  color: #666;
+  color: #60a130;
   margin-right:20px;
 }
 
@@ -280,6 +290,7 @@ label {
   align-items: center;
   height: 100%; /* 设置高度为100%，使其与父元素等高 */
   padding-top:90px;
+  margin-bottom: 20px;
 }
 
 .activity-image img {
@@ -287,14 +298,16 @@ label {
   object-fit: cover;
   border: 1px solid #ddd;
   margin-left:20px;
-  margin-right:10px;
-  max-width:800px;
+  margin-right:40px;
+  width:500px;
+  height: 650px;
+
 }
 
 .participant-label {
   font-size: 16px; /* 字体大小 */
-  color: #3b693d; /* 字体颜色 */
-  font-weight: lighter;
+  color: grey; /* 字体颜色 */
+  font-weight: normal;
   margin-right: 10px; /* 与输入框之间的距离 */
   width: 200px; /* 最大宽度为200px */
   align-items: center; /* 垂直居中子元素 */
@@ -303,8 +316,8 @@ label {
 
 .remark-label{
   font-size: 16px; /* 字体大小 */
-  font-weight: lighter;
-  color: #3b693d; /* 字体颜色 */
+  font-weight: normal;
+  color: grey; /* 字体颜色 */
   margin-right: 10px; /* 与输入框之间的距离 */
 }
 

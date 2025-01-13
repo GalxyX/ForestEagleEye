@@ -25,6 +25,10 @@
         <div style="margin-left: 30px;margin-right: 30px;gap:50px;">
           <section>
             <p class="pcontext">{{ post?.content }}</p>
+            <div class="postimage-container">
+              <ImageViewer v-for="image in post?.images" :key="image" :alt="image" :src="image ? `/public/${image}` : '#'"
+              height="200px" width="200px" />
+            </div>
             <h2 v-if="post?.original_post" style="color:grey;margin-top: 30px; font-size: 20px;">被引原贴</h2>
             <div v-if="post?.original_post" class="oriPost-container" @click="toOriPost">
               <div style="width: 550px; margin-left: 10px;">
@@ -41,10 +45,7 @@
               </div>
             </div>
           </section>
-          <div class="postimage-container">
-            <ImageViewer v-for="image in post?.images" :key="image" :alt="image" :src="image ? `/public/${image}` : '#'"
-              height="200px" width="200px" />
-          </div>
+          
         </div>
 
         <el-divider border-style="dashed" />
@@ -53,15 +54,14 @@
           <div style="display: flex; justify-content: space-between;margin-right: 20px;margin-left: 20px;">
             <section class="postComment-container">
               <div>
-                <textarea placeholder="留下你想说的话~~ 理性发言，友善互动" v-model="comment" rows="99999"
+                <textarea placeholder="留下你想说的话~ 理性发言,友善互动" v-model="comment" rows="99999"
                   style="resize: none;"></textarea>
-                <!-- @keyup.enter="submitComment" -->
-                <!-- <input type="file" accept="image/*" multiple @change="handleFileUpload" ref="fileInput" /> -->
 
                 <div class="btn-box">
-                  <el-button plain type="success">上传图片</el-button>
-                  <!-- <input type="file" id="file" accept="image/*" @change="handleFileUpload" class="file-ipt" > -->
-                  <input type="file" accept="image/*" @change="handleFileUpload" ref="fileInput" class="file-ipt" />
+                  <el-button plain type="success">
+                    上传图片
+                    <input type="file" accept="image/*" @change="handleFileUpload" ref="fileInput" class="file-ipt" />
+                  </el-button>
                 </div>
 
                 <el-button plain type="success" @click="submitComment">发布评论✍</el-button>
@@ -83,17 +83,20 @@
 
         <p id="wrongWarning" v-if="warningSentence">{{ warningSentence }}</p>
 
-        <el-divider border-style="dashed" />
+        
 
         <section>
-          <h2 style="font-size: 25px; margin-left: 20px; margin-top: 0px; margin-bottom: 20px;color:#60a130;">{{
+          <h2 style="font-size: 20px; margin-left: 20px; margin-top: 0px; margin-bottom: 10px;color:#60a130;">{{
             comments.length }}条评论</h2>
           <div class="comment-container" v-for="comment in comments" :key="comment.content">
             <span style="align-items: center;">
               <img class="avatar" :src="comment.author.avatar ? `${comment.author.avatar}` : '#'" alt="avatar" />
-              <p>{{ comment.author.username }}</p>
+              <div style="display: block;">
+                <p style="margin-bottom: 0px;">{{ comment.author.username }}</p>
+                <p style="margin-top: 0px; font-size: x-small; color: grey;">{{ formatDateTime(comment.time) }}</p>
+              </div>
             </span>
-            <p style="margin-left:20px ;">{{ comment.content }}</p>
+            <p style="margin-top: 10px;">{{ comment.content }}</p>
             <div class="commentImage-container">
               <!-- <img v-for="image in comment.images" :key="image" :src="image ? `/public/static/${image}` : '#'"
                     alt="image" @click="previewImage(image)" /> -->
@@ -116,8 +119,9 @@ import axios from 'axios';
 import { createApp, onMounted, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import ImageViewer from '@/components/imageViewer.vue';
-import { formatDateTime } from '@/components/fotmatTime';
+import { formatDateTime } from '@/components/formatTime';
 import { styleType } from 'element-plus/es/components/table-v2/src/common.mjs';
+
 interface Post {
   id: number;
   title: string;
@@ -143,6 +147,7 @@ interface Comment {
     avatar: string;
   };
   images: string[];
+  time: Date;
 }
 
 const post = ref<Post>();
@@ -165,8 +170,16 @@ const fetchPostDetails = async () => {
       if (post.value) {
         post.value.time = new Date(response.data.posts.time); // 将时间字符串转换为 Date 对象
       }
+
+      // 处理评论
       comments.value = response.data.comments;
+      comments.value.forEach(comment => {
+        let tmp_time = comment.time;
+        comment.time = new Date(tmp_time);
+      });
       comments.value.reverse();
+
+      // 处理点赞
       likeNum.value = response.data.like_count;
       if (response.data.is_liked) {
         likedButton.backgroundColor = '#67c23a';
@@ -369,6 +382,7 @@ article {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  margin-top: 20px;
 }
 
 /* 
@@ -490,10 +504,10 @@ article {
 }
 
 .comment-container {
-  border-top: 1px solid #60a130;
+  border-top: 1px solid #e1dfdf;
   padding-top: 10px;
+  padding-bottom: 20px;
   padding-left: 40px;
-  margin-bottom: 10px;
 }
 
 .comment-container>span {

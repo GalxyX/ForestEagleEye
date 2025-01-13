@@ -6,7 +6,7 @@
         <p style="font-size: small;">{{ time }}</p>
       </div>
       <div style="margin-left:20px; ">
-        <p style="font-size: normal; margin-right: 10px; line-height: 1.5;">{{ content }}</p>
+        <p style="font-size: normal; margin-left: 10px; line-height: 1.5;">{{ content }}</p>
         <img v-if="image" :src="image ? `public/${image}` : '#'" alt="Post Image">
       </div>
     </div>

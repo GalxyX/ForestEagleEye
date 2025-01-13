@@ -41,7 +41,7 @@ import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
 import { Close, DeleteFilled } from '@element-plus/icons-vue';
 import AImessage from './AImessage.vue';
-import { formatDateTime } from '@/components/fotmatTime';
+import { formatDateTime } from '@/components/formatTime';
 //////////////////////////////////////////////////获取历史聊天信息//////////////////////////////////////////////////
 const AI_NAME = '小林';
 const username = sessionStorage.getItem('username') || '';
@@ -154,8 +154,8 @@ const deleteChatHistory = async () => {
   }
 };
 //////////////////////////////////////////////////图标的点击与拖动//////////////////////////////////////////////////
-const x = ref(window.innerWidth - 250);
-const y = ref(window.innerHeight - 250);
+const x = ref(window.innerWidth - 150);
+const y = ref(window.innerHeight - 150);
 const isActive = ref(false);
 const isDragging = ref(true);
 const isChatWindowOpen = ref(false);
@@ -189,8 +189,8 @@ const handleMouseUp = () => {
 const handleMouseMove = (event: MouseEvent) => {
   isDragging.value = true;
   if (isDragging.value) {
-    x.value = event.clientX - 75;
-    y.value = event.clientY - 75;
+    x.value = event.clientX - 45;
+    y.value = event.clientY - 45;
   }
 };
 
@@ -204,17 +204,11 @@ const showChatWindow = (isShow: boolean) => {
 <style scoped>
 .floating-icon {
   position: fixed;
-  /* 绝对定位 */
-  width: 150px;
-  /* 宽度50px */
-  height: 150px;
-  /* 高度50px */
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  /* 边框圆角50% */
   cursor: pointer;
-  /* 鼠标指针为移动 */
   transition: opacity 0.5s;
-  /* 透明度过渡时间0.5秒 */
   background-image: url("../assets/icon-AI.svg");
   background-size: 100%;
   background-repeat: no-repeat;
