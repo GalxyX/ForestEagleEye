@@ -77,7 +77,7 @@ python app.py
 > python app.py
 > ```
 
-### 文件目录说明(Directory-Structure-Explanation)
+## 文件目录说明(Directory-Structure-Explanation)
 我们采用vue.js的前端框架，尽可能做到前端界面的组件化。在项目的文件结构中，`/assets`是项目运行所必须的文件，`/components`是我们封装好的组件，`/views`是主要界面。  
 整个项目的文件目录结构如下：
 > We utilize the Vue.js front-end framework, striving to achieve a component-based front-end interface. In the project's file structure, the `/assets` directory contains essential files required for the project's operation, the `/components` directory houses our encapsulated components, and the `/views` directory comprises the main interfaces.  
